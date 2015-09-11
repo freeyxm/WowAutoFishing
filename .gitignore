@@ -1,0 +1,9 @@
+Debug
+WowAutoFishing/Debug
+ipch
+*.sdf
+*.suo
+*.opensdf
+*.o
+*.exe
+*.bmp
