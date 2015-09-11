@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ImageUtil.h"
 #include <list>
+#include <cmath>
 
 ImageUtil::ImageUtil()
 {
@@ -10,11 +11,16 @@ ImageUtil::~ImageUtil()
 {
 }
 
+/*
+截取指定窗口的图像。
+lpBits: 返回的图像像素数据（其长度>=w*h*4）
+pbi: 图像信息。
+*/
 bool ImageUtil::GetWindowSnapshot(HWND hWnd, int x, int y, int w, int h, char *lpBits, BITMAPINFOHEADER *pbi)
 {
 	bool bSuccess = false;
 
-	// ͨ���ڴ�DC���ƿͻ�����DDBλͼ  
+	// 通过内存DC复制客户区到DDB位图  
 	HDC hdcWnd = ::GetDC(hWnd);
 	HDC hdcMem = NULL;
 	HBITMAP hbmWnd = NULL;
@@ -58,13 +64,13 @@ bool ImageUtil::GetWindowSnapshot(HWND hWnd, int x, int y, int w, int h, char *l
 		BITMAP bmpWnd;
 		::GetObject(hbmWnd, sizeof(BITMAP), &bmpWnd);
 
-		// ��Ϣ
+		// 信息
 		BITMAPINFOHEADER bi = { 0 };
 		bi.biSize = sizeof(BITMAPINFOHEADER);
 		bi.biWidth = bmpWnd.bmWidth;
 		bi.biHeight = bmpWnd.bmHeight;
 		bi.biPlanes = 1;
-		bi.biBitCount = 32; // ����ÿ��������32bits��ʾת��  
+		bi.biBitCount = 32; // 按照每个像素用32bits表示转换  
 		bi.biCompression = BI_RGB;
 		bi.biSizeImage = 0;
 		bi.biXPelsPerMeter = 0;
@@ -72,7 +78,7 @@ bool ImageUtil::GetWindowSnapshot(HWND hWnd, int x, int y, int w, int h, char *l
 		bi.biClrUsed = 0;
 		bi.biClrImportant = 0;
 
-		//DWORD dwBmpSize = ((bmpWnd.bmWidth * bi.biBitCount + 31) / 32) * 4 * bmpWnd.bmHeight; // ÿһ������λ32����
+		//DWORD dwBmpSize = ((bmpWnd.bmWidth * bi.biBitCount + 31) / 32) * 4 * bmpWnd.bmHeight; // 每一行像素位32对齐
 
 		// Gets the "bits" from the bitmap and copies them into a buffer 
 		// which is pointed to by lpbitmap.
@@ -99,6 +105,9 @@ bool ImageUtil::GetWindowSnapshot(HWND hWnd, int x, int y, int w, int h, char *l
 	return bSuccess;
 }
 
+/*
+创建位图文件。
+*/
 bool ImageUtil::CreateBMPFile(LPTSTR pszFile, PBITMAPINFO pbi, char *lpBits)
 {
 	bool bSuccess = false;
@@ -169,6 +178,9 @@ bool ImageUtil::CreateBMPFile(LPTSTR pszFile, PBITMAPINFO pbi, char *lpBits)
 	return bSuccess;
 }
 
+/*
+加载位图文件。
+*/
 HBITMAP ImageUtil::LoadImage2(LPTSTR pszFile, BITMAP *pBitmap)
 {
 	HBITMAP hBitmap = (HBITMAP)::LoadImage(NULL, pszFile, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
@@ -182,6 +194,9 @@ HBITMAP ImageUtil::LoadImage2(LPTSTR pszFile, BITMAP *pBitmap)
 	return hBitmap;
 }
 
+/*
+将指定的位图转换为灰度图。
+*/
 bool ImageUtil::TransToGray(BITMAP bitmap, LPTSTR pszFile)
 {
 	int w = bitmap.bmWidth;
@@ -210,12 +225,12 @@ bool ImageUtil::TransToGray(BITMAP bitmap, LPTSTR pszFile)
 		}
 	}
 
-	BITMAPINFOHEADER bi = { 0 }; // ��Ϣͷ  
+	BITMAPINFOHEADER bi = { 0 }; // 信息头  
 	bi.biSize = sizeof(BITMAPINFOHEADER);
 	bi.biWidth = bitmap.bmWidth;
 	bi.biHeight = bitmap.bmHeight;
 	bi.biPlanes = 1;
-	bi.biBitCount = 32; // ����ÿ��������32bits��ʾת��  
+	bi.biBitCount = 32; // 按照每个像素用32bits表示转换  
 	bi.biCompression = BI_RGB;
 	bi.biSizeImage = bi.biWidth * bi.biHeight * 4;
 	bi.biXPelsPerMeter = 0;
@@ -230,6 +245,11 @@ bool ImageUtil::TransToGray(BITMAP bitmap, LPTSTR pszFile)
 	return ret;
 }
 
+/*
+寻找图像中的指定颜色的像素点。
+color: 目标颜色。
+range: 阈值范围。
+*/
 void ImageUtil::FindColor(char *lpBits, int w, int h, int color, int range, std::list<POINT> &points)
 {
 	char r = RGB_R(color);
@@ -260,7 +280,12 @@ void ImageUtil::FindColor(char *lpBits, int w, int h, int color, int range, std:
 	}
 }
 
-void ImageUtil::FindColorGray(char *lpBits, int w, int h, int gray, int range, std::list<POINT> &points)
+/*
+寻找图像中的指定灰度值的像素点。
+gray: 目标灰度值。
+range: 阈值范围。
+*/
+void ImageUtil::FindGray(char *lpBits, int w, int h, int gray, int range, std::list<POINT> &points)
 {
 	POINT p;
 	for (int i = 0; i < h; ++i)
@@ -287,17 +312,73 @@ void ImageUtil::FindColorGray(char *lpBits, int w, int h, int gray, int range, s
 	}
 }
 
-bool ImageUtil::SelectBestPoint(std::list<POINT> points, POINT &p)
+/*
+将指定的坐标按照radius半径分组，并返回最大分组的中心点。
+*/
+bool ImageUtil::SelectBestPoint(std::list<POINT> points, int radius, POINT &p)
 {
-	//POINT avg = { 0 };
-	//for (std::list<POINT>::iterator it = points.begin(); it != points.end(); ++it)
-	//{
-	//}
+	radius = radius * radius;
 
-	if (points.size() > 0)
+	struct PointGroup
 	{
-		p = *(points.begin());
-		return true;
+		POINT center;
+		std::list<POINT> points;
+		
+		bool operator < (PointGroup& b) {
+			return points.size() > b.points.size(); // sort size by desc.
+		}
+	};
+
+	// 按照radius对坐标进行分组
+	std::list<PointGroup> groups;
+	for (std::list<POINT>::iterator it = points.begin(); it != points.end(); ++it)
+	{
+		bool find = false;
+		for (std::list<PointGroup>::iterator it2 = groups.begin(); it2 != groups.end(); ++it2)
+		{
+			int dx = it2->center.x - it->x;
+			int dy = it2->center.y - it->y;
+			int s = dx * dx + dy * dy;
+			if (s <= radius)
+			{
+				it2->center.x = (it2->center.x + it->x)/2;
+				it2->center.y = (it2->center.y + it->y)/2;
+				it2->points.push_back(*it);
+				find = true;
+			}
+		}
+		if (!find)
+		{
+			PointGroup group;
+			group.center = *it;
+			group.points.push_back(*it);
+			groups.push_back(group);
+		}
+	}
+	groups.sort();
+
+	if (groups.size() > 0)
+	{
+		PointGroup group = *(groups.begin()); // 选择元素最多的分组
+		// 选择离中心最近的点
+		int min = INT_MAX;
+		std::list<POINT>::iterator minIt = group.points.end();
+		for (std::list<POINT>::iterator it = group.points.begin(); it != group.points.end(); ++it)
+		{
+			int dx = group.center.x - it->x;
+			int dy = group.center.y - it->y;
+			int s = dx * dx + dy * dy;
+			if (s < min)
+			{
+				min = s;
+				minIt = it;
+			}
+		}
+		if (minIt != group.points.end())
+		{
+			p = *minIt;
+			return true;
+		}
 	}
 	return false;
 }

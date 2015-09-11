@@ -45,8 +45,8 @@ int _tmain(int argc, _TCHAR* argv[])
 			::SetForegroundWindow(hwnd);
 			::SetActiveWindow(hwnd);
 
-			int x = 100, y = 10;
-			int w = 500, h = 300;
+			int x = 200, y = 20;
+			int w = 600, h = 400;
 			char *lpBits = (char*)malloc(w * h * 4);
 
 			BITMAPINFOHEADER bi;
@@ -59,15 +59,17 @@ int _tmain(int argc, _TCHAR* argv[])
 				}
 				
 				std::list<POINT> points;
-				ImageUtil::FindColor(lpBits, w, h, RGB(20, 20, 20), RGB(3, 3, 3), points);
+				ImageUtil::FindGray((char*)lpBits, w, h, 20, 3, points);
 				
 				POINT p;
-				if (ImageUtil::SelectBestPoint(points, p))
+				if (ImageUtil::SelectBestPoint(points, 30, p))
 				{
 					p.x += x;
 					p.y = h - p.y + y;
 					printf("FindColor: %d, %d\n", p.x, p.y);
-					mouse.SetCursorPos(p.x + 20, p.y + 20);
+
+					POINT offset = { 20, 30 };
+					mouse.SetCursorPos(p.x + offset.x, p.y + offset.y);
 				}
 			}
 
@@ -80,11 +82,15 @@ int _tmain(int argc, _TCHAR* argv[])
 			HBITMAP hBitmap = ImageUtil::LoadImage2(L"123.bmp", &bitmap);
 			if (hBitmap)
 			{
+				int w = bitmap.bmWidth;
+				int h = bitmap.bmHeight;
+
 				std::list<POINT> points;
-				ImageUtil::FindColor((char*)bitmap.bmBits, bitmap.bmWidth, bitmap.bmHeight, RGB(20, 20, 20), RGB(3, 3, 3), points);
+				ImageUtil::FindColor((char*)bitmap.bmBits, w, h, RGB(40, 13, 11), RGB(3, 3, 3), points);
+				ImageUtil::FindColor((char*)bitmap.bmBits, w, h, RGB(32, 38, 62), RGB(3, 3, 3), points);
 
 				POINT p;
-				if (ImageUtil::SelectBestPoint(points, p))
+				if (ImageUtil::SelectBestPoint(points, 30, p))
 				{
 					printf("FindColor: %d, %d\n", p.x, p.y);
 				}
@@ -108,7 +114,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 HWND test_getwnd()
 {
-	HWND hwnd = ::FindWindow(NULL, L"Ä§ÊÞÊÀ½ç");
+	HWND hwnd = ::FindWindow(NULL, L"é­”å…½ä¸–ç•Œ");
 	//HWND hwnd = ::FindWindow(L"notepad", NULL);
 	printf("hwnd=%ld\n", hwnd);
 	if (hwnd)
