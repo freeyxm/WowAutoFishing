@@ -27,19 +27,19 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SoundCapture.h">
+    <ClInclude Include="Util\ImageUtil.h">
       <Filter>Util</Filter>
     </ClInclude>
-    <ClInclude Include="ImageUtil.h">
+    <ClInclude Include="Util\KeyboardUtil.h">
       <Filter>Util</Filter>
     </ClInclude>
-    <ClInclude Include="KeyboardUtil.h">
+    <ClInclude Include="Util\MouseUtil.h">
       <Filter>Util</Filter>
     </ClInclude>
-    <ClInclude Include="MouseUtil.h">
+    <ClInclude Include="Util\SoundCapture.h">
       <Filter>Util</Filter>
     </ClInclude>
-    <ClInclude Include="WindowPrinter.h">
+    <ClInclude Include="Util\WindowPrinter.h">
       <Filter>Util</Filter>
     </ClInclude>
   </ItemGroup>
@@ -50,19 +50,22 @@
     <ClCompile Include="WowAutoFishing.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SoundCapture.cpp">
+    <ClCompile Include="Test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Util\ImageUtil.cpp">
       <Filter>Util</Filter>
     </ClCompile>
-    <ClCompile Include="ImageUtil.cpp">
+    <ClCompile Include="Util\KeyboardUtil.cpp">
       <Filter>Util</Filter>
     </ClCompile>
-    <ClCompile Include="KeyboardUtil.cpp">
+    <ClCompile Include="Util\MouseUtil.cpp">
       <Filter>Util</Filter>
     </ClCompile>
-    <ClCompile Include="MouseUtil.cpp">
+    <ClCompile Include="Util\SoundCapture.cpp">
       <Filter>Util</Filter>
     </ClCompile>
-    <ClCompile Include="WindowPrinter.cpp">
+    <ClCompile Include="Util\WindowPrinter.cpp">
       <Filter>Util</Filter>
     </ClCompile>
   </ItemGroup>

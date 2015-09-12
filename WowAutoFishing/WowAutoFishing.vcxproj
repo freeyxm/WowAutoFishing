@@ -41,6 +41,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(ProjectDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -79,24 +80,25 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ImageUtil.h" />
-    <ClInclude Include="KeyboardUtil.h" />
-    <ClInclude Include="MouseUtil.h" />
-    <ClInclude Include="SoundCapture.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="WindowPrinter.h" />
+    <ClInclude Include="Util\ImageUtil.h" />
+    <ClInclude Include="Util\KeyboardUtil.h" />
+    <ClInclude Include="Util\MouseUtil.h" />
+    <ClInclude Include="Util\SoundCapture.h" />
+    <ClInclude Include="Util\WindowPrinter.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ImageUtil.cpp" />
-    <ClCompile Include="KeyboardUtil.cpp" />
-    <ClCompile Include="MouseUtil.cpp" />
-    <ClCompile Include="SoundCapture.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="WindowPrinter.cpp" />
+    <ClCompile Include="Test.cpp" />
+    <ClCompile Include="Util\ImageUtil.cpp" />
+    <ClCompile Include="Util\KeyboardUtil.cpp" />
+    <ClCompile Include="Util\MouseUtil.cpp" />
+    <ClCompile Include="Util\SoundCapture.cpp" />
+    <ClCompile Include="Util\WindowPrinter.cpp" />
     <ClCompile Include="WowAutoFishing.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

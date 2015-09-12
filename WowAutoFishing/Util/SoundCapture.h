@@ -1,4 +1,5 @@
 #pragma once
+#pragma execution_character_set("utf-8")
 #pragma comment(lib, "winmm.lib")
 
 #include <Windows.h>
@@ -9,7 +10,7 @@ class SoundCapture
 {
 public:
 	SoundCapture();
-	~SoundCapture();
+	virtual ~SoundCapture();
 
 	HRESULT Init();
 	HRESULT Start();
