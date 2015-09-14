@@ -8,6 +8,7 @@
 #include "Util/ImageUtil.h"
 #include "Util/MouseUtil.h"
 #include "Util/KeyboardUtil.h"
+#include "Util/SoundCapture.h"
 
 void test(char ch);
 
@@ -101,6 +102,18 @@ int _tmain(int argc, _TCHAR* argv[])
 		{
 			POINT tp = { 100, 200 };
 			mouse.MoveCursor(tp, 10);
+		}
+		else if (ch == 's')
+		{
+			SoundCapture sound;
+			if (SUCCEEDED(sound.Init()))
+			{
+				if (SUCCEEDED(sound.Start()))
+				{
+					sound.Record();
+					sound.Stop();
+				}
+			}
 		}
 		else
 		{

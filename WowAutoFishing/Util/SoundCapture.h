@@ -15,14 +15,15 @@ public:
 	HRESULT Init();
 	HRESULT Start();
 	HRESULT Stop();
-	HRESULT RecordAudioStream();
+	HRESULT Record();
 
-	virtual HRESULT CopyData(BYTE *pData, UINT32 numFramesAvailable, BOOL *bDone);
+	virtual HRESULT RecordData(BYTE *pData, UINT32 numFramesAvailable, BOOL *bDone);
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
 	virtual BOOL NotifyLoop();
 
 private:
 	void Release();
+	void PrintDevices(IMMDeviceEnumerator *pEnumerator);
 
 private:
 	IMMDeviceEnumerator *pEnumerator = NULL;

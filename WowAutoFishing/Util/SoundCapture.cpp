@@ -1,6 +1,7 @@
 #pragma execution_character_set("utf-8")
 #include "stdafx.h"
 #include "SoundCapture.h"
+#include <functiondiscoverykeys.h>
 #include <cstdio>
 
 SoundCapture::SoundCapture()
@@ -12,13 +13,23 @@ SoundCapture::~SoundCapture()
 	Release();
 }
 
-HRESULT SoundCapture::CopyData(BYTE *pData, UINT32 numFramesAvailable, BOOL *bDone)
+HRESULT SoundCapture::RecordData(BYTE *pData, UINT32 numFramesAvailable, BOOL *bDone)
 {
+	printf("RecordData: %d\n", numFramesAvailable);
+	*bDone = false;
 	return S_OK;
 }
 
 HRESULT SoundCapture::SetFormat(WAVEFORMATEX *pwfx)
 {
+	printf("Format:\n");
+	printf("  wFormatTag: %d\n", pwfx->wFormatTag);
+	printf("  nChannels: %d\n", pwfx->nChannels);
+	printf("  nSamplesPerSec: %d\n", pwfx->nSamplesPerSec);
+	printf("  nAvgBytesPerSec: %d\n", pwfx->nAvgBytesPerSec);
+	printf("  nBlockAlign: %d\n", pwfx->nBlockAlign);
+	printf("  wBitsPerSample: %d\n", pwfx->wBitsPerSample);
+	printf("  cbSize: %d\n", pwfx->cbSize);
 	return S_OK;
 }
 
@@ -57,10 +68,16 @@ HRESULT SoundCapture::Init()
 
 	do
 	{
+		hr = ::CoInitialize(NULL);
+		BREAK_ON_ERROR(hr);
+
 		hr = ::CoCreateInstance(CLSID_MMDeviceEnumerator, NULL, CLSCTX_ALL, IID_IMMDeviceEnumerator, (void**)&pEnumerator);
 		BREAK_ON_ERROR(hr);
 
-		hr = pEnumerator->GetDefaultAudioEndpoint(eCapture, eConsole, &pDevice);
+		//PrintDevices(pEnumerator);
+
+		//hr = pEnumerator->GetDefaultAudioEndpoint(eCapture, eConsole, &pDevice);
+		hr = pEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &pDevice);
 		BREAK_ON_ERROR(hr);
 
 		hr = pDevice->Activate(IID_IAudioClient, CLSCTX_ALL, NULL, (void**)&pAudioClient);
@@ -69,7 +86,8 @@ HRESULT SoundCapture::Init()
 		hr = pAudioClient->GetMixFormat(&pwfx);
 		BREAK_ON_ERROR(hr);
 
-		hr = pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, 0, hnsRequestedDuration, 0, pwfx, NULL);
+		//hr = pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, 0, hnsRequestedDuration, 0, pwfx, NULL);
+		hr = pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_LOOPBACK, 0, 0, pwfx, 0);
 		BREAK_ON_ERROR(hr);
 
 		// Get the size of the allocated buffer.
@@ -93,7 +111,7 @@ HRESULT SoundCapture::Init()
 	if (FAILED(hr))
 	{
 		Release();
-		::printf("Init failed.\n");
+		::printf("Init failed, error code: 0x%x\n", hr);
 	}
 
 	return hr;
@@ -110,6 +128,55 @@ void SoundCapture::Release()
 	SAFE_RELEASE(pDevice);
 	SAFE_RELEASE(pAudioClient);
 	SAFE_RELEASE(pCaptureClient);
+}
+
+void SoundCapture::PrintDevices(IMMDeviceEnumerator *pEnumerator)
+{
+	HRESULT hr;
+	IMMDeviceCollection *pCollection = NULL;
+	IMMDevice *pEndpoint = NULL;
+	IPropertyStore *pProps = NULL;
+	LPWSTR pwszID = NULL;
+
+	do
+	{
+		hr = pEnumerator->EnumAudioEndpoints(eCapture, DEVICE_STATE_ACTIVE, &pCollection);
+		BREAK_ON_ERROR(hr);
+
+		UINT count = 0;
+		hr = pCollection->GetCount(&count);
+		BREAK_ON_ERROR(hr);
+
+		for (int i = 0; i < count; ++i)
+		{
+			hr = pCollection->Item(i, &pEndpoint);
+			BREAK_ON_ERROR(hr);
+
+			// Get the endpoint ID string.
+			hr = pEndpoint->GetId(&pwszID);
+			BREAK_ON_ERROR(hr);
+
+			hr = pEndpoint->OpenPropertyStore(STGM_READ, &pProps);
+			BREAK_ON_ERROR(hr);
+
+			PROPVARIANT varName;
+			::PropVariantInit(&varName);
+
+			hr = pProps->GetValue(PKEY_Device_FriendlyName, &varName);
+			BREAK_ON_ERROR(hr);
+
+			wprintf(L"Endpoint %d: \"%ls\" (%ls)\n", i, varName.pwszVal, pwszID);
+
+			PropVariantClear(&varName);
+			if (pwszID)
+			{
+				CoTaskMemFree(pwszID);
+				pwszID = NULL;
+			}
+			SAFE_RELEASE(pProps);
+			SAFE_RELEASE(pEndpoint);
+		}
+	} while (false);
 }
 
 HRESULT SoundCapture::Start()
@@ -130,7 +197,7 @@ HRESULT SoundCapture::Stop()
 	return S_FALSE;
 }
 
-HRESULT SoundCapture::RecordAudioStream()
+HRESULT SoundCapture::Record()
 {
 	HRESULT hr = S_OK;
 	UINT32 numFramesAvailable;
@@ -159,9 +226,12 @@ HRESULT SoundCapture::RecordAudioStream()
 				pData = NULL;  // Tell CopyData to write silence.
 			}
 
-			// Copy the available capture data to the audio sink.
-			hr = this->CopyData(pData, numFramesAvailable, &bDone);
-			BREAK_ON_ERROR(hr);
+			if (numFramesAvailable != 0)
+			{
+				// Copy the available capture data to the audio sink.
+				hr = this->RecordData(pData, numFramesAvailable, &bDone);
+				BREAK_ON_ERROR(hr);
+			}
 
 			hr = pCaptureClient->ReleaseBuffer(numFramesAvailable);
 			BREAK_ON_ERROR(hr);
