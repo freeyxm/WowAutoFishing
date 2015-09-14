@@ -240,7 +240,10 @@ HRESULT SoundCapture::Record()
 			BREAK_ON_ERROR(hr);
 		}
 
-		bDone = this->NotifyLoop();
+		if (!bDone)
+		{
+			bDone = this->NotifyLoop();
+		}
 	}
 
 	return hr;

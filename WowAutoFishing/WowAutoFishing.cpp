@@ -1,6 +1,6 @@
 // WowAutoFishing.cpp : Defines the entry point for the console application.
 //
-#pragma execution_character_set("utf-8")
+//#pragma execution_character_set("utf-8")
 #include "stdafx.h"
 #include <Windows.h>
 #include <stdio.h>
@@ -9,6 +9,8 @@
 #include "Util/MouseUtil.h"
 #include "Util/KeyboardUtil.h"
 #include "Util/SoundCapture.h"
+#include "Fisher.h"
+#include <locale.h>
 
 void test(char ch);
 
@@ -17,6 +19,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	HWND hwnd = NULL;
 	KeyboardUtil keyboard;
 	MouseUtil mouse;
+
+	setlocale(LC_CTYPE, "");
 
 	while (true)
 	{
@@ -28,11 +32,29 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		if (ch == 'w')
 		{
-			hwnd = ::FindWindow(NULL, L"榄斿吔涓栫晫");
+			hwnd = ::FindWindow(NULL, L"魔兽世界");
 			if (!hwnd)
 				printf("FindWindow failed.\n");
 			else
 				printf("FindWindow success.\n");
+		}
+		else if (ch == 'f')
+		{
+			HWND hwnd = ::FindWindow(NULL, L"魔兽世界");
+			if (hwnd)
+			{
+				int x = 200, y = 20;
+				int w = 600, h = 400;
+				Fisher fisher(hwnd, x, y, w, h);
+				if (fisher.Init())
+				{
+					fisher.StartFishing();
+				}
+			}
+			else
+			{
+				printf("FindWindow failed.\n");
+			}
 		}
 		else if (ch == 'p')
 		{

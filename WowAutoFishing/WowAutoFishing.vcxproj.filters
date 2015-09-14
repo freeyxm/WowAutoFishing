@@ -16,6 +16,9 @@
     <Filter Include="Util">
       <UniqueIdentifier>{513e6390-a38e-4dbf-8849-3943859c333a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Lib">
+      <UniqueIdentifier>{8924c70e-9005-49bf-b1c5-5755a2052b37}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -39,8 +42,20 @@
     <ClInclude Include="Util\SoundCapture.h">
       <Filter>Util</Filter>
     </ClInclude>
+    <ClInclude Include="Lib\FastFourierTransform.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
+    <ClInclude Include="Lib\FFT.h">
+      <Filter>Lib</Filter>
+    </ClInclude>
     <ClInclude Include="Util\WindowPrinter.h">
       <Filter>Util</Filter>
+    </ClInclude>
+    <ClInclude Include="Fisher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SoundListener.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -65,8 +80,20 @@
     <ClCompile Include="Util\SoundCapture.cpp">
       <Filter>Util</Filter>
     </ClCompile>
+    <ClCompile Include="Lib\FastFourierTransform.cpp">
+      <Filter>Lib</Filter>
+    </ClCompile>
+    <ClCompile Include="Lib\FFT.cpp">
+      <Filter>Lib</Filter>
+    </ClCompile>
     <ClCompile Include="Util\WindowPrinter.cpp">
       <Filter>Util</Filter>
+    </ClCompile>
+    <ClCompile Include="Fisher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SoundListener.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
