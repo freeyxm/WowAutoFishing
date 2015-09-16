@@ -20,8 +20,8 @@ FFT::~FFT()
 
 void FFT::DoFFT(unsigned long &ulN, vector<complex<double> >& vecList)
 {
-	//µÃµ½ÃİÊı
-	unsigned long ulPower = 0; //ÃİÊı
+	//å¾—åˆ°å¹‚æ•°
+	unsigned long ulPower = 0; //å¹‚æ•°
 	unsigned long ulN1 = ulN - 1;
 	while (ulN1 > 0)
 	{
@@ -29,9 +29,9 @@ void FFT::DoFFT(unsigned long &ulN, vector<complex<double> >& vecList)
 		ulN1 /= 2;
 	}
 
-	//·´Ğò
-	bitset<sizeof(unsigned long) * 8> bsIndex; //¶ş½øÖÆÈİÆ÷
-	unsigned long ulIndex; //·´×ªºóµÄĞòºÅ
+	//ååº
+	bitset<sizeof(unsigned long) * 8> bsIndex; //äºŒè¿›åˆ¶å®¹å™¨
+	unsigned long ulIndex; //åè½¬åçš„åºå·
 	unsigned long ulK;
 
 	for (unsigned long p = 0; p < ulN; p++)
@@ -54,7 +54,7 @@ void FFT::DoFFT(unsigned long &ulN, vector<complex<double> >& vecList)
 		}
 	}
 
-	//¼ÆËãĞı×ªÒò×Ó
+	//è®¡ç®—æ—‹è½¬å› å­
 	vector<complex<double> > vecW;
 	for (unsigned long i = 0; i < ulN / 2; i++)
 	{
@@ -66,10 +66,10 @@ void FFT::DoFFT(unsigned long &ulN, vector<complex<double> >& vecList)
 	//}
 
 
-	//¼ÆËãFFT
-	unsigned long ulGroupLength = 1; //¶ÎµÄ³¤¶È
-	unsigned long ulHalfLength = 0; //¶Î³¤¶ÈµÄÒ»°ë
-	unsigned long ulGroupCount = 0; //¶ÎµÄÊıÁ¿
+	//è®¡ç®—FFT
+	unsigned long ulGroupLength = 1; //æ®µçš„é•¿åº¦
+	unsigned long ulHalfLength = 0; //æ®µé•¿åº¦çš„ä¸€åŠ
+	unsigned long ulGroupCount = 0; //æ®µçš„æ•°é‡
 	complex<double> cw; //WH(x)
 	complex<double> c1; //G(x) + WH(x)
 	complex<double> c2; //G(x) - WH(x)

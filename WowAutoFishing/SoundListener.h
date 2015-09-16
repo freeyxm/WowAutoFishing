@@ -3,8 +3,8 @@
 
 class Fisher;
 
-typedef bool (Fisher::*FUN_CheckTimeout)(void);
-typedef void (Fisher::*FUN_NotifyBite)(void);
+typedef bool (Fisher::*Fun_CheckTimeout)(void);
+typedef void (Fisher::*Fun_NotifyBite)(void);
 
 class SoundListener :
 	public SoundCapture
@@ -13,8 +13,8 @@ public:
 	SoundListener(Fisher *pFisher);
 	virtual ~SoundListener();
 
-	void SetCheckTimeout(FUN_CheckTimeout callback);
-	void SetNotifyBite(FUN_NotifyBite callback);
+	void SetCheckTimeout(Fun_CheckTimeout callback);
+	void SetNotifyBite(Fun_NotifyBite callback);
 
 	virtual HRESULT RecordData(BYTE *pData, UINT32 nDataLen, BOOL *bDone);
 	virtual BOOL NotifyLoop();
@@ -25,7 +25,7 @@ private:
 
 private:
 	Fisher *m_pFisher;
-	FUN_CheckTimeout m_cbCheckTimeout = NULL;
-	FUN_NotifyBite m_cbNotifyBite = NULL;
+	Fun_CheckTimeout m_funCheckTimeout;
+	Fun_NotifyBite m_funNotifyBite;
 };
 

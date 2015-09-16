@@ -9,7 +9,7 @@
 void TestData(BYTE *pData, UINT32 nDataLen);
 
 SoundListener::SoundListener(Fisher *pFisher)
-	:m_pFisher(pFisher)
+	:m_pFisher(pFisher), m_funCheckTimeout(NULL), m_funNotifyBite(NULL)
 {
 }
 
@@ -17,14 +17,14 @@ SoundListener::~SoundListener()
 {
 }
 
-void SoundListener::SetCheckTimeout(FUN_CheckTimeout callback)
+void SoundListener::SetCheckTimeout(Fun_CheckTimeout callback)
 {
-	m_cbCheckTimeout = callback;
+	m_funCheckTimeout = callback;
 }
 
-void SoundListener::SetNotifyBite(FUN_NotifyBite callback)
+void SoundListener::SetNotifyBite(Fun_NotifyBite callback)
 {
-	m_cbNotifyBite = callback;
+	m_funNotifyBite = callback;
 }
 
 HRESULT SoundListener::RecordData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
@@ -34,9 +34,9 @@ HRESULT SoundListener::RecordData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 		//if (MatchSound2(pData, nDataLen))
 		if (MatchSound(pData, nDataLen))
 		{
-			if (m_pFisher != NULL && m_cbNotifyBite != NULL)
+			if (m_pFisher != NULL && m_funNotifyBite != NULL)
 			{
-				(m_pFisher->*m_cbNotifyBite)();
+				(m_pFisher->*m_funNotifyBite)();
 			}
 			*bDone = true;
 		}
@@ -53,9 +53,9 @@ HRESULT SoundListener::RecordData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 
 BOOL SoundListener::NotifyLoop()
 {
-	if (m_pFisher != NULL && m_cbCheckTimeout != NULL)
+	if (m_pFisher != NULL && m_funCheckTimeout != NULL)
 	{
-		return (m_pFisher->*m_cbCheckTimeout)();
+		return (m_pFisher->*m_funCheckTimeout)();
 	}
 	return false;
 }
@@ -68,7 +68,7 @@ bool SoundListener::MatchSound(BYTE *pData, UINT32 nDataLen)
 	std::map<int, int> counter;
 
 	UINT32 value;
-	// Ö»´¦Àí1¸öÉùµÀµÄÊı¾İ
+	// åªå¤„ç†1ä¸ªå£°é“çš„æ•°æ®
 	for (int i = 0; i < count; i += m_wfx.nChannels)
 	{
 		switch (m_wfx.wBitsPerSample)
@@ -98,7 +98,7 @@ bool SoundListener::MatchSound(BYTE *pData, UINT32 nDataLen)
 		sum += (float)(it->first * it->second) / total_num;
 		++it;
 	}
-	if (sum > 47.5) // Ä¿Ç°Ö»¼ì²éÉùÒô´óĞ¡
+	if (sum > 47.5) // ç›®å‰åªæ£€æŸ¥å£°éŸ³å¤§å°
 	{
 		//printf("%.2f\n", sum);
 		return true;
@@ -136,7 +136,7 @@ bool SoundListener::MatchSound2(BYTE *pData, UINT32 nDataLen)
 		m_sumCounter[sum]++;
 	}
 
-	// ²ÉÓÃ¼òµ¥µÄ¡°ÌØÕ÷Öµ¡±¼ÆËã·½Ê½£¬¿¹¸ÉÈÅÄÜÁ¦²î£¬ÓĞ´ı¸Ä½ø£¡£¡£¡
+	// é‡‡ç”¨ç®€å•çš„â€œç‰¹å¾å€¼â€è®¡ç®—æ–¹å¼ï¼ŒæŠ—å¹²æ‰°èƒ½åŠ›å·®ï¼Œæœ‰å¾…æ”¹è¿›ï¼ï¼ï¼
 	if (sum == 62)
 	{
 		//printf("sum: %d, count: %d, total_count: %d\n", sum, m_sumCounter[sum], total_count);

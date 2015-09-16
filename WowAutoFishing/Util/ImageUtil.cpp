@@ -286,7 +286,7 @@ void ImageUtil::FindColor(char *lpBits, int w, int h, int color, int range, std:
 gray: 目标灰度值。
 range: 阈值范围。
 */
-void ImageUtil::FindGray(char *lpBits, int w, int h, int gray, int range, std::list<POINT> &points)
+void ImageUtil::FindGray(char *lpBits, int w, int h, int gray, int range, std::list<POINT> &points, int maxCount)
 {
 	POINT p;
 	for (int i = 0; i < h; ++i)
@@ -307,6 +307,10 @@ void ImageUtil::FindGray(char *lpBits, int w, int h, int gray, int range, std::l
 				p.x = j;
 				p.y = i;
 				points.push_back(p);
+				if(maxCount > 0 && maxCount <= points.size())
+				{
+					return;
+				}
 				//printf("%d,%d\n", p.x, p.y);
 			}
 		}
@@ -324,7 +328,7 @@ bool ImageUtil::SelectBestPoint(std::list<POINT> points, int radius, POINT &p)
 	{
 		POINT center;
 		std::list<POINT> points;
-		
+
 		bool operator < (PointGroup& b) {
 			return points.size() > b.points.size(); // sort size by desc.
 		}

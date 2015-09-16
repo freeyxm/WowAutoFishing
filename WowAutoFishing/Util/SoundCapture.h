@@ -29,11 +29,10 @@ protected:
 	WAVEFORMATEX m_wfx;
 
 private:
-	IMMDeviceEnumerator *pEnumerator = NULL;
-	IMMDevice *pDevice = NULL;
-	IAudioClient *pAudioClient = NULL;
-	IAudioCaptureClient *pCaptureClient = NULL;
-	WAVEFORMATEX *pwfx = NULL;
-	REFERENCE_TIME hnsActualDuration;
+	IMMDeviceEnumerator *m_pEnumerator;
+	IMMDevice *m_pDevice;
+	IAudioClient *m_pAudioClient;
+	IAudioCaptureClient *m_pCaptureClient;
+	REFERENCE_TIME m_hnsActualDuration;
 };
 

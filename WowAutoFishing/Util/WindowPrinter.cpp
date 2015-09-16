@@ -12,8 +12,8 @@ WindowPrinter::~WindowPrinter()
 }
 
 /*
-¹¦ÄÜ£º»ñÈ¡µ±Ç°Ä¬ÈÏ´òÓ¡»úµÄDC
-·µ»Ø£º³É¹¦·µ»Ø´òÓ¡»úµÄDC£¬Ê§°Ü·µ»ØNULL
+åŠŸèƒ½ï¼šè·å–å½“å‰é»˜è®¤æ‰“å°æœºçš„DC
+è¿”å›ï¼šæˆåŠŸè¿”å›æ‰“å°æœºçš„DCï¼Œå¤±è´¥è¿”å›NULL
 */
 HDC WindowPrinter::GetPrinterDC()
 {
@@ -28,8 +28,8 @@ HDC WindowPrinter::GetPrinterDC()
 }
 
 /*
-¹¦ÄÜ£º´òÓ¡´°¿Ú¿Í»§ÇøÄÚÈİµ½´òÓ¡»ú£¬×Ô¶¯Ëõ·Å¾ÓÖĞ´òÓ¡
-²ÎÊı: hWnd-±»´òÓ¡´°¿ÚµÄ¾ä±ú
+åŠŸèƒ½ï¼šæ‰“å°çª—å£å®¢æˆ·åŒºå†…å®¹åˆ°æ‰“å°æœºï¼Œè‡ªåŠ¨ç¼©æ”¾å±…ä¸­æ‰“å°
+å‚æ•°: hWnd-è¢«æ‰“å°çª—å£çš„å¥æŸ„
 */
 void WindowPrinter::PrintWindowClientArea(HWND hWnd)
 {
@@ -40,22 +40,22 @@ void WindowPrinter::PrintWindowClientArea(HWND hWnd)
 	int width = rectClient.right - rectClient.left;
 	int height = rectClient.bottom - rectClient.top;
 
-	// Í¨¹ıÄÚ´æDC¸´ÖÆ¿Í»§Çøµ½DDBÎ»Í¼
+	// é€šè¿‡å†…å­˜DCå¤åˆ¶å®¢æˆ·åŒºåˆ°DDBä½å›¾
 	HDC hdcWnd = ::GetDC(hWnd);
 	HBITMAP hbmWnd = ::CreateCompatibleBitmap(hdcWnd, width, height);
 	HDC hdcMem = ::CreateCompatibleDC(hdcWnd);
 	::SelectObject(hdcMem, hbmWnd);
 	::BitBlt(hdcMem, 0, 0, width, height, hdcWnd, 0, 0, SRCCOPY);
 
-	// °Ñ´°¿ÚDDB×ªÎªDIB
+	// æŠŠçª—å£DDBè½¬ä¸ºDIB
 	BITMAP bmpWnd;
 	::GetObject(hbmWnd, sizeof(BITMAP), &bmpWnd);
-	BITMAPINFOHEADER bi; // ĞÅÏ¢Í·
+	BITMAPINFOHEADER bi; // ä¿¡æ¯å¤´
 	bi.biSize = sizeof(BITMAPINFOHEADER);
 	bi.biWidth = bmpWnd.bmWidth;
 	bi.biHeight = bmpWnd.bmHeight;
 	bi.biPlanes = 1;
-	bi.biBitCount = 32; // °´ÕÕÃ¿¸öÏñËØÓÃ32bits±íÊ¾×ª»»
+	bi.biBitCount = 32; // æŒ‰ç…§æ¯ä¸ªåƒç´ ç”¨32bitsè¡¨ç¤ºè½¬æ¢
 	bi.biCompression = BI_RGB;
 	bi.biSizeImage = 0;
 	bi.biXPelsPerMeter = 0;
@@ -63,8 +63,8 @@ void WindowPrinter::PrintWindowClientArea(HWND hWnd)
 	bi.biClrUsed = 0;
 	bi.biClrImportant = 0;
 
-	DWORD dwBmpSize = ((bmpWnd.bmWidth * bi.biBitCount + 31) / 32) * 4 * bmpWnd.bmHeight; // Ã¿Ò»ĞĞÏñËØÎ»32¶ÔÆë
-	char *lpbitmap = (char*)malloc(dwBmpSize); // ÏñËØÎ»Ö¸Õë
+	DWORD dwBmpSize = ((bmpWnd.bmWidth * bi.biBitCount + 31) / 32) * 4 * bmpWnd.bmHeight; // æ¯ä¸€è¡Œåƒç´ ä½32å¯¹é½
+	char *lpbitmap = (char*)malloc(dwBmpSize); // åƒç´ ä½æŒ‡é’ˆ
 	::GetDIBits(hdcMem, hbmWnd, 0, (UINT)bmpWnd.bmHeight,
 		lpbitmap,
 		(BITMAPINFO*)&bi,
@@ -74,8 +74,8 @@ void WindowPrinter::PrintWindowClientArea(HWND hWnd)
 	::DeleteObject(hbmWnd);
 	::ReleaseDC(hWnd, hdcWnd);
 
-	// ´æÎªÎÄ¼ş£¨¿ÉÑ¡£©
-	BITMAPFILEHEADER bmfHeader; // ÎÄ¼şÍ·
+	// å­˜ä¸ºæ–‡ä»¶ï¼ˆå¯é€‰ï¼‰
+	BITMAPFILEHEADER bmfHeader; // æ–‡ä»¶å¤´
 	DWORD dwSizeofDIB = dwBmpSize + sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER);
 	bmfHeader.bfOffBits = (DWORD)sizeof(BITMAPFILEHEADER) + (DWORD)sizeof(BITMAPINFOHEADER);
 	bmfHeader.bfSize = dwSizeofDIB;
@@ -83,13 +83,13 @@ void WindowPrinter::PrintWindowClientArea(HWND hWnd)
 
 	FILE* fp = NULL;
 	::_wfopen_s(&fp, L"capture.bmp", L"w");
-	::fwrite(&bmfHeader, sizeof(BITMAPFILEHEADER), 1, fp); // Ğ´ÈëÎÄ¼şÍ·
-	::fwrite(&bi, sizeof(BITMAPINFOHEADER), 1, fp);        // Ğ´ÈëĞÅÏ¢Í·
-	::fwrite(lpbitmap, dwBmpSize, 1, fp);                  // Ğ´ÈëÏñËØÎ»
+	::fwrite(&bmfHeader, sizeof(BITMAPFILEHEADER), 1, fp); // å†™å…¥æ–‡ä»¶å¤´
+	::fwrite(&bi, sizeof(BITMAPINFOHEADER), 1, fp);        // å†™å…¥ä¿¡æ¯å¤´
+	::fwrite(lpbitmap, dwBmpSize, 1, fp);                  // å†™å…¥åƒç´ ä½
 	::fclose(fp);
 	fp = NULL;
 
-	// StretchDIBits()Ëõ·Å´òÓ¡DIB
+	// StretchDIBits()ç¼©æ”¾æ‰“å°DIB
 	HDC hdcPrinter = WindowPrinter::GetPrinterDC();
 	if (hdcPrinter == NULL)
 		return;

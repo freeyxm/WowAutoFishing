@@ -5,6 +5,7 @@
 #include <cstdio>
 
 SoundCapture::SoundCapture()
+	: m_pEnumerator(NULL), m_pDevice(NULL), m_pAudioClient(NULL), m_pCaptureClient(NULL)
 {
 }
 
@@ -54,9 +55,9 @@ BOOL SoundCapture::NotifyLoop()
 #define REFTIMES_PER_MILLISEC  10000
 
 #define BREAK_ON_ERROR(hres)  \
-              if (FAILED(hres)) { break; }
+	if (FAILED(hres)) { break; }
 #define SAFE_RELEASE(punk)  \
-              if ((punk) != NULL) { (punk)->Release(); (punk) = NULL; }
+	if ((punk) != NULL) { (punk)->Release(); (punk) = NULL; }
 
 const CLSID CLSID_MMDeviceEnumerator = __uuidof(MMDeviceEnumerator);
 const IID IID_IMMDeviceEnumerator = __uuidof(IMMDeviceEnumerator);
@@ -66,6 +67,7 @@ const IID IID_IAudioCaptureClient = __uuidof(IAudioCaptureClient);
 HRESULT SoundCapture::Init()
 {
 	HRESULT hr = S_FALSE;
+	WAVEFORMATEX *pwfx = NULL;
 	REFERENCE_TIME hnsRequestedDuration = REFTIMES_PER_SEC;
 	UINT32 bufferFrameCount;
 
@@ -74,30 +76,30 @@ HRESULT SoundCapture::Init()
 		hr = ::CoInitialize(NULL);
 		BREAK_ON_ERROR(hr);
 
-		hr = ::CoCreateInstance(CLSID_MMDeviceEnumerator, NULL, CLSCTX_ALL, IID_IMMDeviceEnumerator, (void**)&pEnumerator);
+		hr = ::CoCreateInstance(CLSID_MMDeviceEnumerator, NULL, CLSCTX_ALL, IID_IMMDeviceEnumerator, (void**)&m_pEnumerator);
 		BREAK_ON_ERROR(hr);
 
-		//PrintDevices(pEnumerator);
+		//PrintDevices(m_pEnumerator);
 
-		//hr = pEnumerator->GetDefaultAudioEndpoint(eCapture, eConsole, &pDevice);
-		hr = pEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &pDevice);
+		//hr = m_pEnumerator->GetDefaultAudioEndpoint(eCapture, eConsole, &m_pDevice);
+		hr = m_pEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &m_pDevice);
 		BREAK_ON_ERROR(hr);
 
-		hr = pDevice->Activate(IID_IAudioClient, CLSCTX_ALL, NULL, (void**)&pAudioClient);
+		hr = m_pDevice->Activate(IID_IAudioClient, CLSCTX_ALL, NULL, (void**)&m_pAudioClient);
 		BREAK_ON_ERROR(hr);
 
-		hr = pAudioClient->GetMixFormat(&pwfx);
+		hr = m_pAudioClient->GetMixFormat(&pwfx);
 		BREAK_ON_ERROR(hr);
 
-		//hr = pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, 0, hnsRequestedDuration, 0, pwfx, NULL);
-		hr = pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_LOOPBACK, 0, 0, pwfx, 0);
+		//hr = m_pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, 0, hnsRequestedDuration, 0, pwfx, NULL);
+		hr = m_pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_LOOPBACK, 0, 0, pwfx, 0);
 		BREAK_ON_ERROR(hr);
 
 		// Get the size of the allocated buffer.
-		hr = pAudioClient->GetBufferSize(&bufferFrameCount);
+		hr = m_pAudioClient->GetBufferSize(&bufferFrameCount);
 		BREAK_ON_ERROR(hr);
 
-		hr = pAudioClient->GetService(IID_IAudioCaptureClient, (void**)&pCaptureClient);
+		hr = m_pAudioClient->GetService(IID_IAudioCaptureClient, (void**)&m_pCaptureClient);
 		BREAK_ON_ERROR(hr);
 
 		// Notify the audio sink which format to use.
@@ -105,12 +107,16 @@ HRESULT SoundCapture::Init()
 		BREAK_ON_ERROR(hr);
 
 		// Calculate the actual duration of the allocated buffer.
-		hnsActualDuration = (double)REFTIMES_PER_SEC * bufferFrameCount / pwfx->nSamplesPerSec;
+		m_hnsActualDuration = (double)REFTIMES_PER_SEC * bufferFrameCount / pwfx->nSamplesPerSec;
 
 		hr = S_OK;
 
 	} while (false);
 
+	if (pwfx != NULL)
+	{
+		CoTaskMemFree(pwfx);
+	}
 	if (FAILED(hr))
 	{
 		Release();
@@ -122,15 +128,10 @@ HRESULT SoundCapture::Init()
 
 void SoundCapture::Release()
 {
-	if (pwfx != NULL)
-	{
-		CoTaskMemFree(pwfx);
-		pwfx = NULL;
-	}
-	SAFE_RELEASE(pEnumerator);
-	SAFE_RELEASE(pDevice);
-	SAFE_RELEASE(pAudioClient);
-	SAFE_RELEASE(pCaptureClient);
+	SAFE_RELEASE(m_pEnumerator);
+	SAFE_RELEASE(m_pDevice);
+	SAFE_RELEASE(m_pAudioClient);
+	SAFE_RELEASE(m_pCaptureClient);
 }
 
 void SoundCapture::PrintDevices(IMMDeviceEnumerator *pEnumerator)
@@ -152,25 +153,30 @@ void SoundCapture::PrintDevices(IMMDeviceEnumerator *pEnumerator)
 
 		for (int i = 0; i < count; ++i)
 		{
-			hr = pCollection->Item(i, &pEndpoint);
-			BREAK_ON_ERROR(hr);
+			do
+			{
+				hr = pCollection->Item(i, &pEndpoint);
+				BREAK_ON_ERROR(hr);
 
-			// Get the endpoint ID string.
-			hr = pEndpoint->GetId(&pwszID);
-			BREAK_ON_ERROR(hr);
+				// Get the endpoint ID string.
+				hr = pEndpoint->GetId(&pwszID);
+				BREAK_ON_ERROR(hr);
 
-			hr = pEndpoint->OpenPropertyStore(STGM_READ, &pProps);
-			BREAK_ON_ERROR(hr);
+				hr = pEndpoint->OpenPropertyStore(STGM_READ, &pProps);
+				BREAK_ON_ERROR(hr);
 
-			PROPVARIANT varName;
-			::PropVariantInit(&varName);
+				PROPVARIANT varName;
+				::PropVariantInit(&varName);
 
-			hr = pProps->GetValue(PKEY_Device_FriendlyName, &varName);
-			BREAK_ON_ERROR(hr);
+				hr = pProps->GetValue(PKEY_Device_FriendlyName, &varName);
+				if(SUCCEEDED(hr))
+				{
+					wprintf(L"Endpoint %d: \"%ls\" (%ls)\n", i, varName.pwszVal, pwszID);
+				}
 
-			wprintf(L"Endpoint %d: \"%ls\" (%ls)\n", i, varName.pwszVal, pwszID);
+				::PropVariantClear(&varName);
+			} while (false);
 
-			PropVariantClear(&varName);
 			if (pwszID)
 			{
 				CoTaskMemFree(pwszID);
@@ -184,18 +190,18 @@ void SoundCapture::PrintDevices(IMMDeviceEnumerator *pEnumerator)
 
 HRESULT SoundCapture::Start()
 {
-	if (pAudioClient)
+	if (m_pAudioClient)
 	{
-		return pAudioClient->Start();  // Start recording.
+		return m_pAudioClient->Start();  // Start recording.
 	}
 	return S_FALSE;
 }
 
 HRESULT SoundCapture::Stop()
 {
-	if (pAudioClient)
+	if (m_pAudioClient)
 	{
-		return pAudioClient->Stop();  // Stop recording.
+		return m_pAudioClient->Stop();  // Stop recording.
 	}
 	return S_FALSE;
 }
@@ -213,15 +219,15 @@ HRESULT SoundCapture::Record()
 	while (bDone == FALSE)
 	{
 		// Sleep for half the buffer duration.
-		Sleep(hnsActualDuration / REFTIMES_PER_MILLISEC / 2);
+		Sleep(m_hnsActualDuration / REFTIMES_PER_MILLISEC / 2);
 
-		hr = pCaptureClient->GetNextPacketSize(&packetLength);
+		hr = m_pCaptureClient->GetNextPacketSize(&packetLength);
 		BREAK_ON_ERROR(hr);
 
 		while (packetLength != 0)
 		{
 			// Get the available data in the shared buffer.
-			hr = pCaptureClient->GetBuffer(&pData, &numFramesAvailable, &flags, NULL, NULL);
+			hr = m_pCaptureClient->GetBuffer(&pData, &numFramesAvailable, &flags, NULL, NULL);
 			BREAK_ON_ERROR(hr);
 
 			if (flags & AUDCLNT_BUFFERFLAGS_SILENT)
@@ -236,10 +242,10 @@ HRESULT SoundCapture::Record()
 				BREAK_ON_ERROR(hr);
 			}
 
-			hr = pCaptureClient->ReleaseBuffer(numFramesAvailable);
+			hr = m_pCaptureClient->ReleaseBuffer(numFramesAvailable);
 			BREAK_ON_ERROR(hr);
 
-			hr = pCaptureClient->GetNextPacketSize(&packetLength);
+			hr = m_pCaptureClient->GetNextPacketSize(&packetLength);
 			BREAK_ON_ERROR(hr);
 		}
 

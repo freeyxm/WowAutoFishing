@@ -147,7 +147,11 @@ bool Fisher::DoFindFloat()
 	if (ImageUtil::GetWindowSnapshot(m_hwnd, m_posX, m_posY, m_width, m_height, m_lpBits, &bi))
 	{
 		m_points.clear();
-		ImageUtil::FindGray((char*)m_lpBits, m_width, m_height, 20, 3, m_points); // 用灰度图寻找鱼漂
+		int maxCount = 10000;
+		ImageUtil::FindGray((char*)m_lpBits, m_width, m_height, 20, 3, m_points, maxCount); // 用灰度图寻找鱼漂
+
+		if(m_points.size() >= maxCount) // 找多太多点，可能是UI开着或水域不合适，无法定位鱼漂
+			m_points.clear();
 
 		POINT p;
 		if (ImageUtil::SelectBestPoint(m_points, 30, p)) // 根据鱼漂的大概半径选择最优的点

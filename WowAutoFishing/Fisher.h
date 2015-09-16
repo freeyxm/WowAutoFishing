@@ -10,23 +10,23 @@ enum class FishingState
 {
 	State_None,
 	State_Start,
-	State_CheckState, // ¼ì²é×´Ì¬
-	State_Bait, // ÉÏÓã¶ü
-	State_ThrowPole, // Ë¦¸Í
-	State_FindFloat, // ¶¨Î»ÓãÆ¯
-	State_WaitBite, // µÈ´ıÒ§¹³
-	State_Shaduf, // Ìá¸Í
+	State_CheckState, // æ£€æŸ¥çŠ¶æ€
+	State_Bait, // ä¸Šé±¼é¥µ
+	State_ThrowPole, // ç”©ç«¿
+	State_FindFloat, // å®šä½é±¼æ¼‚
+	State_WaitBite, // ç­‰å¾…å’¬é’©
+	State_Shaduf, // æç«¿
 	State_End,
 };
 
 const int SEC_PER_MINUTE = 60;
-const int MAX_BAIT_TIME = 10 * SEC_PER_MINUTE; // Óã¶ü³ÖĞøÊ±¼ä£¬µ¥Î»Ãë
-const int MAX_WAIT_TIME = 20; // ×î³¤µÈ´ıÒ§¹³Ê±¼ä£¬µ¥Î»Ãë
+const int MAX_BAIT_TIME = 10 * SEC_PER_MINUTE; // é±¼é¥µæŒç»­æ—¶é—´ï¼Œå•ä½ç§’
+const int MAX_WAIT_TIME = 20; // æœ€é•¿ç­‰å¾…å’¬é’©æ—¶é—´ï¼Œå•ä½ç§’
 
-const int SWITCH_TIME_MIN = 100; // ×´Ì¬ÇĞ»»¼ä¸ô£¬µ¥Î»ºÁÃë
-const int SWITCH_TIME_MAX = 900; // ×´Ì¬ÇĞ»»¼ä¸ô£¬µ¥Î»ºÁÃë
+const int SWITCH_TIME_MIN = 100; // çŠ¶æ€åˆ‡æ¢é—´éš”ï¼Œå•ä½æ¯«ç§’
+const int SWITCH_TIME_MAX = 900; // çŠ¶æ€åˆ‡æ¢é—´éš”ï¼Œå•ä½æ¯«ç§’
 
-const POINT FLOAT_OFFSET = { 10, 25 }; // ÓãÆ¯Æ«ÒÆ£¬ÒÔ±ãÊó±ê¾ÓÖĞ£¨1024x768´°¿ÚÄ£Ê½£©
+const POINT FLOAT_OFFSET = { 10, 25 }; // é±¼æ¼‚åç§»ï¼Œä»¥ä¾¿é¼ æ ‡å±…ä¸­ï¼ˆ1024x768çª—å£æ¨¡å¼ï¼‰
 
 class Fisher
 {
@@ -52,21 +52,21 @@ private:
 	bool DoShaduf();
 
 private:
-	HWND m_hwnd; // Ä§ÊŞÊÀ½ç´°¿Ú¾ä±ú
+	HWND m_hwnd; // é­”å…½ä¸–ç•Œçª—å£å¥æŸ„
 	int m_posX, m_posY;
 	int m_width, m_height;
 	FishingState m_state;
-	long m_waitTime; // µÈ´ıÊ±¼ä
-	long m_baitTime; // ÉÏ¶üÊ±¼ä
-	long m_throwTime; // Ë¦¸ÍÊ±¼ä
-	bool m_hasBite; // ÊÇ·ñÒÑÒ§¹³
+	long m_waitTime; // ç­‰å¾…æ—¶é—´
+	long m_baitTime; // ä¸Šé¥µæ—¶é—´
+	long m_throwTime; // ç”©ç«¿æ—¶é—´
+	bool m_hasBite; // æ˜¯å¦å·²å’¬é’©
 	POINT m_floatPoint;
 
 	int m_throwCount;
 	int m_findFloatFailCount;
 	int m_timeoutCount;
 
-	char *m_lpBits; // ´°¿ÚÎ»Í¼ÏñËØÊı¾İ
+	char *m_lpBits; // çª—å£ä½å›¾åƒç´ æ•°æ®
 	std::list<POINT> m_points;
 	
 	MouseUtil m_mouse;

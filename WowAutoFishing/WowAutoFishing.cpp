@@ -23,6 +23,8 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	setlocale(LC_CTYPE, "");
 
+	wprintf(L">¿ªÊ¼...\n");
+
 	while (true)
 	{
 		int ch = getchar();

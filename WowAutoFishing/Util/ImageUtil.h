@@ -22,7 +22,7 @@ public:
 	static bool TransToGray(BITMAP bitmap, LPTSTR pszFile);
 
 	static void FindColor(char *lpBits, int w, int h, int color, int range, std::list<POINT> &points);
-	static void FindGray(char *lpBits, int w, int h, int gray, int range, std::list<POINT> &points);
+	static void FindGray(char *lpBits, int w, int h, int gray, int range, std::list<POINT> &points, int maxCount = 0);
 	static bool SelectBestPoint(std::list<POINT> points, int radius, POINT &p);
 };
 
