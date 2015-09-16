@@ -10,6 +10,7 @@
 #include "Util/KeyboardUtil.h"
 #include "Util/SoundCapture.h"
 #include "Fisher.h"
+#include "SoundListener.h"
 #include <locale.h>
 
 void test(char ch);
@@ -127,15 +128,16 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 		else if (ch == 's')
 		{
-			SoundCapture sound;
-			if (SUCCEEDED(sound.Init()))
+			SoundCapture *pSound = new SoundListener(NULL);
+			if (SUCCEEDED(pSound->Init()))
 			{
-				if (SUCCEEDED(sound.Start()))
+				if (SUCCEEDED(pSound->Start()))
 				{
-					sound.Record();
-					sound.Stop();
+					pSound->Record();
+					pSound->Stop();
 				}
 			}
+			delete pSound;
 		}
 		else
 		{

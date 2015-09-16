@@ -22,6 +22,8 @@ HRESULT SoundCapture::RecordData(BYTE *pData, UINT32 numFramesAvailable, BOOL *b
 
 HRESULT SoundCapture::SetFormat(WAVEFORMATEX *pwfx)
 {
+	::memcpy(&m_wfx, pwfx, sizeof(m_wfx));
+
 	printf("Format:\n");
 	printf("  wFormatTag: %d\n", pwfx->wFormatTag);
 	printf("  nChannels: %d\n", pwfx->nChannels);
@@ -30,6 +32,7 @@ HRESULT SoundCapture::SetFormat(WAVEFORMATEX *pwfx)
 	printf("  nBlockAlign: %d\n", pwfx->nBlockAlign);
 	printf("  wBitsPerSample: %d\n", pwfx->wBitsPerSample);
 	printf("  cbSize: %d\n", pwfx->cbSize);
+
 	return S_OK;
 }
 

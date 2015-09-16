@@ -117,7 +117,9 @@ bool Fisher::DoBait()
 {
 	wprintf(L"上饵...\n");
 	ActiveWindow();
-	m_keyboard.PressKey(0x32);
+	m_keyboard.PressKey(0x34); // KEY_4, 特殊鱼饵
+	Sleep(10);
+	m_keyboard.PressKey(0x33); // KEY_3
 	m_waitTime += 2000; // 上饵施法2秒
 	m_baitTime = time(NULL);
 	return true;
@@ -129,7 +131,7 @@ bool Fisher::DoThrowPole()
 	wprintf(L"甩竿...\n");
 	++m_throwCount;
 	ActiveWindow();
-	m_keyboard.PressKey(0x31);
+	m_keyboard.PressKey(0x31); // KEY_1
 	m_waitTime += 1000; // 甩竿完延迟1秒再寻找鱼漂
 	m_throwTime = time(NULL);
 	return true;
@@ -194,7 +196,7 @@ bool Fisher::DoShaduf()
 	m_mouse.SetCursorPos(m_floatPoint.x, m_floatPoint.y); // 重新设定鼠标，防止中间移动而在错误的位置。
 	Sleep(10);
 	m_mouse.ClickRightButton();
-	m_waitTime += 1000; // 等待物品进包
+	m_waitTime += 2500; // 等待物品进包及旧鱼漂消失
 	return true;
 }
 
@@ -212,6 +214,7 @@ bool Fisher::CheckTimeout()
 	{
 		wprintf(L"没有鱼儿上钩！\n");
 		++m_timeoutCount;
+		m_waitTime += 2500; // 等待旧鱼漂消失
 	}
 	return timeout;
 }

@@ -16,8 +16,12 @@ public:
 	void SetCheckTimeout(FUN_CheckTimeout callback);
 	void SetNotifyBite(FUN_NotifyBite callback);
 
-	virtual HRESULT RecordData(BYTE *pData, UINT32 numFramesAvailable, BOOL *bDone);
+	virtual HRESULT RecordData(BYTE *pData, UINT32 nDataLen, BOOL *bDone);
 	virtual BOOL NotifyLoop();
+
+private:
+	bool MatchSound(BYTE *pData, UINT32 nDataLen);
+	bool MatchSound2(BYTE *pData, UINT32 nDataLen);
 
 private:
 	Fisher *m_pFisher;

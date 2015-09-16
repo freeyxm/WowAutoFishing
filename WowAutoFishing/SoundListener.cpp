@@ -4,7 +4,7 @@
 #include "Lib/FastFourierTransform.h"
 #include <functiondiscoverykeys.h>
 #include <cstdio>
-#include <hash_map>
+#include <map>
 
 void TestData(BYTE *pData, UINT32 nDataLen);
 
@@ -27,58 +27,25 @@ void SoundListener::SetNotifyBite(FUN_NotifyBite callback)
 	m_cbNotifyBite = callback;
 }
 
-const int COUNTER_SIZE = 256;
-static int m_counter[COUNTER_SIZE];
-static int total_count = 0;
-static std::hash_map<int, int> m_sumCounter;
-
 HRESULT SoundListener::RecordData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 {
-	++total_count;
-	//::memset(m_counter, 0, sizeof(m_counter));
-
-	int sum = 0;
-	BYTE pre = 0;
-	for (int i = 0; i < nDataLen; ++i)
+	if (pData != NULL)
 	{
-		//++m_counter[pData[i]];
-		sum += pData[i] - pre;
-		pre = pData[i];
-	}
-
-	//float sum2 = 0;
-	//for (int i = 0; i < COUNTER_SIZE; ++i)
-	//{
-	//	sum2 += i * m_counter[i] * 1.0f / nDataLen;
-	//}
-
-	if (m_sumCounter.find(sum) == m_sumCounter.end())
-	{
-		m_sumCounter.insert(std::pair<int, int>(sum, 1));
-		printf("get new sum: %d, %d\n", sum, nDataLen);
-	}
-	else
-	{
-		m_sumCounter[sum]++;
-	}
-
-	//printf("RecordData: %d, sum = %d, sum2 = %.2f, total_count: %d\n", nDataLen, sum, sum2, total_count);
-	
-	// 采用简单的“特征值”计算方式，抗干扰能力差，有待改进！！！
-	if (sum == 62)
-	{
-		//printf("sum: %d, count: %d, total_count: %d\n", sum, m_sumCounter[sum], total_count);
-		if (m_cbNotifyBite != NULL)
+		//if (MatchSound2(pData, nDataLen))
+		if (MatchSound(pData, nDataLen))
 		{
-			(m_pFisher->*m_cbNotifyBite)();
+			if (m_pFisher != NULL && m_cbNotifyBite != NULL)
+			{
+				(m_pFisher->*m_cbNotifyBite)();
+			}
+			*bDone = true;
 		}
-		*bDone = true;
+		else
+		{
+			*bDone = false;
+		}
 	}
-	else
-	{
-		*bDone = false;
-	}
-
+	
 	//TestData(pData, nDataLen);
 	
 	return S_OK;
@@ -86,10 +53,96 @@ HRESULT SoundListener::RecordData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 
 BOOL SoundListener::NotifyLoop()
 {
-	if (m_cbCheckTimeout != NULL)
+	if (m_pFisher != NULL && m_cbCheckTimeout != NULL)
 	{
 		return (m_pFisher->*m_cbCheckTimeout)();
 	}
+	return false;
+}
+
+bool SoundListener::MatchSound(BYTE *pData, UINT32 nDataLen)
+{
+	int count = nDataLen / (m_wfx.wBitsPerSample >> 3);
+	UINT32 maxValue = 1 << (m_wfx.wBitsPerSample - 1);
+	UINT32 midValue = maxValue >> 1;
+	std::map<int, int> counter;
+
+	UINT32 value;
+	// 只处理1个声道的数据
+	for (int i = 0; i < count; i += m_wfx.nChannels)
+	{
+		switch (m_wfx.wBitsPerSample)
+		{
+		case 8:
+			value = *(pData + i);
+			break;
+		case 16:
+			value = *((UINT16*)pData + i);
+			break;
+		case 32:
+			value = *((UINT32*)pData + i);
+			break;
+		default:
+			value = midValue;
+			break;
+		}
+		value = (UINT32)(value * 100.0f / maxValue) % 100;
+		counter[value]++;
+	}
+
+	int total_num = count / m_wfx.nChannels;
+	float sum = 0.0f;
+	std::map<int, int>::iterator it = counter.begin();
+	while (it != counter.end())
+	{
+		sum += (float)(it->first * it->second) / total_num;
+		++it;
+	}
+	if (sum > 47.5) // 目前只检查声音大小
+	{
+		//printf("%.2f\n", sum);
+		return true;
+	}
+	
+
+	return false;
+}
+
+
+const int COUNTER_SIZE = 256;
+static int m_counter[COUNTER_SIZE];
+static int total_count = 0;
+static std::map<int, int> m_sumCounter;
+
+bool SoundListener::MatchSound2(BYTE *pData, UINT32 nDataLen)
+{
+	++total_count;
+
+	int sum = 0;
+	BYTE pre = 0;
+	for (int i = 0; i < nDataLen; ++i)
+	{
+		sum += pData[i] - pre;
+		pre = pData[i];
+	}
+
+	if (m_sumCounter.find(sum) == m_sumCounter.end())
+	{
+		m_sumCounter.insert(std::pair<int, int>(sum, 1));
+		//printf("get new sum: %d, %d\n", sum, nDataLen);
+	}
+	else
+	{
+		m_sumCounter[sum]++;
+	}
+
+	// 采用简单的“特征值”计算方式，抗干扰能力差，有待改进！！！
+	if (sum == 62)
+	{
+		//printf("sum: %d, count: %d, total_count: %d\n", sum, m_sumCounter[sum], total_count);
+		return true;
+	}
+
 	return false;
 }
 
