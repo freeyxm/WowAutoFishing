@@ -143,6 +143,13 @@ bool Fisher::DoFindFloat()
 	wprintf(L"寻找鱼漂...\n");
 	ActiveWindow();
 
+	RECT rect;
+	if (!::GetWindowRect(m_hwnd, &rect))
+	{
+		printf("GetWindowRect has failed.");
+		return false;
+	}
+
 	BITMAPINFOHEADER bi;
 	if (ImageUtil::GetWindowSnapshot(m_hwnd, m_posX, m_posY, m_width, m_height, m_lpBits, &bi))
 	{
@@ -165,7 +172,7 @@ bool Fisher::DoFindFloat()
 			wprintf(L"找到鱼漂: %d, %d\n", p.x, p.y);
 
 			m_floatPoint = p;
-			m_mouse.SetCursorPos(p.x, p.y);
+			m_mouse.SetCursorPos(p.x + rect.left, p.y + rect.top);
 			//mouse.MoveCursor(p, 10);
 			return true;
 		}
@@ -197,7 +204,15 @@ bool Fisher::DoShaduf()
 {
 	wprintf(L"提竿...\n");
 	ActiveWindow();
-	m_mouse.SetCursorPos(m_floatPoint.x, m_floatPoint.y); // 重新设定鼠标，防止中间移动而在错误的位置。
+
+	RECT rect;
+	if (!::GetWindowRect(m_hwnd, &rect))
+	{
+		printf("GetWindowRect has failed.");
+		return false;
+	}
+
+	m_mouse.SetCursorPos(m_floatPoint.x + rect.left, m_floatPoint.y + rect.top); // 重新设定鼠标，防止中间移动而在错误的位置。
 	Sleep(10);
 	m_mouse.ClickRightButton();
 	m_waitTime += 2500; // 等待物品进包及旧鱼漂消失
