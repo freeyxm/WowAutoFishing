@@ -51,11 +51,6 @@ HRESULT SoundListener::RecordData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 	return S_OK;
 }
 
-HRESULT SoundListener::SetFormat(WAVEFORMATEX *pwfx)
-{
-	return S_OK;
-}
-
 BOOL SoundListener::NotifyLoop()
 {
 	if (m_pFisher != NULL && m_funCheckTimeout != NULL)
@@ -89,7 +84,7 @@ bool SoundListener::MatchSound(BYTE *pData, UINT32 nDataLen)
 			value = *((UINT16*)pData + i);
 			break;
 		case 32:
-			value = *((UINT32*)pData + i);
+			value = *((float*)pData + i);
 			break;
 		default:
 			value = midValue;

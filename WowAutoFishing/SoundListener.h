@@ -17,7 +17,6 @@ public:
 	void SetNotifyBite(Fun_NotifyBite callback);
 
 	virtual HRESULT RecordData(BYTE *pData, UINT32 nDataLen, BOOL *bDone);
-	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
 	virtual BOOL NotifyLoop();
 
 private:

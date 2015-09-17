@@ -88,13 +88,6 @@ HRESULT SoundCapture::Init()
 		hr = m_pAudioClient->GetMixFormat(&m_pwfx);
 		BREAK_ON_ERROR(hr);
 
-		// Notify the audio sink which format to use.
-		hr = this->SetFormat(m_pwfx);
-		BREAK_ON_ERROR(hr);
-
-		hr = m_pAudioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED, m_pwfx, NULL);
-		BREAK_ON_ERROR(hr);
-
 		//hr = m_pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, 0, hnsRequestedDuration, 0, pwfx, NULL);
 		hr = m_pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_LOOPBACK, 0, 0, m_pwfx, 0);
 		BREAK_ON_ERROR(hr);
@@ -104,6 +97,10 @@ HRESULT SoundCapture::Init()
 		BREAK_ON_ERROR(hr);
 
 		hr = m_pAudioClient->GetService(IID_IAudioCaptureClient, (void**)&m_pCaptureClient);
+		BREAK_ON_ERROR(hr);
+
+		// Notify the audio sink which format to use.
+		hr = this->SetFormat(m_pwfx);
 		BREAK_ON_ERROR(hr);
 
 		// Calculate the actual duration of the allocated buffer.
