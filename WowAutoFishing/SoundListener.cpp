@@ -62,16 +62,20 @@ BOOL SoundListener::NotifyLoop()
 
 bool SoundListener::MatchSound(BYTE *pData, UINT32 nDataLen)
 {
-	int count = nDataLen / (m_wfx.wBitsPerSample >> 3);
-	UINT32 maxValue = 1 << (m_wfx.wBitsPerSample - 1);
+	static int global_index = 0;
+	static int start_index = -1;
+	int count = nDataLen / (m_pwfx->wBitsPerSample >> 3);
+	UINT32 maxValue = 1 << (m_pwfx->wBitsPerSample - 1);
 	UINT32 midValue = maxValue >> 1;
 	std::map<int, int> counter;
 
+	++global_index;
+
 	UINT32 value;
 	// 只处理1个声道的数据
-	for (int i = 0; i < count; i += m_wfx.nChannels)
+	for (int i = 0; i < count; i += m_pwfx->nChannels)
 	{
-		switch (m_wfx.wBitsPerSample)
+		switch (m_pwfx->wBitsPerSample)
 		{
 		case 8:
 			value = *(pData + i);
@@ -90,7 +94,7 @@ bool SoundListener::MatchSound(BYTE *pData, UINT32 nDataLen)
 		counter[value]++;
 	}
 
-	int total_num = count / m_wfx.nChannels;
+	int total_num = count / m_pwfx->nChannels;
 	float sum = 0.0f;
 	std::map<int, int>::iterator it = counter.begin();
 	while (it != counter.end())
@@ -100,9 +104,26 @@ bool SoundListener::MatchSound(BYTE *pData, UINT32 nDataLen)
 	}
 	if (sum > 47.5) // 目前只检查声音大小
 	{
-		//printf("%.2f\n", sum);
+		//printf("%.2f, %d\n", sum, global_index);
 		return true;
 	}
+
+	//if (sum > 44)
+	//{
+	//	if (start_index == -1)
+	//	{
+	//		start_index = global_index;
+	//		printf("start at %d\n", global_index);
+	//	}
+	//}
+	//else
+	//{
+	//	if (start_index >= 0)
+	//	{
+	//		start_index = -1;
+	//		printf("end at %d\n", global_index);
+	//	}
+	//}
 	
 
 	return false;

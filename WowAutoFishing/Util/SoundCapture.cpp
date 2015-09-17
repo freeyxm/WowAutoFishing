@@ -5,7 +5,7 @@
 #include <cstdio>
 
 SoundCapture::SoundCapture()
-	: m_pEnumerator(NULL), m_pDevice(NULL), m_pAudioClient(NULL), m_pCaptureClient(NULL)
+	: m_pEnumerator(NULL), m_pDevice(NULL), m_pAudioClient(NULL), m_pCaptureClient(NULL), m_pwfx(NULL)
 {
 }
 
@@ -16,23 +16,21 @@ SoundCapture::~SoundCapture()
 
 HRESULT SoundCapture::RecordData(BYTE *pData, UINT32 numFramesAvailable, BOOL *bDone)
 {
-	printf("RecordData: %d\n", numFramesAvailable);
+	//printf("RecordData: %d\n", numFramesAvailable);
 	*bDone = false;
 	return S_OK;
 }
 
 HRESULT SoundCapture::SetFormat(WAVEFORMATEX *pwfx)
 {
-	::memcpy(&m_wfx, pwfx, sizeof(m_wfx));
-
-	printf("Format:\n");
-	printf("  wFormatTag: %d\n", pwfx->wFormatTag);
-	printf("  nChannels: %d\n", pwfx->nChannels);
-	printf("  nSamplesPerSec: %d\n", pwfx->nSamplesPerSec);
-	printf("  nAvgBytesPerSec: %d\n", pwfx->nAvgBytesPerSec);
-	printf("  nBlockAlign: %d\n", pwfx->nBlockAlign);
-	printf("  wBitsPerSample: %d\n", pwfx->wBitsPerSample);
-	printf("  cbSize: %d\n", pwfx->cbSize);
+	//printf("Format:\n");
+	//printf("  wFormatTag: %d\n", pwfx->wFormatTag);
+	//printf("  nChannels: %d\n", pwfx->nChannels);
+	//printf("  nSamplesPerSec: %d\n", pwfx->nSamplesPerSec);
+	//printf("  nAvgBytesPerSec: %d\n", pwfx->nAvgBytesPerSec);
+	//printf("  nBlockAlign: %d\n", pwfx->nBlockAlign);
+	//printf("  wBitsPerSample: %d\n", pwfx->wBitsPerSample);
+	//printf("  cbSize: %d\n", pwfx->cbSize);
 
 	return S_OK;
 }
@@ -67,7 +65,6 @@ const IID IID_IAudioCaptureClient = __uuidof(IAudioCaptureClient);
 HRESULT SoundCapture::Init()
 {
 	HRESULT hr = S_FALSE;
-	WAVEFORMATEX *pwfx = NULL;
 	REFERENCE_TIME hnsRequestedDuration = REFTIMES_PER_SEC;
 	UINT32 bufferFrameCount;
 
@@ -88,11 +85,11 @@ HRESULT SoundCapture::Init()
 		hr = m_pDevice->Activate(IID_IAudioClient, CLSCTX_ALL, NULL, (void**)&m_pAudioClient);
 		BREAK_ON_ERROR(hr);
 
-		hr = m_pAudioClient->GetMixFormat(&pwfx);
+		hr = m_pAudioClient->GetMixFormat(&m_pwfx);
 		BREAK_ON_ERROR(hr);
 
 		//hr = m_pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, 0, hnsRequestedDuration, 0, pwfx, NULL);
-		hr = m_pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_LOOPBACK, 0, 0, pwfx, 0);
+		hr = m_pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_LOOPBACK, 0, 0, m_pwfx, 0);
 		BREAK_ON_ERROR(hr);
 
 		// Get the size of the allocated buffer.
@@ -103,20 +100,17 @@ HRESULT SoundCapture::Init()
 		BREAK_ON_ERROR(hr);
 
 		// Notify the audio sink which format to use.
-		hr = this->SetFormat(pwfx);
+		hr = this->SetFormat(m_pwfx);
 		BREAK_ON_ERROR(hr);
 
 		// Calculate the actual duration of the allocated buffer.
-		m_hnsActualDuration = (double)REFTIMES_PER_SEC * bufferFrameCount / pwfx->nSamplesPerSec;
+		m_hnsActualDuration = (double)REFTIMES_PER_SEC * bufferFrameCount / m_pwfx->nSamplesPerSec;
 
 		hr = S_OK;
 
 	} while (false);
 
-	if (pwfx != NULL)
-	{
-		CoTaskMemFree(pwfx);
-	}
+	
 	if (FAILED(hr))
 	{
 		Release();
@@ -128,6 +122,11 @@ HRESULT SoundCapture::Init()
 
 void SoundCapture::Release()
 {
+	if (m_pwfx != NULL)
+	{
+		CoTaskMemFree(m_pwfx);
+		m_pwfx = NULL;
+	}
 	SAFE_RELEASE(m_pEnumerator);
 	SAFE_RELEASE(m_pDevice);
 	SAFE_RELEASE(m_pAudioClient);

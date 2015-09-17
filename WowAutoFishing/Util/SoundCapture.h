@@ -26,7 +26,7 @@ private:
 	void PrintDevices(IMMDeviceEnumerator *pEnumerator);
 
 protected:
-	WAVEFORMATEX m_wfx;
+	WAVEFORMATEX *m_pwfx;
 
 private:
 	IMMDeviceEnumerator *m_pEnumerator;

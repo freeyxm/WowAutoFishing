@@ -132,7 +132,7 @@ bool Fisher::DoThrowPole()
 	++m_throwCount;
 	ActiveWindow();
 	m_keyboard.PressKey(0x31); // KEY_1
-	m_waitTime += 1000; // Ë¦¸ÍÍêÑÓ³Ù1ÃëÔÙÑ°ÕÒÓãÆ¯
+	m_waitTime += 1500; // Ë¦¸ÍÍêÑÓ³Ù1.5ÃëÔÙÑ°ÕÒÓãÆ¯
 	m_throwTime = time(NULL);
 	return true;
 }
@@ -177,6 +177,7 @@ bool Fisher::DoFindFloat()
 			return true;
 		}
 	}
+	m_waitTime += 1500; // Ñ°ÕÒÓãÆ¯Ê§°Ü£¬µÈÏÖÓãÆ¯ÏûÊ§ÔÙÖØĞÂÅ×¸Í¡£
 	++m_findFloatFailCount;
 	return false;
 }
