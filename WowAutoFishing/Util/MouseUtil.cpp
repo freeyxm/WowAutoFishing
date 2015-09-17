@@ -18,7 +18,7 @@ void MouseUtil::SetCursorPos(int x, int y)
 
 bool MouseUtil::GetCursorPos(POINT *pPoint)
 {
-	return ::GetCursorPos(pPoint);
+	return ::GetCursorPos(pPoint) ? true : false;
 }
 
 void MouseUtil::ClickLeftButton(int interval)

@@ -88,6 +88,13 @@ HRESULT SoundCapture::Init()
 		hr = m_pAudioClient->GetMixFormat(&m_pwfx);
 		BREAK_ON_ERROR(hr);
 
+		// Notify the audio sink which format to use.
+		hr = this->SetFormat(m_pwfx);
+		BREAK_ON_ERROR(hr);
+
+		hr = m_pAudioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED, m_pwfx, NULL);
+		BREAK_ON_ERROR(hr);
+
 		//hr = m_pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, 0, hnsRequestedDuration, 0, pwfx, NULL);
 		hr = m_pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_LOOPBACK, 0, 0, m_pwfx, 0);
 		BREAK_ON_ERROR(hr);
@@ -99,12 +106,8 @@ HRESULT SoundCapture::Init()
 		hr = m_pAudioClient->GetService(IID_IAudioCaptureClient, (void**)&m_pCaptureClient);
 		BREAK_ON_ERROR(hr);
 
-		// Notify the audio sink which format to use.
-		hr = this->SetFormat(m_pwfx);
-		BREAK_ON_ERROR(hr);
-
 		// Calculate the actual duration of the allocated buffer.
-		m_hnsActualDuration = (double)REFTIMES_PER_SEC * bufferFrameCount / m_pwfx->nSamplesPerSec;
+		m_hnsActualDuration = (REFERENCE_TIME)((double)REFTIMES_PER_SEC * bufferFrameCount / m_pwfx->nSamplesPerSec);
 
 		hr = S_OK;
 
@@ -150,7 +153,7 @@ void SoundCapture::PrintDevices(IMMDeviceEnumerator *pEnumerator)
 		hr = pCollection->GetCount(&count);
 		BREAK_ON_ERROR(hr);
 
-		for (int i = 0; i < count; ++i)
+		for (UINT i = 0; i < count; ++i)
 		{
 			do
 			{
@@ -218,7 +221,7 @@ HRESULT SoundCapture::Record()
 	while (bDone == FALSE)
 	{
 		// Sleep for half the buffer duration.
-		Sleep(m_hnsActualDuration / REFTIMES_PER_MILLISEC / 2);
+		Sleep((DWORD)(m_hnsActualDuration / REFTIMES_PER_MILLISEC / 2));
 
 		hr = m_pCaptureClient->GetNextPacketSize(&packetLength);
 		BREAK_ON_ERROR(hr);

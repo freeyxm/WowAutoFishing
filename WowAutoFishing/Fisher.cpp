@@ -98,7 +98,7 @@ void Fisher::StartFishing()
 		}
 
 		m_waitTime += 20 + rand() % 30; // 公共延迟时间。
-		Sleep(m_waitTime);
+		Sleep((DWORD)m_waitTime);
 	}
 }
 
@@ -108,7 +108,7 @@ bool Fisher::CheckBaitTime()
 	if (m_baitTime == 0)
 		return true;
 
-	long now = time(NULL);
+	time_t now = time(NULL);
 	return (now - m_baitTime) > (MAX_BAIT_TIME - MAX_WAIT_TIME);
 }
 
@@ -154,7 +154,7 @@ bool Fisher::DoFindFloat()
 	if (ImageUtil::GetWindowSnapshot(m_hwnd, m_posX, m_posY, m_width, m_height, m_lpBits, &bi))
 	{
 		m_points.clear();
-		int maxCount = 10000;
+		unsigned int maxCount = 10000;
 		ImageUtil::FindGray((char*)m_lpBits, m_width, m_height, 20, 3, m_points, maxCount); // 用灰度图寻找鱼漂
 
 		if(m_points.size() >= maxCount) // 找多太多点，可能是UI开着或水域不合适，无法定位鱼漂
@@ -228,7 +228,7 @@ void Fisher::NotifyBite()
 
 bool Fisher::CheckTimeout()
 {
-	long now = time(NULL);
+	time_t now = time(NULL);
 	bool timeout = now - m_throwTime >= MAX_WAIT_TIME;
 	if (timeout)
 	{

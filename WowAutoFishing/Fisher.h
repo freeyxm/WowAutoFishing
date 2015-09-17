@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #pragma execution_character_set("utf-8")
 
 #include "Util\MouseUtil.h"
@@ -56,9 +56,9 @@ private:
 	int m_posX, m_posY;
 	int m_width, m_height;
 	FishingState m_state;
-	long m_waitTime; // 等待时间
-	long m_baitTime; // 上饵时间
-	long m_throwTime; // 甩竿时间
+	time_t m_waitTime; // 等待时间
+	time_t m_baitTime; // 上饵时间
+	time_t m_throwTime; // 甩竿时间
 	bool m_hasBite; // 是否已咬钩
 	POINT m_floatPoint;
 

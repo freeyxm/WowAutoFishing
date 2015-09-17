@@ -1,4 +1,4 @@
-#pragma execution_character_set("utf-8")
+﻿#pragma execution_character_set("utf-8")
 #include "stdafx.h"
 #include "ImageUtil.h"
 #include <list>
@@ -286,7 +286,7 @@ void ImageUtil::FindColor(char *lpBits, int w, int h, int color, int range, std:
 gray: 目标灰度值。
 range: 阈值范围。
 */
-void ImageUtil::FindGray(char *lpBits, int w, int h, int gray, int range, std::list<POINT> &points, int maxCount)
+void ImageUtil::FindGray(char *lpBits, int w, int h, int gray, int range, std::list<POINT> &points, unsigned int maxCount)
 {
 	POINT p;
 	for (int i = 0; i < h; ++i)

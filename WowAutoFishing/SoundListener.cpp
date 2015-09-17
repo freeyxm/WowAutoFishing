@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "SoundListener.h"
 #include "Lib/FFT.h"
 #include "Lib/FastFourierTransform.h"
@@ -48,6 +48,11 @@ HRESULT SoundListener::RecordData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 	
 	//TestData(pData, nDataLen);
 	
+	return S_OK;
+}
+
+HRESULT SoundListener::SetFormat(WAVEFORMATEX *pwfx)
+{
 	return S_OK;
 }
 
@@ -141,7 +146,7 @@ bool SoundListener::MatchSound2(BYTE *pData, UINT32 nDataLen)
 
 	int sum = 0;
 	BYTE pre = 0;
-	for (int i = 0; i < nDataLen; ++i)
+	for (UINT32 i = 0; i < nDataLen; ++i)
 	{
 		sum += pData[i] - pre;
 		pre = pData[i];
