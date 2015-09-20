@@ -1,8 +1,8 @@
 #pragma execution_character_set("utf-8")
 #include "stdafx.h"
-#include "Util/ImageUtil.h"
-#include "Util/MouseUtil.h"
-#include "Util/KeyboardUtil.h"
+#include "Win32Util/ImageUtil.h"
+#include "Win32Util/MouseUtil.h"
+#include "Win32Util/KeyboardUtil.h"
 
 HHOOK g_kbHook;
 

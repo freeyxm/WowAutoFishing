@@ -2,6 +2,8 @@
 #include "stdafx.h"
 #include "WindowPrinter.h"
 #include <Winspool.h>
+#include <cstdio>
+#include <cstdlib>
 
 WindowPrinter::WindowPrinter()
 {

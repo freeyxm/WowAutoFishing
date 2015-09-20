@@ -5,10 +5,10 @@
 #include <Windows.h>
 #include <stdio.h>
 #include <cmath>
-#include "Util/ImageUtil.h"
-#include "Util/MouseUtil.h"
-#include "Util/KeyboardUtil.h"
-#include "Util/SoundCapture.h"
+#include "Win32Util/ImageUtil.h"
+#include "Win32Util/MouseUtil.h"
+#include "Win32Util/KeyboardUtil.h"
+#include "Win32Util/SoundCapture.h"
 #include "Fisher.h"
 #include "SoundListener.h"
 #include <locale.h>
