@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 #include "SoundListener.h"
-#include "Lib/FFT.h"
-#include "Lib/FastFourierTransform.h"
+#include "WaveGraph/Util/FFT.h"
+#include "WaveGraph/Util/FastFourierTransform.h"
 #include <functiondiscoverykeys.h>
 #include <cstdio>
 #include <map>

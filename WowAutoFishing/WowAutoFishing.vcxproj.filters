@@ -13,8 +13,8 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Lib">
-      <UniqueIdentifier>{8924c70e-9005-49bf-b1c5-5755a2052b37}</UniqueIdentifier>
+    <Filter Include="WaveUtil">
+      <UniqueIdentifier>{7d39b915-a48e-4cde-898c-819808d42486}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -27,17 +27,17 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Lib\FastFourierTransform.h">
-      <Filter>Lib</Filter>
-    </ClInclude>
-    <ClInclude Include="Lib\FFT.h">
-      <Filter>Lib</Filter>
-    </ClInclude>
     <ClInclude Include="Fisher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SoundListener.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\WaveGraph\Util\FastFourierTransform.h">
+      <Filter>WaveUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="..\WaveGraph\Util\FFT.h">
+      <Filter>WaveUtil</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -50,17 +50,17 @@
     <ClCompile Include="Test.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Lib\FastFourierTransform.cpp">
-      <Filter>Lib</Filter>
-    </ClCompile>
-    <ClCompile Include="Lib\FFT.cpp">
-      <Filter>Lib</Filter>
-    </ClCompile>
     <ClCompile Include="Fisher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SoundListener.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\WaveGraph\Util\FastFourierTransform.cpp">
+      <Filter>WaveUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="..\WaveGraph\Util\FFT.cpp">
+      <Filter>WaveUtil</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
