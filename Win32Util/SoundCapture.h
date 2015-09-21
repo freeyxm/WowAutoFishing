@@ -12,19 +12,20 @@ public:
 	SoundCapture();
 	virtual ~SoundCapture();
 
-	HRESULT Init();
-	HRESULT Start();
-	HRESULT Stop();
-	HRESULT Record();
+	virtual HRESULT Init();
+	virtual HRESULT StartCapture();
+	virtual HRESULT StopCapture();
+	virtual HRESULT Capture();
 
-	virtual HRESULT RecordData(BYTE *pData, UINT32 numFramesAvailable, BOOL *bDone);
+	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone);
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
 	virtual bool LoopWait();
 
-private:
-	void Release();
 	void PrintDevices(IMMDeviceEnumerator *pEnumerator);
 
+protected:
+	virtual void Release();
+	
 protected:
 	WAVEFORMATEX *m_pwfx;
 

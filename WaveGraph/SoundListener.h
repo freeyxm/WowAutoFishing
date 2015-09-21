@@ -9,11 +9,11 @@ public:
 	SoundListener(void);
 	~SoundListener(void);
 
-	bool Init();
+	bool Init2();
 	bool Paint(HWND hwnd, HDC hdc);
 	bool Record2();
 
-	virtual HRESULT RecordData(BYTE *pData, UINT32 numFramesAvailable, BOOL *bDone);
+	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 numFramesAvailable, BOOL *bDone);
 	virtual bool LoopWait();
 
 private:

@@ -16,7 +16,7 @@ public:
 	void SetCheckTimeout(Fun_CheckTimeout callback);
 	void SetNotifyBite(Fun_NotifyBite callback);
 
-	virtual HRESULT RecordData(BYTE *pData, UINT32 nDataLen, BOOL *bDone);
+	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone);
 	virtual bool LoopWait();
 
 private:

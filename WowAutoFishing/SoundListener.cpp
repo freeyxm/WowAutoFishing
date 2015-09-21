@@ -27,7 +27,7 @@ void SoundListener::SetNotifyBite(Fun_NotifyBite callback)
 	m_funNotifyBite = callback;
 }
 
-HRESULT SoundListener::RecordData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
+HRESULT SoundListener::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 {
 	if (pData != NULL)
 	{

@@ -14,9 +14,9 @@ SoundCapture::~SoundCapture()
 	Release();
 }
 
-HRESULT SoundCapture::RecordData(BYTE *pData, UINT32 numFramesAvailable, BOOL *bDone)
+HRESULT SoundCapture::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 {
-	//printf("RecordData: %d\n", numFramesAvailable);
+	//printf("RecordData: %d\n", nDataLen);
 	*bDone = false;
 	return S_OK;
 }
@@ -187,25 +187,25 @@ void SoundCapture::PrintDevices(IMMDeviceEnumerator *pEnumerator)
 	} while (false);
 }
 
-HRESULT SoundCapture::Start()
+HRESULT SoundCapture::StartCapture()
 {
 	if (m_pAudioClient)
 	{
 		return m_pAudioClient->Start();  // Start recording.
 	}
-	return S_FALSE;
+	return E_FAIL;
 }
 
-HRESULT SoundCapture::Stop()
+HRESULT SoundCapture::StopCapture()
 {
 	if (m_pAudioClient)
 	{
 		return m_pAudioClient->Stop();  // Stop recording.
 	}
-	return S_FALSE;
+	return E_FAIL;
 }
 
-HRESULT SoundCapture::Record()
+HRESULT SoundCapture::Capture()
 {
 	HRESULT hr = S_OK;
 	UINT32 numFramesAvailable;
@@ -237,7 +237,7 @@ HRESULT SoundCapture::Record()
 			if (numFramesAvailable != 0)
 			{
 				// Copy the available capture data to the audio sink.
-				hr = this->RecordData(pData, numFramesAvailable, &bDone);
+				hr = this->OnCaptureData(pData, numFramesAvailable, &bDone);
 				BREAK_ON_ERROR(hr);
 			}
 
