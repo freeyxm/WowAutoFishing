@@ -22,6 +22,7 @@ public:
 private:
 	bool MatchSound(BYTE *pData, UINT32 nDataLen);
 	bool MatchSound2(BYTE *pData, UINT32 nDataLen);
+	bool MatchSound3(BYTE *pData, UINT32 nDataLen);
 
 private:
 	Fisher *m_pFisher;

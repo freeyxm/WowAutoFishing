@@ -32,7 +32,7 @@ HRESULT SoundListener::RecordData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 	if (pData != NULL)
 	{
 		//if (MatchSound2(pData, nDataLen))
-		if (MatchSound(pData, nDataLen))
+		if (MatchSound3(pData, nDataLen))
 		{
 			if (m_pFisher != NULL && m_funNotifyBite != NULL)
 			{
@@ -60,6 +60,55 @@ BOOL SoundListener::NotifyLoop()
 	return false;
 }
 
+bool SoundListener::MatchSound3(BYTE *pData, UINT32 nDataLen)
+{
+	static int global_index = 0;
+	UINT32 count = nDataLen / (m_pwfx->wBitsPerSample >> 3);
+	int maxValue = (1L << (m_pwfx->wBitsPerSample - 1)) - 1;
+	int midValue = maxValue >> 1;
+
+	if (pData != NULL)
+	{
+		int value;
+		float percent = 0.0f;
+		// 只处理1个声道的数据
+		for (UINT i = 0; i < count; i += m_pwfx->nChannels)
+		{
+			switch (m_pwfx->wBitsPerSample)
+			{
+			case 8:
+				value = *(pData + i);
+				break;
+			case 16:
+				value = *((INT16*)pData + i);
+				break;
+			case 32:
+				value = *((int*)pData + i);
+				break;
+			default:
+				value = 0;
+				break;
+			}
+			if (value >= 0)
+			{
+				percent = (float)(value > midValue ? value - midValue : midValue - value) / maxValue;
+			}
+			else
+			{
+				value = -value;
+				percent = (float)(value > midValue ? value - midValue : midValue - value) / maxValue;
+			}
+			if (percent > 0.001f && percent < 0.013f)
+			{
+				printf("%f, %d\n", percent, global_index++);
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 bool SoundListener::MatchSound(BYTE *pData, UINT32 nDataLen)
 {
 	static int global_index = 0;
@@ -84,7 +133,7 @@ bool SoundListener::MatchSound(BYTE *pData, UINT32 nDataLen)
 			value = *((UINT16*)pData + i);
 			break;
 		case 32:
-			value = *((float*)pData + i);
+			value = *((UINT32*)pData + i);
 			break;
 		default:
 			value = midValue;
@@ -102,9 +151,10 @@ bool SoundListener::MatchSound(BYTE *pData, UINT32 nDataLen)
 		sum += (float)(it->first * it->second) / total_num;
 		++it;
 	}
-	if (sum > 47.5) // 目前只检查声音大小
+	printf("%.2f, %d\n", sum, global_index);
+	if (sum > 46.0) // 目前只检查声音大小
 	{
-		//printf("%.2f, %d\n", sum, global_index);
+		printf("%.2f, %d\n", sum, global_index);
 		return true;
 	}
 
