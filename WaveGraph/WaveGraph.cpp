@@ -59,10 +59,10 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	printf("Start ...\n");
 
 	g_pSound = new SoundListener();
-	if(!g_pSound || !g_pSound->Init())
+	if(!g_pSound || !g_pSound->Init2())
 		return FALSE;
 
-	g_pSound->Start();
+	g_pSound->StartCapture();
 
 	g_soundTimer = ::SetTimer(g_hwnd, TIMER_ID_SOUND, 100, NULL);
 
@@ -76,7 +76,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		}
 	}
 
-	g_pSound->Stop();
+	g_pSound->StopCapture();
 
 	return (int) msg.wParam;
 }

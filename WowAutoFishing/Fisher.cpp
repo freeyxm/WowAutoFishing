@@ -190,9 +190,9 @@ bool Fisher::DoWaitBite()
 	wprintf(L"µÈ´ýÉÏ¹³...\n");
 	m_hasBite = false;
 
-	m_sound.Start();
-	m_sound.Record();
-	m_sound.Stop();
+	m_sound.StartCapture();
+	m_sound.Capture();
+	m_sound.StopCapture();
 
 	if (m_hasBite)
 	{

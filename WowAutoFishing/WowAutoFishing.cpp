@@ -133,10 +133,10 @@ int _tmain(int argc, _TCHAR* argv[])
 			SoundCapture *pSound = new SoundListener(NULL);
 			if (SUCCEEDED(pSound->Init()))
 			{
-				if (SUCCEEDED(pSound->Start()))
+				if (SUCCEEDED(pSound->StartCapture()))
 				{
-					pSound->Record();
-					pSound->Stop();
+					pSound->Capture();
+					pSound->StopCapture();
 				}
 			}
 			delete pSound;

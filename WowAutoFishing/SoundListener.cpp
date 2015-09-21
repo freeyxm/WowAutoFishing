@@ -27,7 +27,7 @@ void SoundListener::SetNotifyBite(Fun_NotifyBite callback)
 	m_funNotifyBite = callback;
 }
 
-HRESULT SoundListener::RecordData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
+HRESULT SoundListener::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 {
 	if (pData != NULL)
 	{
@@ -51,7 +51,7 @@ HRESULT SoundListener::RecordData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 	return S_OK;
 }
 
-BOOL SoundListener::NotifyLoop()
+bool SoundListener::LoopWait()
 {
 	if (m_pFisher != NULL && m_funCheckTimeout != NULL)
 	{

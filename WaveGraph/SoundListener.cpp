@@ -18,7 +18,7 @@ SoundListener::~SoundListener(void)
 	}
 }
 
-bool SoundListener::Init()
+bool SoundListener::Init2()
 {
 	if (FAILED(SoundCapture::Init()))
 		return false;
@@ -33,7 +33,7 @@ bool SoundListener::Init()
 	return true;
 }
 
-HRESULT SoundListener::RecordData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
+HRESULT SoundListener::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 {
 	UINT maxLen = (BUF_SIZE - m_nBufLen) * (m_pwfx->wBitsPerSample >> 3) * 2;
 	if (maxLen > nDataLen)
@@ -99,7 +99,7 @@ HRESULT SoundListener::RecordData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 	return S_OK;
 }
 
-BOOL SoundListener::NotifyLoop()
+bool SoundListener::LoopWait()
 {
 	return true;
 }
@@ -161,6 +161,6 @@ bool SoundListener::Paint(HWND hwnd, HDC hdc)
 
 bool SoundListener::Record2()
 {
-	Record();
+	Capture();
 	return m_nBufLen > 0;
 }
