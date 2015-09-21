@@ -35,7 +35,7 @@ HRESULT SoundCapture::SetFormat(WAVEFORMATEX *pwfx)
 	return S_OK;
 }
 
-BOOL SoundCapture::NotifyLoop()
+bool SoundCapture::LoopWait()
 {
 	return false;
 }
@@ -223,7 +223,7 @@ HRESULT SoundCapture::Record()
 		hr = m_pCaptureClient->GetNextPacketSize(&packetLength);
 		BREAK_ON_ERROR(hr);
 
-		while (packetLength != 0)
+		while (packetLength != 0 && !bDone)
 		{
 			// Get the available data in the shared buffer.
 			hr = m_pCaptureClient->GetBuffer(&pData, &numFramesAvailable, &flags, NULL, NULL);
@@ -250,7 +250,7 @@ HRESULT SoundCapture::Record()
 
 		if (!bDone)
 		{
-			bDone = this->NotifyLoop();
+			bDone = !this->LoopWait();
 		}
 	}
 

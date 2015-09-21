@@ -19,7 +19,7 @@ public:
 
 	virtual HRESULT RecordData(BYTE *pData, UINT32 numFramesAvailable, BOOL *bDone);
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
-	virtual BOOL NotifyLoop();
+	virtual bool LoopWait();
 
 private:
 	void Release();

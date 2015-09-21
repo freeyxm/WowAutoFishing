@@ -14,7 +14,7 @@ public:
 	bool Record2();
 
 	virtual HRESULT RecordData(BYTE *pData, UINT32 numFramesAvailable, BOOL *bDone);
-	virtual BOOL NotifyLoop();
+	virtual bool LoopWait();
 
 private:
 	UINT BUF_SIZE;

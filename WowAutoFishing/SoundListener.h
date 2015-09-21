@@ -17,7 +17,7 @@ public:
 	void SetNotifyBite(Fun_NotifyBite callback);
 
 	virtual HRESULT RecordData(BYTE *pData, UINT32 nDataLen, BOOL *bDone);
-	virtual BOOL NotifyLoop();
+	virtual bool LoopWait();
 
 private:
 	bool MatchSound(BYTE *pData, UINT32 nDataLen);

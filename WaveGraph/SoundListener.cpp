@@ -99,7 +99,7 @@ HRESULT SoundListener::RecordData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 	return S_OK;
 }
 
-BOOL SoundListener::NotifyLoop()
+bool SoundListener::LoopWait()
 {
 	return true;
 }
