@@ -18,8 +18,10 @@ public:
 	virtual HRESULT Capture();
 
 	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone);
-	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
 	virtual bool LoopWait();
+
+	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
+	const WAVEFORMATEX* GetFormat();
 
 	void PrintDevices(IMMDeviceEnumerator *pEnumerator);
 
