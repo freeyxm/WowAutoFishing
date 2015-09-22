@@ -22,13 +22,15 @@ public:
 
 private:
 	bool MatchSound(BYTE *pData, UINT32 nDataLen);
-	bool MatchSound2(BYTE *pData, UINT32 nDataLen);
-	bool MatchSound3(BYTE *pData, UINT32 nDataLen);
 
 private:
 	Fisher *m_pFisher;
 	Fun_CheckTimeout m_funCheckTimeout;
 	Fun_NotifyBite m_funNotifyBite;
+
+	UINT m_nBytesPerSample;
+	int m_maxValue;
+	int m_midValue;
 
 	bool m_waveFormatFloat;
 };

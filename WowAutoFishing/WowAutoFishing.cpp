@@ -21,6 +21,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	KeyboardUtil keyboard;
 	MouseUtil mouse;
 
+	::CoInitialize(NULL);
+
 	setlocale(LC_CTYPE, "");
 
 	wprintf(L">¿ªÊ¼...\n");
@@ -146,6 +148,8 @@ int _tmain(int argc, _TCHAR* argv[])
 			test(ch);
 		}
 	}
+
+	::CoUninitialize();
 
 	return 0;
 }

@@ -29,6 +29,10 @@ void SoundListener::SetNotifyBite(Fun_NotifyBite callback)
 
 HRESULT SoundListener::SetFormat(WAVEFORMATEX *pwfx)
 {
+	m_nBytesPerSample = pwfx->wBitsPerSample >> 3;
+	m_maxValue = (1L << (pwfx->wBitsPerSample - 1)) - 1;
+	m_midValue = m_maxValue >> 1;
+
 	m_waveFormatFloat = false;
 	if (pwfx->wFormatTag == WAVE_FORMAT_IEEE_FLOAT)
 	{
@@ -56,8 +60,7 @@ HRESULT SoundListener::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 {
 	if (pData != NULL)
 	{
-		//if (MatchSound2(pData, nDataLen))
-		if (MatchSound3(pData, nDataLen))
+		if (MatchSound(pData, nDataLen))
 		{
 			if (m_pFisher != NULL && m_funNotifyBite != NULL)
 			{
@@ -82,174 +85,92 @@ bool SoundListener::LoopDone()
 	{
 		return (m_pFisher->*m_funCheckTimeout)();
 	}
-	return true;
-}
-
-bool SoundListener::MatchSound3(BYTE *pData, UINT32 nDataLen)
-{
-	static int global_index = 0;
-	UINT32 count = nDataLen / (m_pwfx->wBitsPerSample >> 3);
-	int maxValue = (1L << (m_pwfx->wBitsPerSample - 1)) - 1;
-	int midValue = maxValue >> 1;
-
-	if (pData != NULL)
-	{
-		int value;
-		float percent = 0.0f;
-		// 只处理1个声道的数据
-		for (UINT i = 0; i < count; i += m_pwfx->nChannels)
-		{
-			switch (m_pwfx->wBitsPerSample)
-			{
-			case 8:
-				value = *(pData + i);
-				break;
-			case 16:
-				value = *((INT16*)pData + i);
-				break;
-			case 32:
-				value = *((int*)pData + i);
-				break;
-			default:
-				value = 0;
-				break;
-			}
-			if (value >= 0)
-			{
-				percent = (float)(value > midValue ? value - midValue : midValue - value) / maxValue;
-			}
-			else
-			{
-				value = -value;
-				percent = (float)(value > midValue ? value - midValue : midValue - value) / maxValue;
-			}
-			if (percent > 0.001f && percent < 0.013f)
-			{
-				printf("%f, %d\n", percent, global_index++);
-				return true;
-			}
-		}
-	}
-
 	return false;
 }
 
 bool SoundListener::MatchSound(BYTE *pData, UINT32 nDataLen)
 {
-	static int global_index = 0;
-	static int start_index = -1;
-	int count = nDataLen / (m_pwfx->wBitsPerSample >> 3);
-	UINT32 maxValue = 1 << (m_pwfx->wBitsPerSample - 1);
-	UINT32 midValue = maxValue >> 1;
-	std::map<int, int> counter;
-
-	++global_index;
-
-	UINT32 value;
-	// 只处理1个声道的数据
-	for (int i = 0; i < count; i += m_pwfx->nChannels)
-	{
-		switch (m_pwfx->wBitsPerSample)
-		{
-		case 8:
-			value = *(pData + i);
-			break;
-		case 16:
-			value = *((UINT16*)pData + i);
-			break;
-		case 32:
-			value = *((UINT32*)pData + i);
-			break;
-		default:
-			value = midValue;
-			break;
-		}
-		value = (UINT32)(value * 100.0f / maxValue) % 100;
-		counter[value]++;
-	}
-
-	int total_num = count / m_pwfx->nChannels;
-	float sum = 0.0f;
-	std::map<int, int>::iterator it = counter.begin();
-	while (it != counter.end())
-	{
-		sum += (float)(it->first * it->second) / total_num;
-		++it;
-	}
-	printf("%.2f, %d\n", sum, global_index);
-	if (sum > 46.0) // 目前只检查声音大小
-	{
-		printf("%.2f, %d\n", sum, global_index);
-		return true;
-	}
-
-	//if (sum > 44)
-	//{
-	//	if (start_index == -1)
-	//	{
-	//		start_index = global_index;
-	//		printf("start at %d\n", global_index);
-	//	}
-	//}
-	//else
-	//{
-	//	if (start_index >= 0)
-	//	{
-	//		start_index = -1;
-	//		printf("end at %d\n", global_index);
-	//	}
-	//}
+	static float silent_min = 0.001f;
+	static float fish_min = 0.2f;
+	static float g_min = 0, g_max = 0;
+	static int g_globalIndex = 0;
+	static int g_startIndex = -1;
+	UINT32 count = nDataLen / m_nBytesPerSample;
 	
+	++g_globalIndex;
+	if (pData != NULL)
+	{
+		float value = 0, min = 0, max = 0;
+		for (UINT i = 0; i < count; i += m_pwfx->nChannels) // 只处理1个声道的数据
+		{
+			switch (m_pwfx->wBitsPerSample)
+			{
+			case 8:
+				value = (float)*(pData + i) / m_maxValue;
+				break;
+			case 16:
+				value = (float)*((INT16*)pData + i) / m_maxValue;
+				break;
+			case 32:
+				if (m_waveFormatFloat)
+					value = *((float*)pData + i);
+				else
+					value = (float)*((int*)pData + i) / m_maxValue;
+				break;
+			default:
+				value = 0;
+				break;
+			}
+
+			if (value < min)
+				min = value;
+			if (value > max)
+				max = value;
+		}
+
+		if (max > fish_min || min <-fish_min)
+		{
+			printf("Bite: %d, %f, %f\n", g_globalIndex, min, max);
+			return true;
+		}
+
+		/*if (max > silent_min || min < -silent_min)
+		{
+			if (g_startIndex == -1)
+			{
+				g_min = g_max = 0;
+				printf("----------------------------\n");
+				printf("start at %d, %f, %f\n", g_globalIndex, min, max);
+				g_startIndex = g_globalIndex;
+			}
+			if (min < g_min)
+				g_min = min;
+			if (max > g_max)
+				g_max = max;
+		}
+		else
+		{
+			if (g_startIndex != -1)
+			{
+				printf("end at %d, %f, %f\n", g_globalIndex, min, max);
+				printf("g_min = %f, g_max = %f\n", g_min, g_max);
+				printf("----------------------------\n");
+				g_startIndex = -1;
+			}
+		}*/
+	}
 
 	return false;
 }
-
-
-const int COUNTER_SIZE = 256;
-static int m_counter[COUNTER_SIZE];
-static int total_count = 0;
-static std::map<int, int> m_sumCounter;
-
-bool SoundListener::MatchSound2(BYTE *pData, UINT32 nDataLen)
-{
-	++total_count;
-
-	int sum = 0;
-	BYTE pre = 0;
-	for (UINT32 i = 0; i < nDataLen; ++i)
-	{
-		sum += pData[i] - pre;
-		pre = pData[i];
-	}
-
-	if (m_sumCounter.find(sum) == m_sumCounter.end())
-	{
-		m_sumCounter.insert(std::pair<int, int>(sum, 1));
-		//printf("get new sum: %d, %d\n", sum, nDataLen);
-	}
-	else
-	{
-		m_sumCounter[sum]++;
-	}
-
-	// 采用简单的“特征值”计算方式，抗干扰能力差，有待改进！！！
-	if (sum == 62)
-	{
-		//printf("sum: %d, count: %d, total_count: %d\n", sum, m_sumCounter[sum], total_count);
-		return true;
-	}
-
-	return false;
-}
-
-
-std::vector<std::complex<double> > vecList;
-#define SAMPLE_SIZE 512
-CFastFourierTransform fft(SAMPLE_SIZE);
-float g_buffer[SAMPLE_SIZE];
 
 void TestData(BYTE *pData, UINT32 nDataLen)
 {
+	static const int SAMPLE_SIZE = 512;
+	static std::vector<std::complex<double> > vecList;
+	static CFastFourierTransform fft(SAMPLE_SIZE);
+	static float g_buffer[SAMPLE_SIZE];
+	static int total_count = 0;
+
 	//vecList.clear();
 	//for (int i = 0; i < nDataLen; ++i)
 	//{
