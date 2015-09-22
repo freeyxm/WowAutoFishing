@@ -5,7 +5,7 @@
 UINT __stdcall CaptureTheadProc(LPVOID param);
 
 SoundRecorder::SoundRecorder(void)
-	: m_bDone(false), m_hThreadCapture(NULL), m_dataCurBytes(0)
+	: m_bDone(false), m_hThreadCapture(NULL), m_dataCurBytes(0), m_scaleY(1.0f)
 {
 	InitializeCriticalSection(&m_dataSection);
 }
@@ -171,7 +171,6 @@ void SoundRecorder::Paint(HWND hwnd, HDC hdc)
 	int h2 = h / 2;
 
 	float noise = 0.1f; // ÔëÒôãÐÖµ
-	float scaleY = 1; // YÖáËõ·Å
 
 	::MoveToEx(hdc, x, m, NULL);
 	::LineTo(hdc, x + w, m);
@@ -194,11 +193,11 @@ void SoundRecorder::Paint(HWND hwnd, HDC hdc)
 	ResetIter();
 	while (GetNext(step, &min, &max) > 0)
 	{
-		y = (int)(min * scaleY * h2);
+		y = (int)(min * m_scaleY * h2);
 		::MoveToEx(hdc, x, m, NULL);
 		::LineTo(hdc, x, m + y);
 
-		y = (int)(max * scaleY * h2);
+		y = (int)(max * m_scaleY * h2);
 		::MoveToEx(hdc, x, m, NULL);
 		::LineTo(hdc, x, m + y);
 
@@ -220,7 +219,7 @@ UINT SoundRecorder::GetNext(UINT range, float *pMin, float *pMax)
 	UINT count = 0;
 	range /= (m_nBytesPerSample * m_pwfx->nChannels);
 
-	float value = 0, min = INT_MAX, max = INT_MIN;
+	float value = 0, min = 0, max = 0;
 	while (count < range && m_dataIter != m_dataList.end())
 	{
 		BYTE *pData = m_dataIter->pData;
@@ -272,4 +271,17 @@ UINT SoundRecorder::GetNext(UINT range, float *pMin, float *pMax)
 	}
 
 	return count;
+}
+
+void SoundRecorder::AddScale(float scale)
+{
+	m_scaleY += scale;
+
+	if (m_scaleY < 0)
+		m_scaleY = 0;
+}
+
+float SoundRecorder::GetScale()
+{
+	return m_scaleY;
 }

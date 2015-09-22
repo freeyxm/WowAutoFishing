@@ -28,6 +28,9 @@ public:
 
 	void Paint(HWND hwnd, HDC hdc);
 
+	void AddScale(float scale);
+	float GetScale();
+
 private:
 	void ResetIter();
 	UINT GetNext(UINT range, float *pMin, float *pMax);
@@ -49,5 +52,7 @@ private:
 	UINT m_nBytesPerSample;
 	int m_maxValue;
 	int m_midValue;
+
+	float m_scaleY;
 };
 

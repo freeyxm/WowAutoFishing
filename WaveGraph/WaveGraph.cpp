@@ -38,8 +38,8 @@ INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
 VOID StartRecord();
 VOID StopRecord();
-VOID StartPlay();
-VOID StopPlay();
+VOID AddScale();
+VOID SubScale();
 
 
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
@@ -178,10 +178,10 @@ VOID CreateControlButtons(HWND hWndParent)
 	HWND hWndStopRecord = CreateWindow(_T("BUTTON"), _T("Stop Capture"), dwButtonStyle,
 		150, 20, nButtonWidth, nButtonHeight, hWndParent, (HMENU)STOP_CAPTURE_ID, hInst, NULL);
 
-	HWND hWndStartPlay = CreateWindow(_T("BUTTON"), _T("Start Play"), dwButtonStyle,
+	HWND hWndStartPlay = CreateWindow(_T("BUTTON"), _T("+Scale"), dwButtonStyle,
 		280, 20, nButtonWidth, nButtonHeight, hWndParent, (HMENU)START_PLAY_ID, hInst, NULL);
 
-	HWND hWndStopPlay = CreateWindow(_T("BUTTON"), _T("Stop Play"), dwButtonStyle,
+	HWND hWndStopPlay = CreateWindow(_T("BUTTON"), _T("-Scale"), dwButtonStyle,
 		410, 20, nButtonWidth, nButtonHeight, hWndParent, (HMENU)STOP_PLAY_ID, hInst, NULL);
 }
 
@@ -194,8 +194,8 @@ VOID UpdateButtonStatus(BOOL bEnableStartCapture, BOOL bEnableStopCapture, BOOL 
 
 	EnableWindow(hWndStartRecord, bEnableStartCapture);
 	EnableWindow(hWndStopRecord, bEnableStopCapture);
-	EnableWindow(hWndStartPlay, bEnableStartPlay);
-	EnableWindow(hWndStopPlay, bEnableStopPlay);
+	//EnableWindow(hWndStartPlay, bEnableStartPlay);
+	//EnableWindow(hWndStopPlay, bEnableStopPlay);
 }
 
 //
@@ -242,10 +242,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			StopRecord();
 			break;
 		case START_PLAY_ID:
-			StartPlay();
+			AddScale();
 			break;
 		case STOP_PLAY_ID:
-			StopPlay();
+			SubScale();
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
@@ -257,6 +257,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		//g_pSoundListener->Paint(hWnd, hdc);
 		g_pSoundRecorder->Paint(hWnd, hdc);
+
+		wchar_t buf[20];
+		wsprintf(buf, L"Scale: %d%%", (int)(g_pSoundRecorder->GetScale() * 100));
+		::TextOut(hdc, 0, 0, buf, ::wcslen(buf));
 
 		EndPaint(hWnd, &ps);
 		break;
@@ -311,21 +315,12 @@ VOID StopRecord()
 	UpdateButtonStatus(TRUE, FALSE, TRUE, TRUE);
 }
 
-VOID StartPlay()
+VOID AddScale()
 {
-	return;
-	//if(g_audioMgr.CanPlay())
-	{
-		//if(g_audioMgr.StartPlayback())
-		{
-			UpdateButtonStatus(FALSE, FALSE, FALSE, TRUE);
-		}
-	}
+	g_pSoundRecorder->AddScale(+0.5f);
 }
 
-VOID StopPlay()
+VOID SubScale()
 {
-	return;
-	//g_audioMgr.StopPlayback();
-	UpdateButtonStatus(TRUE, FALSE, TRUE, FALSE);
+	g_pSoundRecorder->AddScale(-0.5f);
 }
