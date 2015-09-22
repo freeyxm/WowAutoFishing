@@ -4,8 +4,9 @@
 #include <functiondiscoverykeys.h>
 #include <cstdio>
 
-SoundCapture::SoundCapture()
+SoundCapture::SoundCapture(bool bLoopback)
 	: m_pEnumerator(NULL), m_pDevice(NULL), m_pAudioClient(NULL), m_pCaptureClient(NULL), m_pwfx(NULL)
+	, m_bInited(false), m_bLoopback(bLoopback)
 {
 }
 
@@ -72,6 +73,7 @@ HRESULT SoundCapture::Init()
 	HRESULT hr = S_FALSE;
 	REFERENCE_TIME hnsRequestedDuration = REFTIMES_PER_SEC;
 	UINT32 bufferFrameCount;
+	m_bInited = false;
 
 	do
 	{
@@ -83,8 +85,10 @@ HRESULT SoundCapture::Init()
 
 		//PrintDevices(m_pEnumerator);
 
-		//hr = m_pEnumerator->GetDefaultAudioEndpoint(eCapture, eConsole, &m_pDevice);
-		hr = m_pEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &m_pDevice);
+		if (m_bLoopback)
+			hr = m_pEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &m_pDevice);
+		else
+			hr = m_pEnumerator->GetDefaultAudioEndpoint(eCapture, eConsole, &m_pDevice);
 		BREAK_ON_ERROR(hr);
 
 		hr = m_pDevice->Activate(IID_IAudioClient, CLSCTX_ALL, NULL, (void**)&m_pAudioClient);
@@ -93,8 +97,10 @@ HRESULT SoundCapture::Init()
 		hr = m_pAudioClient->GetMixFormat(&m_pwfx);
 		BREAK_ON_ERROR(hr);
 
-		//hr = m_pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, 0, hnsRequestedDuration, 0, pwfx, NULL);
-		hr = m_pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_LOOPBACK, 0, 0, m_pwfx, 0);
+		if (m_bLoopback)
+			hr = m_pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, AUDCLNT_STREAMFLAGS_LOOPBACK, 0, 0, m_pwfx, 0);
+		else
+			hr = m_pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, 0, hnsRequestedDuration, 0, m_pwfx, NULL);
 		BREAK_ON_ERROR(hr);
 
 		// Get the size of the allocated buffer.
@@ -121,6 +127,10 @@ HRESULT SoundCapture::Init()
 		Release();
 		::printf("Init failed, error code: 0x%x\n", hr);
 	}
+	else
+	{
+		m_bInited = true;
+	}
 
 	return hr;
 }
@@ -136,6 +146,7 @@ void SoundCapture::Release()
 	SAFE_RELEASE(m_pDevice);
 	SAFE_RELEASE(m_pAudioClient);
 	SAFE_RELEASE(m_pCaptureClient);
+	m_bInited = false;
 }
 
 void SoundCapture::PrintDevices(IMMDeviceEnumerator *pEnumerator)
@@ -194,7 +205,7 @@ void SoundCapture::PrintDevices(IMMDeviceEnumerator *pEnumerator)
 
 HRESULT SoundCapture::StartCapture()
 {
-	if (m_pAudioClient)
+	if (m_bInited && m_pAudioClient)
 	{
 		return m_pAudioClient->Start();  // Start recording.
 	}
@@ -203,7 +214,7 @@ HRESULT SoundCapture::StartCapture()
 
 HRESULT SoundCapture::StopCapture()
 {
-	if (m_pAudioClient)
+	if (m_bInited && m_pAudioClient)
 	{
 		return m_pAudioClient->Stop();  // Stop recording.
 	}
@@ -212,6 +223,11 @@ HRESULT SoundCapture::StopCapture()
 
 HRESULT SoundCapture::Capture()
 {
+	if (!m_bInited)
+	{
+		return E_FAIL;
+	}
+
 	HRESULT hr = S_OK;
 	UINT32 numFramesAvailable;
 	UINT32 packetLength = 0;

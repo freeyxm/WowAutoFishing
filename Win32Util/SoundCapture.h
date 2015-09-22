@@ -9,7 +9,7 @@
 class SoundCapture
 {
 public:
-	SoundCapture();
+	SoundCapture(bool bLoopback = true);
 	virtual ~SoundCapture();
 
 	virtual HRESULT Init();
@@ -23,13 +23,15 @@ public:
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
 	const WAVEFORMATEX* GetFormat();
 
-	void PrintDevices(IMMDeviceEnumerator *pEnumerator);
+	static void PrintDevices(IMMDeviceEnumerator *pEnumerator);
 
 protected:
 	virtual void Release();
 	
 protected:
 	WAVEFORMATEX *m_pwfx;
+	bool m_bInited;
+	bool m_bLoopback;
 
 private:
 	IMMDeviceEnumerator *m_pEnumerator;
