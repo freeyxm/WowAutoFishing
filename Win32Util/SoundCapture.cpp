@@ -77,8 +77,8 @@ HRESULT SoundCapture::Init()
 
 	do
 	{
-		hr = ::CoInitialize(NULL);
-		BREAK_ON_ERROR(hr);
+		//hr = ::CoInitialize(NULL);
+		//BREAK_ON_ERROR(hr);
 
 		hr = ::CoCreateInstance(CLSID_MMDeviceEnumerator, NULL, CLSCTX_ALL, IID_IMMDeviceEnumerator, (void**)&m_pEnumerator);
 		BREAK_ON_ERROR(hr);

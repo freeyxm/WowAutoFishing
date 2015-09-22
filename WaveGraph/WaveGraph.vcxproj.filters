@@ -30,9 +30,6 @@
     <ClInclude Include="Resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="SoundListener.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="Util\FastFourierTransform.h">
       <Filter>Util</Filter>
     </ClInclude>
@@ -48,9 +45,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="WaveGraph.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="SoundListener.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="Util\FastFourierTransform.cpp">

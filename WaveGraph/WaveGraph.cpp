@@ -3,7 +3,6 @@
 
 #include "stdafx.h"
 #include "WaveGraph.h"
-#include "SoundListener.h"
 #include "SoundRecorder.h"
 #include <cstdio>
 
@@ -26,7 +25,6 @@ HWND g_hWndMain;
 TCHAR szTitle[MAX_LOADSTRING];					// 标题栏文本
 TCHAR szWindowClass[MAX_LOADSTRING];			// 主窗口类名
 
-static SoundListener *g_pSoundListener = NULL;
 static SoundRecorder *g_pSoundRecorder = NULL;
 
 
@@ -67,17 +65,13 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WAVEGRAPH));
 
+	::CoInitialize(NULL);
+
 	if (::AllocConsole())
 	{
 		::freopen("CONOUT$", "w", stdout);
 	}
 	printf("Start ...\n");
-
-	//g_pSoundListener = new SoundListener();
-	//if(!g_pSoundListener || !g_pSoundListener->Init2())
-	//	return FALSE;
-
-	//g_pSoundListener->StartCapture();
 
 	g_soundTimer = ::SetTimer(g_hWndMain, TIMER_ID_SOUND, 100, NULL);
 
@@ -94,8 +88,6 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 			DispatchMessage(&msg);
 		}
 	}
-
-	//g_pSoundListener->StopCapture();
 
 	::CoUninitialize();
 	::FreeConsole();
@@ -255,7 +247,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		hdc = BeginPaint(hWnd, &ps);
 		// TODO: 在此添加任意绘图代码...
 
-		//g_pSoundListener->Paint(hWnd, hdc);
 		g_pSoundRecorder->Paint(hWnd, hdc);
 
 		wchar_t buf[20];
@@ -268,7 +259,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		PostQuitMessage(0);
 		break;
 	case WM_TIMER:
-		//if(g_pSoundListener->Record2())
 		{
 			RECT rect = { 0, 0,  WINDOW_WIDTH, WINDOW_HEIGHT };
 			::InvalidateRect(hWnd, &rect, true);
