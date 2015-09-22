@@ -1,6 +1,7 @@
 #pragma once
 #include "Win32Util/SoundCapture.h"
 #include <list>
+#include <process.h>
 
 typedef struct
 {
@@ -25,21 +26,25 @@ public:
 
 	void SetDone(bool bDone);
 
-	bool Paint(HWND hwnd, HDC hdc);
-
-	void Reset();
-	UINT GetNext(UINT range, float *pValue);
+	void Paint(HWND hwnd, HDC hdc);
 
 private:
+	void ResetIter();
+	UINT GetNext(UINT range, int *pValue);
+
+private:
+	CRITICAL_SECTION m_dataSection; // lock
 	std::list<AudioData> m_dataList;
-	UINT m_dataCount;
+	UINT m_dataCurBytes;
+	UINT m_dataMaxBytes;
+
 	bool m_bDone;
 	HANDLE m_hThreadCapture;
 
-	std::list<AudioData>::iterator m_dataListIter;
+	std::list<AudioData>::iterator m_dataIter;
 	UINT m_dataIndex;
 
-	UINT m_bytesPerSample;
+	UINT m_nBytesPerSample;
 	int m_maxValue;
 	int m_midValue;
 };

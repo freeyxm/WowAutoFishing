@@ -5,8 +5,9 @@
 UINT __stdcall CaptureTheadProc(LPVOID param);
 
 SoundRecorder::SoundRecorder(void)
-	: m_bDone(false), m_hThreadCapture(NULL)
+	: m_bDone(false), m_hThreadCapture(NULL), m_dataCurBytes(0)
 {
+	InitializeCriticalSection(&m_dataSection);
 }
 
 
@@ -19,8 +20,23 @@ SoundRecorder::~SoundRecorder(void)
 HRESULT SoundRecorder::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 {
 	AudioData data;
-	data.nDataLen = nDataLen;
-	data.pData = new BYTE[nDataLen];
+
+	::EnterCriticalSection(&m_dataSection);
+
+	if(m_dataCurBytes + nDataLen > m_dataMaxBytes)
+	{
+		data = m_dataList.front();
+		m_dataCurBytes -= data.nDataLen;
+		m_dataList.pop_front();
+
+		data.pData = (BYTE*)::realloc(data.pData, nDataLen);
+		data.nDataLen = nDataLen;
+	}
+	else
+	{
+		data.nDataLen = nDataLen;
+		data.pData = (BYTE*)::malloc(nDataLen);
+	}
 
 	if (pData == NULL)
 		::memset(data.pData, 0, nDataLen);
@@ -28,7 +44,11 @@ HRESULT SoundRecorder::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 		::memcpy(data.pData, pData, nDataLen);
 
 	m_dataList.push_back(data);
-	m_dataCount += nDataLen;
+	m_dataCurBytes += nDataLen;
+
+	printf("OnCaptureData: %d, %d\n", nDataLen, m_dataList.size());
+
+	::LeaveCriticalSection(&m_dataSection);
 
 	*bDone = m_bDone;
 
@@ -37,9 +57,11 @@ HRESULT SoundRecorder::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 
 HRESULT SoundRecorder::SetFormat(WAVEFORMATEX *pwfx)
 {
-	m_bytesPerSample = pwfx->wBitsPerSample >> 3;
-	m_maxValue = (1L << (m_pwfx->wBitsPerSample - 1)) - 1;
+	m_nBytesPerSample = pwfx->wBitsPerSample >> 3;
+	m_maxValue = (1L << (pwfx->wBitsPerSample - 1)) - 1;
 	m_midValue = m_maxValue >> 1;
+
+	m_dataMaxBytes = (UINT)(pwfx->nAvgBytesPerSec * 1.0f);
 
 	return S_OK;
 }
@@ -94,7 +116,7 @@ void SoundRecorder::StopRecord()
 
 void SoundRecorder::Clear()
 {
-	m_dataCount = 0;
+	m_dataCurBytes = 0;
 	for (std::list<AudioData>::iterator it = m_dataList.begin(); it != m_dataList.end(); ++it)
 	{
 		delete it->pData;
@@ -114,59 +136,73 @@ UINT __stdcall CaptureTheadProc(LPVOID param)
 	return S_OK;
 }
 
-bool SoundRecorder::Paint(HWND hwnd, HDC hdc)
+void SoundRecorder::Paint(HWND hwnd, HDC hdc)
 {
 	RECT rect;
 	if (FAILED(::GetWindowRect(hwnd, &rect)))
-		return false;
+		return;
 
-	int w = rect.right - rect.left;
+	int x = 8;
+	int y = 0;
+
+	int w = rect.right - rect.left - x * 4;
 	int h = 200;
 	int m = (rect.bottom - rect.top) / 2;
 	int h2 = h / 2;
 
-	int x = 10;
-	int y = 0;
-
 	float noise = 0.1f; // ‘Î“Ù„–÷µ
 	int scaleY = 1; // Y÷·Àı∑≈
 
-	::MoveToEx(hdc, 0, m, NULL);
-	::LineTo(hdc, w, m);
-
-	int count = m_dataCount / m_bytesPerSample;
-	int step = (count / w);
-	if (step < 1)
-		step = 1;
-
-	float value;
-	UINT range = step;
-	UINT num = 0;
-
-	Reset();
 	::MoveToEx(hdc, x, m, NULL);
-	while ((num = GetNext(range, &value)) > 0)
+	::LineTo(hdc, x + w, m);
+
+	::MoveToEx(hdc, x, m - h2, NULL);
+	::LineTo(hdc, x + w, m - h2);
+
+	::MoveToEx(hdc, x, m + h2, NULL);
+	::LineTo(hdc, x + w, m + h2);
+
+	::EnterCriticalSection(&m_dataSection);
+	printf("Paint begin ...\n");
+
+	int step = (m_dataMaxBytes / w);
+	int minStep = m_nBytesPerSample * m_pwfx->nChannels;
+	if(step < minStep)
+		step = minStep;
+
+	int value;
+	
+	::MoveToEx(hdc, x, m, NULL);
+
+	ResetIter();
+	while (GetNext(step, &value) > 0)
 	{
-		int y = (int)(value * h * scaleY / 2);
+		int y = (int)((float)(value) / m_maxValue * h * scaleY / 2);
 		::LineTo(hdc, x, m - y);
 		++x;
 	}
+
+	printf("Paint end.\n");
+	::LeaveCriticalSection(&m_dataSection);
 }
 
-void SoundRecorder::Reset()
+void SoundRecorder::ResetIter()
 {
-	m_dataListIter = m_dataList.begin();
+	m_dataIter = m_dataList.begin();
 	m_dataIndex = 0;
 }
 
-UINT SoundRecorder::GetNext(UINT range, float *pValue)
+UINT SoundRecorder::GetNext(UINT range, int *pValue)
 {
 	UINT count = 0;
-	int value = 0, max = INT_MIN;
-	while (count < range && m_dataListIter != m_dataList.end())
+	range /= (m_nBytesPerSample * m_pwfx->nChannels);
+
+	float avg = 0.0f;
+	int value = 0;
+	while (count < range && m_dataIter != m_dataList.end())
 	{
-		BYTE *pData = m_dataListIter->pData;
-		UINT maxIndex = m_dataListIter->nDataLen / m_bytesPerSample;
+		BYTE *pData = m_dataIter->pData;
+		UINT maxIndex = m_dataIter->nDataLen / m_nBytesPerSample;
 
 		for (; m_dataIndex < maxIndex; m_dataIndex += m_pwfx->nChannels)
 		{
@@ -190,23 +226,24 @@ UINT SoundRecorder::GetNext(UINT range, float *pValue)
 			}
 
 			if (value < 0)
-				value = 0;
-			if (value > max)
-				max = value;
+			{
+				value = -value;
+			}
+			avg += value;
 
 			++count;
 		}
 
 		if (count < range)
 		{
-			++m_dataListIter;
+			++m_dataIter;
 			m_dataIndex = 0;
 		}
 	}
 
 	if (count > 0)
 	{
-		*pValue = (float)max / m_maxValue;
+		*pValue = (int)(avg / count);
 	}
 
 	return count;

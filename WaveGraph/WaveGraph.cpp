@@ -179,10 +179,10 @@ VOID CreateControlButtons(HWND hWndParent)
 		150, 20, nButtonWidth, nButtonHeight, hWndParent, (HMENU)STOP_CAPTURE_ID, hInst, NULL);
 
 	HWND hWndStartPlay = CreateWindow(_T("BUTTON"), _T("Start Play"), dwButtonStyle,
-		20, 80, nButtonWidth, nButtonHeight, hWndParent, (HMENU)START_PLAY_ID, hInst, NULL);
+		280, 20, nButtonWidth, nButtonHeight, hWndParent, (HMENU)START_PLAY_ID, hInst, NULL);
 
 	HWND hWndStopPlay = CreateWindow(_T("BUTTON"), _T("Stop Play"), dwButtonStyle,
-		150, 80, nButtonWidth, nButtonHeight, hWndParent, (HMENU)STOP_PLAY_ID, hInst, NULL);
+		410, 20, nButtonWidth, nButtonHeight, hWndParent, (HMENU)STOP_PLAY_ID, hInst, NULL);
 }
 
 VOID UpdateButtonStatus(BOOL bEnableStartCapture, BOOL bEnableStopCapture, BOOL bEnableStartPlay, BOOL bEnableStopPlay)
