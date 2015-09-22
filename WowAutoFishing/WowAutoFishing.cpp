@@ -12,6 +12,8 @@
 #include "Fisher.h"
 #include "SoundListener.h"
 #include <locale.h>
+#include <cstdlib>
+#include <ctime>
 
 void test(char ch);
 
@@ -20,6 +22,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	HWND hwnd = NULL;
 	KeyboardUtil keyboard;
 	MouseUtil mouse;
+
+	::srand((unsigned int)::time(NULL));
 
 	::CoInitialize(NULL);
 

@@ -8,6 +8,6 @@ public:
 	KeyboardUtil();
 	~KeyboardUtil();
 
-	static void PressKey(int key, int interval = 10);
+	static void PressKey(int key, int interval = 0);
 };
 

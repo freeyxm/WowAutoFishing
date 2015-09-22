@@ -97,8 +97,8 @@ void Fisher::StartFishing()
 			break;
 		}
 
-		m_waitTime += 20 + rand() % 30; // 公共延迟时间。
-		Sleep((DWORD)m_waitTime);
+		m_waitTime += 20 + ::rand() % 30; // 公共延迟时间。
+		::Sleep((DWORD)m_waitTime);
 	}
 }
 
@@ -196,7 +196,7 @@ bool Fisher::DoWaitBite()
 
 	if (m_hasBite)
 	{
-		m_waitTime += 100 + rand() % 200; // 咬钩后，延迟100-300毫秒提竿
+		m_waitTime += 100 + rand() % 100; // 咬钩后，延迟100-200毫秒提竿
 	}
 
 	return m_hasBite;

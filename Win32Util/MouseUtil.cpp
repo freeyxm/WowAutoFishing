@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "MouseUtil.h"
 #include <cmath>
+#include <cstdlib>
 
 MouseUtil::MouseUtil()
 {
@@ -24,14 +25,14 @@ bool MouseUtil::GetCursorPos(POINT *pPoint)
 void MouseUtil::ClickLeftButton(int interval)
 {
 	::mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
-	::Sleep(interval);
+	::Sleep(interval > 0 ? interval : ::rand() % 10 + 10);
 	::mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
 }
 
 void MouseUtil::ClickRightButton(int interval)
 {
 	::mouse_event(MOUSEEVENTF_RIGHTDOWN, 0, 0, 0, 0);
-	::Sleep(interval);
+	::Sleep(interval > 0 ? interval : ::rand() % 10 + 10);
 	::mouse_event(MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
 }
 
@@ -76,7 +77,7 @@ bool MouseUtil::MoveCursor(POINT tp, int interval)
 		}
 
 		//::SetCursorPos(sp.x, sp.y);
-		::Sleep(interval);
+		::Sleep(interval > 0 ? interval : ::rand() % 5 + 5);
 	}
 
 	return true;
