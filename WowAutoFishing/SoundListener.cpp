@@ -27,6 +27,31 @@ void SoundListener::SetNotifyBite(Fun_NotifyBite callback)
 	m_funNotifyBite = callback;
 }
 
+HRESULT SoundListener::SetFormat(WAVEFORMATEX *pwfx)
+{
+	m_waveFormatFloat = false;
+	if (pwfx->wFormatTag == WAVE_FORMAT_IEEE_FLOAT)
+	{
+		m_waveFormatFloat = true;
+		printf("Format: WAVE_FORMAT_IEEE_FLOAT \n");
+	}
+	else if (pwfx->wFormatTag == WAVE_FORMAT_EXTENSIBLE)
+	{
+		WAVEFORMATEXTENSIBLE *p = (WAVEFORMATEXTENSIBLE*)pwfx;
+		if (p->SubFormat == KSDATAFORMAT_SUBTYPE_PCM)
+		{
+			printf("Format: KSDATAFORMAT_SUBTYPE_PCM \n");
+		}
+		else if (p->SubFormat == KSDATAFORMAT_SUBTYPE_IEEE_FLOAT)
+		{
+			m_waveFormatFloat = true;
+			printf("Format: KSDATAFORMAT_SUBTYPE_IEEE_FLOAT \n");
+		}
+	}
+
+	return S_OK;
+}
+
 HRESULT SoundListener::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 {
 	if (pData != NULL)

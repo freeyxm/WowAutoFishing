@@ -17,6 +17,7 @@ public:
 	void SetNotifyBite(Fun_NotifyBite callback);
 
 	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone);
+	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
 	virtual bool LoopDone();
 
 private:
@@ -28,5 +29,7 @@ private:
 	Fisher *m_pFisher;
 	Fun_CheckTimeout m_funCheckTimeout;
 	Fun_NotifyBite m_funNotifyBite;
+
+	bool m_waveFormatFloat;
 };
 

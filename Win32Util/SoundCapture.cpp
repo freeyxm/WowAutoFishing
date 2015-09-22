@@ -15,18 +15,6 @@ SoundCapture::~SoundCapture()
 	Release();
 }
 
-HRESULT SoundCapture::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
-{
-	//printf("OnCaptureData: %d\n", nDataLen);
-	*bDone = false;
-	return S_OK;
-}
-
-bool SoundCapture::LoopDone()
-{
-	return false;
-}
-
 HRESULT SoundCapture::SetFormat(WAVEFORMATEX *pwfx)
 {
 	//printf("Format:\n");
@@ -44,6 +32,18 @@ HRESULT SoundCapture::SetFormat(WAVEFORMATEX *pwfx)
 const WAVEFORMATEX* SoundCapture::GetFormat()
 {
 	return m_pwfx;
+}
+
+HRESULT SoundCapture::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
+{
+	//printf("OnCaptureData: %d\n", nDataLen);
+	*bDone = false;
+	return S_OK;
+}
+
+bool SoundCapture::LoopDone()
+{
+	return false;
 }
 
 //-----------------------------------------------------------

@@ -20,8 +20,8 @@ public:
 	void StopRecord();
 	void Clear();
 
-	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone);
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
+	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone);
 	virtual bool LoopDone();
 
 	void SetDone(bool bDone);

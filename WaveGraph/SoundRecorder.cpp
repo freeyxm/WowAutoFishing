@@ -10,12 +10,41 @@ SoundRecorder::SoundRecorder(void)
 	InitializeCriticalSection(&m_dataSection);
 }
 
-
 SoundRecorder::~SoundRecorder(void)
 {
 	Clear();
 }
 
+HRESULT SoundRecorder::SetFormat(WAVEFORMATEX *pwfx)
+{
+	m_nBytesPerSample = pwfx->wBitsPerSample >> 3;
+	m_maxValue = (1L << (pwfx->wBitsPerSample - 1)) - 1;
+	m_midValue = m_maxValue >> 1;
+
+	m_dataMaxBytes = (UINT)(pwfx->nAvgBytesPerSec * 1.0f);
+
+	m_waveFormatFloat = false;
+	if (pwfx->wFormatTag == WAVE_FORMAT_IEEE_FLOAT)
+	{
+		m_waveFormatFloat = true;
+		printf("Format: WAVE_FORMAT_IEEE_FLOAT \n");
+	}
+	else if (pwfx->wFormatTag == WAVE_FORMAT_EXTENSIBLE)
+	{
+		WAVEFORMATEXTENSIBLE *p = (WAVEFORMATEXTENSIBLE*)pwfx;
+		if (p->SubFormat == KSDATAFORMAT_SUBTYPE_PCM)
+		{
+			printf("Format: KSDATAFORMAT_SUBTYPE_PCM \n");
+		}
+		else if (p->SubFormat == KSDATAFORMAT_SUBTYPE_IEEE_FLOAT)
+		{
+			m_waveFormatFloat = true;
+			printf("Format: KSDATAFORMAT_SUBTYPE_IEEE_FLOAT \n");
+		}
+	}
+
+	return S_OK;
+}
 
 HRESULT SoundRecorder::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 {
@@ -51,37 +80,6 @@ HRESULT SoundRecorder::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 	::LeaveCriticalSection(&m_dataSection);
 
 	*bDone = m_bDone;
-
-	return S_OK;
-}
-
-HRESULT SoundRecorder::SetFormat(WAVEFORMATEX *pwfx)
-{
-	m_nBytesPerSample = pwfx->wBitsPerSample >> 3;
-	m_maxValue = (1L << (pwfx->wBitsPerSample - 1)) - 1;
-	m_midValue = m_maxValue >> 1;
-
-	m_dataMaxBytes = (UINT)(pwfx->nAvgBytesPerSec * 1.0f);
-
-	m_waveFormatFloat = false;
-	if(pwfx->wFormatTag == WAVE_FORMAT_IEEE_FLOAT)
-	{
-		m_waveFormatFloat = true;
-		printf("Format: WAVE_FORMAT_IEEE_FLOAT \n");
-	}
-	else if(pwfx->wFormatTag == WAVE_FORMAT_EXTENSIBLE)
-	{
-		WAVEFORMATEXTENSIBLE *p = (WAVEFORMATEXTENSIBLE*) pwfx;
-		if(p->SubFormat == KSDATAFORMAT_SUBTYPE_PCM)
-		{
-			printf("Format: KSDATAFORMAT_SUBTYPE_PCM \n");
-		}
-		else if(p->SubFormat == KSDATAFORMAT_SUBTYPE_IEEE_FLOAT)
-		{
-			m_waveFormatFloat = true;
-			printf("Format: KSDATAFORMAT_SUBTYPE_IEEE_FLOAT \n");
-		}
-	}
 
 	return S_OK;
 }
