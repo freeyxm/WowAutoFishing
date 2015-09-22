@@ -99,9 +99,9 @@ HRESULT SoundListener::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 	return S_OK;
 }
 
-bool SoundListener::LoopWait()
+bool SoundListener::LoopDone()
 {
-	return true;
+	return false;
 }
 
 static int g_paintCount = 0;

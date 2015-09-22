@@ -51,13 +51,13 @@ HRESULT SoundListener::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 	return S_OK;
 }
 
-bool SoundListener::LoopWait()
+bool SoundListener::LoopDone()
 {
 	if (m_pFisher != NULL && m_funCheckTimeout != NULL)
 	{
 		return (m_pFisher->*m_funCheckTimeout)();
 	}
-	return false;
+	return true;
 }
 
 bool SoundListener::MatchSound3(BYTE *pData, UINT32 nDataLen)

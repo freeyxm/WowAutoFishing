@@ -18,7 +18,7 @@ public:
 	virtual HRESULT Capture();
 
 	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone);
-	virtual bool LoopWait();
+	virtual bool LoopDone();
 
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
 	const WAVEFORMATEX* GetFormat();

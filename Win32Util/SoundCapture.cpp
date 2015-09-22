@@ -21,7 +21,7 @@ HRESULT SoundCapture::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 	return S_OK;
 }
 
-bool SoundCapture::LoopWait()
+bool SoundCapture::LoopDone()
 {
 	return false;
 }
@@ -255,7 +255,7 @@ HRESULT SoundCapture::Capture()
 
 		if (!bDone)
 		{
-			bDone = !this->LoopWait();
+			bDone = this->LoopDone();
 		}
 	}
 
