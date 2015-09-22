@@ -30,13 +30,15 @@ public:
 
 private:
 	void ResetIter();
-	UINT GetNext(UINT range, int *pValue);
+	UINT GetNext(UINT range, float *pMin, float *pMax);
 
 private:
 	CRITICAL_SECTION m_dataSection; // lock
 	std::list<AudioData> m_dataList;
 	UINT m_dataCurBytes;
 	UINT m_dataMaxBytes;
+
+	bool m_waveFormatFloat;
 
 	bool m_bDone;
 	HANDLE m_hThreadCapture;

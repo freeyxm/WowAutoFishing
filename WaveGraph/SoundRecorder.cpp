@@ -46,7 +46,7 @@ HRESULT SoundRecorder::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 	m_dataList.push_back(data);
 	m_dataCurBytes += nDataLen;
 
-	printf("OnCaptureData: %d, %d\n", nDataLen, m_dataList.size());
+	//printf("OnCaptureData: %d, %d\n", nDataLen, m_dataList.size());
 
 	::LeaveCriticalSection(&m_dataSection);
 
@@ -62,6 +62,26 @@ HRESULT SoundRecorder::SetFormat(WAVEFORMATEX *pwfx)
 	m_midValue = m_maxValue >> 1;
 
 	m_dataMaxBytes = (UINT)(pwfx->nAvgBytesPerSec * 1.0f);
+
+	m_waveFormatFloat = false;
+	if(pwfx->wFormatTag == WAVE_FORMAT_IEEE_FLOAT)
+	{
+		m_waveFormatFloat = true;
+		printf("Format: WAVE_FORMAT_IEEE_FLOAT \n");
+	}
+	else if(pwfx->wFormatTag == WAVE_FORMAT_EXTENSIBLE)
+	{
+		WAVEFORMATEXTENSIBLE *p = (WAVEFORMATEXTENSIBLE*) pwfx;
+		if(p->SubFormat == KSDATAFORMAT_SUBTYPE_PCM)
+		{
+			printf("Format: KSDATAFORMAT_SUBTYPE_PCM \n");
+		}
+		else if(p->SubFormat == KSDATAFORMAT_SUBTYPE_IEEE_FLOAT)
+		{
+			m_waveFormatFloat = true;
+			printf("Format: KSDATAFORMAT_SUBTYPE_IEEE_FLOAT \n");
+		}
+	}
 
 	return S_OK;
 }
@@ -151,7 +171,7 @@ void SoundRecorder::Paint(HWND hwnd, HDC hdc)
 	int h2 = h / 2;
 
 	float noise = 0.1f; // ÔëÒôãÐÖµ
-	int scaleY = 1; // YÖáËõ·Å
+	float scaleY = 1; // YÖáËõ·Å
 
 	::MoveToEx(hdc, x, m, NULL);
 	::LineTo(hdc, x + w, m);
@@ -163,26 +183,29 @@ void SoundRecorder::Paint(HWND hwnd, HDC hdc)
 	::LineTo(hdc, x + w, m + h2);
 
 	::EnterCriticalSection(&m_dataSection);
-	printf("Paint begin ...\n");
+	//printf("Paint begin ...\n");
 
 	int step = (m_dataMaxBytes / w);
 	int minStep = m_nBytesPerSample * m_pwfx->nChannels;
 	if(step < minStep)
 		step = minStep;
 
-	int value;
-	
-	::MoveToEx(hdc, x, m, NULL);
-
+	float min, max;
 	ResetIter();
-	while (GetNext(step, &value) > 0)
+	while (GetNext(step, &min, &max) > 0)
 	{
-		int y = (int)((float)(value) / m_maxValue * h * scaleY / 2);
-		::LineTo(hdc, x, m - y);
+		y = (int)(min * scaleY * h2);
+		::MoveToEx(hdc, x, m, NULL);
+		::LineTo(hdc, x, m + y);
+
+		y = (int)(max * scaleY * h2);
+		::MoveToEx(hdc, x, m, NULL);
+		::LineTo(hdc, x, m + y);
+
 		++x;
 	}
 
-	printf("Paint end.\n");
+	//printf("Paint end.\n");
 	::LeaveCriticalSection(&m_dataSection);
 }
 
@@ -192,13 +215,12 @@ void SoundRecorder::ResetIter()
 	m_dataIndex = 0;
 }
 
-UINT SoundRecorder::GetNext(UINT range, int *pValue)
+UINT SoundRecorder::GetNext(UINT range, float *pMin, float *pMax)
 {
 	UINT count = 0;
 	range /= (m_nBytesPerSample * m_pwfx->nChannels);
 
-	float avg = 0.0f;
-	int value = 0;
+	float value = 0, min = INT_MAX, max = INT_MIN;
 	while (count < range && m_dataIter != m_dataList.end())
 	{
 		BYTE *pData = m_dataIter->pData;
@@ -218,18 +240,20 @@ UINT SoundRecorder::GetNext(UINT range, int *pValue)
 				value = *((INT16*)pData + m_dataIndex);
 				break;
 			case 32:
-				value = *((INT32*)pData + m_dataIndex);
+				if(m_waveFormatFloat)
+					value = *((float*)pData + m_dataIndex);
+				else
+					value = *((int*)pData + m_dataIndex);
 				break;
 			default:
 				value = 0;
 				break;
 			}
 
-			if (value < 0)
-			{
-				value = -value;
-			}
-			avg += value;
+			if(value < min)
+				min = value;
+			if(value > max)
+				max = value;
 
 			++count;
 		}
@@ -243,7 +267,8 @@ UINT SoundRecorder::GetNext(UINT range, int *pValue)
 
 	if (count > 0)
 	{
-		*pValue = (int)(avg / count);
+		*pMin = min;
+		*pMax = max;
 	}
 
 	return count;
