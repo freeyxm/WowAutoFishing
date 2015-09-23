@@ -1,5 +1,5 @@
 ﻿#include "stdafx.h"
-#include "SoundListener.h"
+#include "AudioListener.h"
 #include "WaveGraph/Util/FFT.h"
 #include "WaveGraph/Util/FastFourierTransform.h"
 #include <functiondiscoverykeys.h>
@@ -8,26 +8,26 @@
 
 void TestData(BYTE *pData, UINT32 nDataLen);
 
-SoundListener::SoundListener(Fisher *pFisher)
+AudioListener::AudioListener(Fisher *pFisher)
 	:m_pFisher(pFisher), m_funCheckTimeout(NULL), m_funNotifyBite(NULL)
 {
 }
 
-SoundListener::~SoundListener()
+AudioListener::~AudioListener()
 {
 }
 
-void SoundListener::SetCheckTimeout(Fun_CheckTimeout callback)
+void AudioListener::SetCheckTimeout(Fun_CheckTimeout callback)
 {
 	m_funCheckTimeout = callback;
 }
 
-void SoundListener::SetNotifyBite(Fun_NotifyBite callback)
+void AudioListener::SetNotifyBite(Fun_NotifyBite callback)
 {
 	m_funNotifyBite = callback;
 }
 
-HRESULT SoundListener::SetFormat(WAVEFORMATEX *pwfx)
+HRESULT AudioListener::SetFormat(WAVEFORMATEX *pwfx)
 {
 	m_nBytesPerSample = pwfx->wBitsPerSample >> 3;
 	m_maxValue = (1L << (pwfx->wBitsPerSample - 1)) - 1;
@@ -56,7 +56,7 @@ HRESULT SoundListener::SetFormat(WAVEFORMATEX *pwfx)
 	return S_OK;
 }
 
-HRESULT SoundListener::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
+HRESULT AudioListener::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 {
 	if (pData != NULL)
 	{
@@ -79,7 +79,7 @@ HRESULT SoundListener::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 	return S_OK;
 }
 
-bool SoundListener::LoopDone()
+bool AudioListener::LoopDone()
 {
 	if (m_pFisher != NULL && m_funCheckTimeout != NULL)
 	{
@@ -88,7 +88,7 @@ bool SoundListener::LoopDone()
 	return false;
 }
 
-bool SoundListener::MatchSound(BYTE *pData, UINT32 nDataLen)
+bool AudioListener::MatchSound(BYTE *pData, UINT32 nDataLen)
 {
 	static float silent_min = 0.001f;
 	static float fish_min = 0.2f;

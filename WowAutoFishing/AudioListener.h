@@ -1,17 +1,17 @@
 #pragma once
-#include "Win32Util/SoundCapture.h"
+#include "Win32Util/AudioCapture.h"
 
 class Fisher;
 
 typedef bool (Fisher::*Fun_CheckTimeout)(void);
 typedef void (Fisher::*Fun_NotifyBite)(void);
 
-class SoundListener :
-	public SoundCapture
+class AudioListener :
+	public AudioCapture
 {
 public:
-	SoundListener(Fisher *pFisher);
-	virtual ~SoundListener();
+	AudioListener(Fisher *pFisher);
+	virtual ~AudioListener();
 
 	void SetCheckTimeout(Fun_CheckTimeout callback);
 	void SetNotifyBite(Fun_NotifyBite callback);

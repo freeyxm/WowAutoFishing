@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include "WaveGraph.h"
-#include "SoundRecorder.h"
+#include "AudioRecorder.h"
 #include <cstdio>
 
 #define MAX_LOADSTRING 100
@@ -25,7 +25,7 @@ HWND g_hWndMain;
 TCHAR szTitle[MAX_LOADSTRING];					// 标题栏文本
 TCHAR szWindowClass[MAX_LOADSTRING];			// 主窗口类名
 
-static SoundRecorder *g_pSoundRecorder = NULL;
+static AudioRecorder *g_pAudioRecorder = NULL;
 
 
 // 此代码模块中包含的函数的前向声明:
@@ -75,8 +75,8 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	g_soundTimer = ::SetTimer(g_hWndMain, TIMER_ID_SOUND, 100, NULL);
 
-	g_pSoundRecorder = new SoundRecorder();
-	if (!g_pSoundRecorder || FAILED(g_pSoundRecorder->Init()))
+	g_pAudioRecorder = new AudioRecorder();
+	if (!g_pAudioRecorder || FAILED(g_pAudioRecorder->Init()))
 		return FALSE;
 
 	// 主消息循环:
@@ -247,10 +247,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		hdc = BeginPaint(hWnd, &ps);
 		// TODO: 在此添加任意绘图代码...
 
-		g_pSoundRecorder->Paint(hWnd, hdc);
+		g_pAudioRecorder->Paint(hWnd, hdc);
 
 		wchar_t buf[20];
-		wsprintf(buf, L"Scale: %d%%", (int)(g_pSoundRecorder->GetScale() * 100));
+		wsprintf(buf, L"Scale: %d%%", (int)(g_pAudioRecorder->GetScale() * 100));
 		::TextOut(hdc, 0, 0, buf, ::wcslen(buf));
 
 		EndPaint(hWnd, &ps);
@@ -293,7 +293,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 VOID StartRecord()
 {
-	if (g_pSoundRecorder->StartRecord())
+	if (g_pAudioRecorder->StartRecord())
 	{
 		UpdateButtonStatus(FALSE, TRUE, FALSE, FALSE);
 	}
@@ -301,16 +301,16 @@ VOID StartRecord()
 
 VOID StopRecord()
 {
-	g_pSoundRecorder->StopRecord();
+	g_pAudioRecorder->StopRecord();
 	UpdateButtonStatus(TRUE, FALSE, TRUE, TRUE);
 }
 
 VOID AddScale()
 {
-	g_pSoundRecorder->AddScale(+0.5f);
+	g_pAudioRecorder->AddScale(+0.5f);
 }
 
 VOID SubScale()
 {
-	g_pSoundRecorder->AddScale(-0.5f);
+	g_pAudioRecorder->AddScale(-0.5f);
 }

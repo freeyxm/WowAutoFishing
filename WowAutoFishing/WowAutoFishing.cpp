@@ -8,9 +8,9 @@
 #include "Win32Util/ImageUtil.h"
 #include "Win32Util/MouseUtil.h"
 #include "Win32Util/KeyboardUtil.h"
-#include "Win32Util/SoundCapture.h"
+#include "Win32Util/AudioCapture.h"
 #include "Fisher.h"
-#include "SoundListener.h"
+#include "AudioListener.h"
 #include <locale.h>
 #include <cstdlib>
 #include <ctime>
@@ -136,16 +136,16 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 		else if (ch == 's')
 		{
-			SoundCapture *pSound = new SoundListener(NULL);
-			if (SUCCEEDED(pSound->Init()))
+			AudioCapture *pAudio = new AudioListener(NULL);
+			if (SUCCEEDED(pAudio->Init()))
 			{
-				if (SUCCEEDED(pSound->StartCapture()))
+				if (SUCCEEDED(pAudio->StartCapture()))
 				{
-					pSound->Capture();
-					pSound->StopCapture();
+					pAudio->Capture();
+					pAudio->StopCapture();
 				}
 			}
-			delete pSound;
+			delete pAudio;
 		}
 		else
 		{

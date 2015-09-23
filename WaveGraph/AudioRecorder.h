@@ -1,5 +1,5 @@
 #pragma once
-#include "Win32Util/SoundCapture.h"
+#include "Win32Util/AudioCapture.h"
 #include <list>
 #include <process.h>
 
@@ -9,12 +9,12 @@ typedef struct
 	BYTE *pData;
 } AudioData;
 
-class SoundRecorder :
-	public SoundCapture
+class AudioRecorder :
+	public AudioCapture
 {
 public:
-	SoundRecorder(void);
-	~SoundRecorder(void);
+	AudioRecorder(void);
+	~AudioRecorder(void);
 
 	bool StartRecord();
 	void StopRecord();

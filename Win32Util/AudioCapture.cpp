@@ -1,21 +1,21 @@
 #pragma execution_character_set("utf-8")
 #include "stdafx.h"
-#include "SoundCapture.h"
+#include "AudioCapture.h"
 #include <functiondiscoverykeys.h>
 #include <cstdio>
 
-SoundCapture::SoundCapture(bool bLoopback)
+AudioCapture::AudioCapture(bool bLoopback)
 	: m_pEnumerator(NULL), m_pDevice(NULL), m_pAudioClient(NULL), m_pCaptureClient(NULL), m_pwfx(NULL)
 	, m_bInited(false), m_bLoopback(bLoopback)
 {
 }
 
-SoundCapture::~SoundCapture()
+AudioCapture::~AudioCapture()
 {
 	Release();
 }
 
-HRESULT SoundCapture::SetFormat(WAVEFORMATEX *pwfx)
+HRESULT AudioCapture::SetFormat(WAVEFORMATEX *pwfx)
 {
 	//printf("Format:\n");
 	//printf("  wFormatTag: %d\n", pwfx->wFormatTag);
@@ -29,19 +29,19 @@ HRESULT SoundCapture::SetFormat(WAVEFORMATEX *pwfx)
 	return S_OK;
 }
 
-const WAVEFORMATEX* SoundCapture::GetFormat()
+const WAVEFORMATEX* AudioCapture::GetFormat()
 {
 	return m_pwfx;
 }
 
-HRESULT SoundCapture::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
+HRESULT AudioCapture::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 {
 	//printf("OnCaptureData: %d\n", nDataLen);
 	*bDone = false;
 	return S_OK;
 }
 
-bool SoundCapture::LoopDone()
+bool AudioCapture::LoopDone()
 {
 	return false;
 }
@@ -68,7 +68,7 @@ const IID IID_IMMDeviceEnumerator = __uuidof(IMMDeviceEnumerator);
 const IID IID_IAudioClient = __uuidof(IAudioClient);
 const IID IID_IAudioCaptureClient = __uuidof(IAudioCaptureClient);
 
-HRESULT SoundCapture::Init()
+HRESULT AudioCapture::Init()
 {
 	HRESULT hr = S_FALSE;
 	REFERENCE_TIME hnsRequestedDuration = REFTIMES_PER_SEC;
@@ -135,7 +135,7 @@ HRESULT SoundCapture::Init()
 	return hr;
 }
 
-void SoundCapture::Release()
+void AudioCapture::Release()
 {
 	if (m_pwfx != NULL)
 	{
@@ -149,7 +149,7 @@ void SoundCapture::Release()
 	m_bInited = false;
 }
 
-void SoundCapture::PrintDevices(IMMDeviceEnumerator *pEnumerator)
+void AudioCapture::PrintDevices(IMMDeviceEnumerator *pEnumerator)
 {
 	HRESULT hr;
 	IMMDeviceCollection *pCollection = NULL;
@@ -203,7 +203,7 @@ void SoundCapture::PrintDevices(IMMDeviceEnumerator *pEnumerator)
 	} while (false);
 }
 
-HRESULT SoundCapture::StartCapture()
+HRESULT AudioCapture::StartCapture()
 {
 	if (m_bInited && m_pAudioClient)
 	{
@@ -212,7 +212,7 @@ HRESULT SoundCapture::StartCapture()
 	return E_FAIL;
 }
 
-HRESULT SoundCapture::StopCapture()
+HRESULT AudioCapture::StopCapture()
 {
 	if (m_bInited && m_pAudioClient)
 	{
@@ -221,7 +221,7 @@ HRESULT SoundCapture::StopCapture()
 	return E_FAIL;
 }
 
-HRESULT SoundCapture::Capture()
+HRESULT AudioCapture::Capture()
 {
 	if (!m_bInited)
 	{

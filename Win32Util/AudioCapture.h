@@ -6,11 +6,11 @@
 #include <mmdeviceapi.h>
 #include <Audioclient.h>
 
-class SoundCapture
+class AudioCapture
 {
 public:
-	SoundCapture(bool bLoopback = true);
-	virtual ~SoundCapture();
+	AudioCapture(bool bLoopback = true);
+	virtual ~AudioCapture();
 
 	virtual HRESULT Init();
 	virtual HRESULT StartCapture();

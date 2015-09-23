@@ -36,7 +36,7 @@
     <ClInclude Include="Util\FFT.h">
       <Filter>Util</Filter>
     </ClInclude>
-    <ClInclude Include="SoundRecorder.h">
+    <ClInclude Include="AudioRecorder.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
@@ -53,7 +53,7 @@
     <ClCompile Include="Util\FFT.cpp">
       <Filter>Util</Filter>
     </ClCompile>
-    <ClCompile Include="SoundRecorder.cpp">
+    <ClCompile Include="AudioRecorder.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

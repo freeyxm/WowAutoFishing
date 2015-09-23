@@ -1,21 +1,21 @@
 #include "stdafx.h"
-#include "SoundRecorder.h"
+#include "AudioRecorder.h"
 #include <process.h>
 
 UINT __stdcall CaptureTheadProc(LPVOID param);
 
-SoundRecorder::SoundRecorder(void)
+AudioRecorder::AudioRecorder(void)
 	: m_bDone(false), m_hThreadCapture(NULL), m_dataCurBytes(0), m_scaleY(1.0f)
 {
 	InitializeCriticalSection(&m_dataSection);
 }
 
-SoundRecorder::~SoundRecorder(void)
+AudioRecorder::~AudioRecorder(void)
 {
 	Clear();
 }
 
-HRESULT SoundRecorder::SetFormat(WAVEFORMATEX *pwfx)
+HRESULT AudioRecorder::SetFormat(WAVEFORMATEX *pwfx)
 {
 	m_nBytesPerSample = pwfx->wBitsPerSample >> 3;
 	m_maxValue = (1L << (pwfx->wBitsPerSample - 1)) - 1;
@@ -46,7 +46,7 @@ HRESULT SoundRecorder::SetFormat(WAVEFORMATEX *pwfx)
 	return S_OK;
 }
 
-HRESULT SoundRecorder::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
+HRESULT AudioRecorder::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 {
 	AudioData data;
 
@@ -84,17 +84,17 @@ HRESULT SoundRecorder::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 	return S_OK;
 }
 
-bool SoundRecorder::LoopDone()
+bool AudioRecorder::LoopDone()
 {
 	return m_bDone;
 }
 
-void SoundRecorder::SetDone(bool bDone)
+void AudioRecorder::SetDone(bool bDone)
 {
 	m_bDone = bDone;
 }
 
-bool SoundRecorder::StartRecord()
+bool AudioRecorder::StartRecord()
 {
 	Clear();
 
@@ -119,7 +119,7 @@ bool SoundRecorder::StartRecord()
 	return true;
 }
 
-void SoundRecorder::StopRecord()
+void AudioRecorder::StopRecord()
 {
 	m_bDone = true;
 
@@ -132,7 +132,7 @@ void SoundRecorder::StopRecord()
 	}
 }
 
-void SoundRecorder::Clear()
+void AudioRecorder::Clear()
 {
 	m_dataCurBytes = 0;
 	for (std::list<AudioData>::iterator it = m_dataList.begin(); it != m_dataList.end(); ++it)
@@ -146,7 +146,7 @@ UINT __stdcall CaptureTheadProc(LPVOID param)
 {
 	CoInitialize(NULL);
 
-	SoundRecorder *pRecorder = (SoundRecorder*)param;
+	AudioRecorder *pRecorder = (AudioRecorder*)param;
 	pRecorder->Capture();
 
 	CoUninitialize();
@@ -154,7 +154,7 @@ UINT __stdcall CaptureTheadProc(LPVOID param)
 	return S_OK;
 }
 
-void SoundRecorder::Paint(HWND hwnd, HDC hdc)
+void AudioRecorder::Paint(HWND hwnd, HDC hdc)
 {
 	RECT rect;
 	if (FAILED(::GetWindowRect(hwnd, &rect)))
@@ -206,13 +206,13 @@ void SoundRecorder::Paint(HWND hwnd, HDC hdc)
 	::LeaveCriticalSection(&m_dataSection);
 }
 
-void SoundRecorder::ResetIter()
+void AudioRecorder::ResetIter()
 {
 	m_dataIter = m_dataList.begin();
 	m_dataIndex = 0;
 }
 
-UINT SoundRecorder::GetNext(UINT range, float *pMin, float *pMax)
+UINT AudioRecorder::GetNext(UINT range, float *pMin, float *pMax)
 {
 	UINT count = 0;
 	range /= (m_nBytesPerSample * m_pwfx->nChannels);
@@ -271,7 +271,7 @@ UINT SoundRecorder::GetNext(UINT range, float *pMin, float *pMax)
 	return count;
 }
 
-void SoundRecorder::AddScale(float scale)
+void AudioRecorder::AddScale(float scale)
 {
 	m_scaleY += scale;
 
@@ -279,7 +279,7 @@ void SoundRecorder::AddScale(float scale)
 		m_scaleY = 0;
 }
 
-float SoundRecorder::GetScale()
+float AudioRecorder::GetScale()
 {
 	return m_scaleY;
 }

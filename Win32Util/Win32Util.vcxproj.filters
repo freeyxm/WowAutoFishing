@@ -33,10 +33,10 @@
     <ClInclude Include="MouseUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SoundCapture.h">
+    <ClInclude Include="WindowPrinter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WindowPrinter.h">
+    <ClInclude Include="AudioCapture.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -53,10 +53,10 @@
     <ClCompile Include="MouseUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SoundCapture.cpp">
+    <ClCompile Include="WindowPrinter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WindowPrinter.cpp">
+    <ClCompile Include="AudioCapture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
