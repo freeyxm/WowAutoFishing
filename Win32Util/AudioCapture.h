@@ -13,8 +13,8 @@ public:
 	virtual ~AudioCapture();
 
 	virtual HRESULT Init();
-	virtual HRESULT StartCapture();
-	virtual HRESULT StopCapture();
+	virtual HRESULT Start();
+	virtual HRESULT Stop();
 	virtual HRESULT Capture();
 
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);

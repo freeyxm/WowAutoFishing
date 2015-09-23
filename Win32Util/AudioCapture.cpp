@@ -221,7 +221,7 @@ void AudioCapture::PrintDevices(IMMDeviceEnumerator *pEnumerator)
 	} while (false);
 }
 
-HRESULT AudioCapture::StartCapture()
+HRESULT AudioCapture::Start()
 {
 	if (m_bInited && m_pAudioClient)
 	{
@@ -230,7 +230,7 @@ HRESULT AudioCapture::StartCapture()
 	return E_FAIL;
 }
 
-HRESULT AudioCapture::StopCapture()
+HRESULT AudioCapture::Stop()
 {
 	if (m_bInited && m_pAudioClient)
 	{

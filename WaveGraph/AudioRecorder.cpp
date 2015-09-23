@@ -71,7 +71,7 @@ bool AudioRecorder::StartRecord()
 {
 	Clear();
 
-	HRESULT hr = StartCapture();
+	HRESULT hr = Start();
 	if (FAILED(hr))
 		return false;
 
@@ -96,7 +96,7 @@ void AudioRecorder::StopRecord()
 {
 	m_bDone = true;
 
-	StopCapture();
+	Stop();
 
 	if (m_hThreadCapture != NULL)
 	{

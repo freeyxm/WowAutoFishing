@@ -139,10 +139,10 @@ int _tmain(int argc, _TCHAR* argv[])
 			AudioCapture *pAudio = new AudioListener(NULL);
 			if (SUCCEEDED(pAudio->Init()))
 			{
-				if (SUCCEEDED(pAudio->StartCapture()))
+				if (SUCCEEDED(pAudio->Start()))
 				{
 					pAudio->Capture();
-					pAudio->StopCapture();
+					pAudio->Stop();
 				}
 			}
 			delete pAudio;
