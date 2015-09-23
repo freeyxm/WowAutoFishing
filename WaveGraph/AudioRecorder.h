@@ -1,5 +1,6 @@
 #pragma once
 #include "Win32Util/AudioCapture.h"
+#include "WaveGraph/AudioFrameStorage.h"
 #include <list>
 #include <process.h>
 
@@ -37,8 +38,7 @@ private:
 
 private:
 	CRITICAL_SECTION m_dataSection; // lock
-	std::list<AudioData> m_dataList;
-	UINT m_dataCurBytes;
+	AudioFrameStorage m_dataStorage;
 	UINT m_dataMaxBytes;
 
 	bool m_waveFormatFloat;
@@ -46,7 +46,7 @@ private:
 	bool m_bDone;
 	HANDLE m_hThreadCapture;
 
-	std::list<AudioData>::iterator m_dataIter;
+	AudioFrameCIter m_dataIter;
 	UINT m_dataIndex;
 
 	UINT m_nBytesPerSample;

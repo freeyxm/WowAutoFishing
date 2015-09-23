@@ -5,7 +5,7 @@
 UINT __stdcall CaptureTheadProc(LPVOID param);
 
 AudioRecorder::AudioRecorder(void)
-	: m_bDone(false), m_hThreadCapture(NULL), m_dataCurBytes(0), m_scaleY(1.0f)
+	: m_bDone(false), m_hThreadCapture(NULL), m_scaleY(1.0f)
 {
 	InitializeCriticalSection(&m_dataSection);
 }
@@ -48,32 +48,27 @@ HRESULT AudioRecorder::SetFormat(WAVEFORMATEX *pwfx)
 
 HRESULT AudioRecorder::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 {
-	AudioData data;
-
 	::EnterCriticalSection(&m_dataSection);
 
-	if(m_dataCurBytes + nDataLen > m_dataMaxBytes)
+	bool bSuccess = false;
+	do 
 	{
-		data = m_dataList.front();
-		m_dataCurBytes -= data.nDataLen;
-		m_dataList.pop_front();
-
-		data.pData = (BYTE*)::realloc(data.pData, nDataLen);
-		data.nDataLen = nDataLen;
-	}
-	else
-	{
-		data.nDataLen = nDataLen;
-		data.pData = (BYTE*)::malloc(nDataLen);
-	}
-
-	if (pData == NULL)
-		::memset(data.pData, 0, nDataLen);
-	else
-		::memcpy(data.pData, pData, nDataLen);
-
-	m_dataList.push_back(data);
-	m_dataCurBytes += nDataLen;
+		if(m_dataStorage.GetTotalBytes() + nDataLen > m_dataMaxBytes)
+		{
+			if(!m_dataStorage.ReplaceFront(pData, nDataLen))
+			{
+				break;
+			}
+		}
+		else
+		{
+			if(!m_dataStorage.PushBack(pData, nDataLen))
+			{
+				break;
+			}
+		}
+		bSuccess = true;
+	} while (false);
 
 	//printf("OnCaptureData: %d, %d\n", nDataLen, m_dataList.size());
 
@@ -81,7 +76,7 @@ HRESULT AudioRecorder::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
 
 	*bDone = m_bDone;
 
-	return S_OK;
+	return bSuccess ? S_OK : E_FAIL;
 }
 
 bool AudioRecorder::LoopDone()
@@ -134,12 +129,7 @@ void AudioRecorder::StopRecord()
 
 void AudioRecorder::Clear()
 {
-	m_dataCurBytes = 0;
-	for (std::list<AudioData>::iterator it = m_dataList.begin(); it != m_dataList.end(); ++it)
-	{
-		delete it->pData;
-	}
-	m_dataList.clear();
+	m_dataStorage.Clear();
 }
 
 UINT __stdcall CaptureTheadProc(LPVOID param)
@@ -208,7 +198,7 @@ void AudioRecorder::Paint(HWND hwnd, HDC hdc)
 
 void AudioRecorder::ResetIter()
 {
-	m_dataIter = m_dataList.begin();
+	m_dataIter = m_dataStorage.begin();
 	m_dataIndex = 0;
 }
 
@@ -218,10 +208,10 @@ UINT AudioRecorder::GetNext(UINT range, float *pMin, float *pMax)
 	range /= (m_nBytesPerSample * m_pwfx->nChannels);
 
 	float value = 0, min = 0, max = 0;
-	while (count < range && m_dataIter != m_dataList.end())
+	while (count < range && m_dataIter != m_dataStorage.end())
 	{
-		BYTE *pData = m_dataIter->pData;
-		UINT maxIndex = m_dataIter->nDataLen / m_nBytesPerSample;
+		BYTE *pData = (*m_dataIter)->pData;
+		UINT maxIndex = (*m_dataIter)->nDataLen / m_nBytesPerSample;
 
 		for (; m_dataIndex < maxIndex; m_dataIndex += m_pwfx->nChannels)
 		{
