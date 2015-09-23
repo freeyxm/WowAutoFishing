@@ -83,6 +83,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AudioFrameStorage.h" />
     <ClInclude Include="AudioRecorder.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -91,6 +92,7 @@
     <ClInclude Include="Util\FFT.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AudioFrameStorage.cpp" />
     <ClCompile Include="AudioRecorder.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
