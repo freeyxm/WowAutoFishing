@@ -31,10 +31,6 @@ AudioRender::~AudioRender()
 #define SAFE_RELEASE(punk)  \
 	if ((punk) != NULL) { (punk)->Release(); (punk) = NULL; }
 
-const CLSID CLSID_MMDeviceEnumerator = __uuidof(MMDeviceEnumerator);
-const IID IID_IMMDeviceEnumerator = __uuidof(IMMDeviceEnumerator);
-const IID IID_IAudioClient = __uuidof(IAudioClient);
-const IID IID_IAudioRenderClient = __uuidof(IAudioRenderClient);
 
 HRESULT AudioRender::Init()
 {
@@ -44,6 +40,11 @@ HRESULT AudioRender::Init()
 
 	do
 	{
+		const CLSID CLSID_MMDeviceEnumerator = __uuidof(MMDeviceEnumerator);
+		const IID IID_IMMDeviceEnumerator = __uuidof(IMMDeviceEnumerator);
+		const IID IID_IAudioClient = __uuidof(IAudioClient);
+		const IID IID_IAudioRenderClient = __uuidof(IAudioRenderClient);
+
 		hr = ::CoCreateInstance(CLSID_MMDeviceEnumerator, NULL, CLSCTX_ALL, IID_IMMDeviceEnumerator, (void**)&m_pEnumerator);
 		BREAK_ON_ERROR(hr);
 
@@ -140,7 +141,7 @@ HRESULT AudioRender::Render()
 		BREAK_ON_ERROR(hr);
 
 		// Load the initial data into the shared buffer.
-		hr = this->OnLoadData(m_bufferFrameCount, pData, &flags);
+		hr = this->OnLoadData(pData, m_bufferFrameCount, &flags);
 		BREAK_ON_ERROR(hr);
 
 		hr = m_pRenderClient->ReleaseBuffer(m_bufferFrameCount, flags);
@@ -165,7 +166,7 @@ HRESULT AudioRender::Render()
 			BREAK_ON_ERROR(hr);
 
 			// Get next 1/2-second of data from the audio source.
-			hr = this->OnLoadData(numFramesAvailable, pData, &flags);
+			hr = this->OnLoadData(pData, numFramesAvailable, &flags);
 			BREAK_ON_ERROR(hr);
 
 			hr = m_pRenderClient->ReleaseBuffer(numFramesAvailable, flags);
@@ -183,7 +184,12 @@ HRESULT AudioRender::Render()
 	return hr;
 }
 
-HRESULT AudioRender::OnLoadData(UINT numFramesAvailable, BYTE *pData, DWORD *flags)
+HRESULT AudioRender::SetFormat(WAVEFORMATEX *pwfx)
+{
+	return S_OK;
+}
+
+HRESULT AudioRender::OnLoadData(BYTE *pData, UINT nDataLen, DWORD *flags)
 {
 	*flags = AUDCLNT_BUFFERFLAGS_SILENT;
 

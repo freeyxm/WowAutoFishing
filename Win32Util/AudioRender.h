@@ -8,7 +8,7 @@ class AudioRender
 {
 public:
 	AudioRender();
-	~AudioRender();
+	virtual ~AudioRender();
 
 	virtual HRESULT Init();
 	virtual HRESULT Start();
@@ -16,7 +16,7 @@ public:
 	virtual HRESULT Render();
 
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
-	virtual HRESULT OnLoadData(UINT numFramesAvailable, BYTE *pData, DWORD *flags);
+	virtual HRESULT OnLoadData(BYTE *pData, UINT nDataLen, DWORD *flags);
 
 protected:
 	virtual void Release();

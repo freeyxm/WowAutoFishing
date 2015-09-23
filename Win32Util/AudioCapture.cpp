@@ -15,55 +15,6 @@ AudioCapture::~AudioCapture()
 	Release();
 }
 
-HRESULT AudioCapture::SetFormat(WAVEFORMATEX *pwfx)
-{
-	//printf("Format:\n");
-	//printf("  wFormatTag: %d\n", pwfx->wFormatTag);
-	//printf("  nChannels: %d\n", pwfx->nChannels);
-	//printf("  nSamplesPerSec: %d\n", pwfx->nSamplesPerSec);
-	//printf("  nAvgBytesPerSec: %d\n", pwfx->nAvgBytesPerSec);
-	//printf("  nBlockAlign: %d\n", pwfx->nBlockAlign);
-	//printf("  wBitsPerSample: %d\n", pwfx->wBitsPerSample);
-	//printf("  cbSize: %d\n", pwfx->cbSize);
-
-	m_bFloatFormat = IsFloatFormat(pwfx);
-
-	m_nBytesPerSample = pwfx->wBitsPerSample / 8;
-	m_maxValue = (1L << (pwfx->wBitsPerSample - 1)) - 1;
-	m_midValue = m_maxValue >> 1;
-
-	return S_OK;
-}
-
-bool AudioCapture::IsFloatFormat(WAVEFORMATEX *pwfx)
-{
-	if (pwfx->wFormatTag == WAVE_FORMAT_IEEE_FLOAT)
-	{
-		return true;
-	}
-	else if (pwfx->wFormatTag == WAVE_FORMAT_EXTENSIBLE)
-	{
-		WAVEFORMATEXTENSIBLE *pfwxt = (WAVEFORMATEXTENSIBLE*)pwfx;
-		if (pfwxt->SubFormat == KSDATAFORMAT_SUBTYPE_IEEE_FLOAT)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
-HRESULT AudioCapture::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
-{
-	//printf("OnCaptureData: %d\n", nDataLen);
-	*bDone = false;
-	return S_OK;
-}
-
-bool AudioCapture::LoopDone()
-{
-	return false;
-}
-
 //-----------------------------------------------------------
 // Record an audio stream from the default audio capture
 // device. The RecordAudioStream function allocates a shared
@@ -81,10 +32,6 @@ bool AudioCapture::LoopDone()
 #define SAFE_RELEASE(punk)  \
 	if ((punk) != NULL) { (punk)->Release(); (punk) = NULL; }
 
-const CLSID CLSID_MMDeviceEnumerator = __uuidof(MMDeviceEnumerator);
-const IID IID_IMMDeviceEnumerator = __uuidof(IMMDeviceEnumerator);
-const IID IID_IAudioClient = __uuidof(IAudioClient);
-const IID IID_IAudioCaptureClient = __uuidof(IAudioCaptureClient);
 
 HRESULT AudioCapture::Init()
 {
@@ -95,6 +42,11 @@ HRESULT AudioCapture::Init()
 
 	do
 	{
+		const CLSID CLSID_MMDeviceEnumerator = __uuidof(MMDeviceEnumerator);
+		const IID IID_IMMDeviceEnumerator = __uuidof(IMMDeviceEnumerator);
+		const IID IID_IAudioClient = __uuidof(IAudioClient);
+		const IID IID_IAudioCaptureClient = __uuidof(IAudioCaptureClient);
+
 		//hr = ::CoInitialize(NULL);
 		//BREAK_ON_ERROR(hr);
 
@@ -139,7 +91,7 @@ HRESULT AudioCapture::Init()
 
 	} while (false);
 
-	
+
 	if (FAILED(hr))
 	{
 		Release();
@@ -202,7 +154,7 @@ void AudioCapture::PrintDevices(IMMDeviceEnumerator *pEnumerator)
 				::PropVariantInit(&varName);
 
 				hr = pProps->GetValue(PKEY_Device_FriendlyName, &varName);
-				if(SUCCEEDED(hr))
+				if (SUCCEEDED(hr))
 				{
 					wprintf(L"Endpoint %d: \"%ls\" (%ls)\n", i, varName.pwszVal, pwszID);
 				}
@@ -296,6 +248,55 @@ HRESULT AudioCapture::Capture()
 	return hr;
 }
 
+HRESULT AudioCapture::SetFormat(WAVEFORMATEX *pwfx)
+{
+	//printf("Format:\n");
+	//printf("  wFormatTag: %d\n", pwfx->wFormatTag);
+	//printf("  nChannels: %d\n", pwfx->nChannels);
+	//printf("  nSamplesPerSec: %d\n", pwfx->nSamplesPerSec);
+	//printf("  nAvgBytesPerSec: %d\n", pwfx->nAvgBytesPerSec);
+	//printf("  nBlockAlign: %d\n", pwfx->nBlockAlign);
+	//printf("  wBitsPerSample: %d\n", pwfx->wBitsPerSample);
+	//printf("  cbSize: %d\n", pwfx->cbSize);
+
+	m_bFloatFormat = IsFloatFormat(pwfx);
+
+	m_nBytesPerSample = pwfx->wBitsPerSample / 8;
+	m_maxValue = (1L << (pwfx->wBitsPerSample - 1)) - 1;
+	m_midValue = m_maxValue >> 1;
+
+	return S_OK;
+}
+
+HRESULT AudioCapture::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
+{
+	//printf("OnCaptureData: %d\n", nDataLen);
+	*bDone = false;
+	return S_OK;
+}
+
+bool AudioCapture::LoopDone()
+{
+	return false;
+}
+
+bool AudioCapture::IsFloatFormat(WAVEFORMATEX *pwfx)
+{
+	if (pwfx->wFormatTag == WAVE_FORMAT_IEEE_FLOAT)
+	{
+		return true;
+	}
+	else if (pwfx->wFormatTag == WAVE_FORMAT_EXTENSIBLE)
+	{
+		WAVEFORMATEXTENSIBLE *pfwxt = (WAVEFORMATEXTENSIBLE*)pwfx;
+		if (pfwxt->SubFormat == KSDATAFORMAT_SUBTYPE_IEEE_FLOAT)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 float AudioCapture::ParseValue(BYTE *pData, UINT index)
 {
 	switch (m_pwfx->wBitsPerSample)
@@ -307,7 +308,7 @@ float AudioCapture::ParseValue(BYTE *pData, UINT index)
 		return (float)*((INT16*)pData + index) / m_midValue;
 		break;
 	case 32:
-		if(m_bFloatFormat)
+		if (m_bFloatFormat)
 			return (float)*((float*)pData + index);
 		else
 			return (float)*((int*)pData + index) / m_midValue;
