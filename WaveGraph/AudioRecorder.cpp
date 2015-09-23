@@ -19,10 +19,6 @@ HRESULT AudioRecorder::SetFormat(WAVEFORMATEX *pwfx)
 {
 	AudioCapture::SetFormat(pwfx);
 
-	m_nBytesPerSample = pwfx->wBitsPerSample >> 3;
-	m_maxValue = (1L << (pwfx->wBitsPerSample - 1)) - 1;
-	m_midValue = m_maxValue >> 1;
-
 	m_dataMaxBytes = (UINT)(pwfx->nAvgBytesPerSec * 1.0f);
 
 	return S_OK;
@@ -140,8 +136,6 @@ void AudioRecorder::Paint(HWND hwnd, HDC hdc)
 	int m = (rect.bottom - rect.top) / 2;
 	int h2 = h / 2;
 
-	float noise = 0.1f; // ÔëÒôãÐÖµ
-
 	::MoveToEx(hdc, x, m, NULL);
 	::LineTo(hdc, x + w, m);
 
@@ -200,24 +194,7 @@ UINT AudioRecorder::GetNext(UINT range, float *pMin, float *pMax)
 			if (count >= range)
 				break;
 
-			switch (m_pwfx->wBitsPerSample)
-			{
-			case 8:
-				value = *(pData + m_dataIndex);
-				break;
-			case 16:
-				value = *((INT16*)pData + m_dataIndex);
-				break;
-			case 32:
-				if(m_bFloatFormat)
-					value = *((float*)pData + m_dataIndex);
-				else
-					value = *((int*)pData + m_dataIndex);
-				break;
-			default:
-				value = 0;
-				break;
-			}
+			value = ParseValue(pData, m_dataIndex);
 
 			if(value < min)
 				min = value;

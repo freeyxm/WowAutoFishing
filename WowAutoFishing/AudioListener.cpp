@@ -31,10 +31,6 @@ HRESULT AudioListener::SetFormat(WAVEFORMATEX *pwfx)
 {
 	AudioCapture::SetFormat(pwfx);
 
-	m_nBytesPerSample = pwfx->wBitsPerSample >> 3;
-	m_maxValue = (1L << (pwfx->wBitsPerSample - 1)) - 1;
-	m_midValue = m_maxValue >> 1;
-
 	return S_OK;
 }
 
@@ -85,24 +81,7 @@ bool AudioListener::MatchSound(BYTE *pData, UINT32 nDataLen)
 		float value = 0, min = 0, max = 0;
 		for (UINT i = 0; i < count; i += m_pwfx->nChannels) // 只处理1个声道的数据
 		{
-			switch (m_pwfx->wBitsPerSample)
-			{
-			case 8:
-				value = (float)*(pData + i) / m_maxValue;
-				break;
-			case 16:
-				value = (float)*((INT16*)pData + i) / m_maxValue;
-				break;
-			case 32:
-				if (m_bFloatFormat)
-					value = *((float*)pData + i);
-				else
-					value = (float)*((int*)pData + i) / m_maxValue;
-				break;
-			default:
-				value = 0;
-				break;
-			}
+			value = ParseValue(pData, i);
 
 			if (value < min)
 				min = value;

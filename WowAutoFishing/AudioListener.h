@@ -27,9 +27,5 @@ private:
 	Fisher *m_pFisher;
 	Fun_CheckTimeout m_funCheckTimeout;
 	Fun_NotifyBite m_funNotifyBite;
-
-	UINT m_nBytesPerSample;
-	int m_maxValue;
-	int m_midValue;
 };
 

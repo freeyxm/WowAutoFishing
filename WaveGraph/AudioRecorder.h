@@ -47,10 +47,6 @@ private:
 	AudioFrameCIter m_dataIter;
 	UINT m_dataIndex;
 
-	UINT m_nBytesPerSample;
-	int m_maxValue;
-	int m_midValue;
-
 	float m_scaleY;
 };
 

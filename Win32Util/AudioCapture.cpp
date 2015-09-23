@@ -28,12 +28,11 @@ HRESULT AudioCapture::SetFormat(WAVEFORMATEX *pwfx)
 
 	m_bFloatFormat = IsFloatFormat(pwfx);
 
-	return S_OK;
-}
+	m_nBytesPerSample = pwfx->wBitsPerSample / 8;
+	m_maxValue = (1L << (pwfx->wBitsPerSample - 1)) - 1;
+	m_midValue = m_maxValue >> 1;
 
-const WAVEFORMATEX* AudioCapture::GetFormat()
-{
-	return m_pwfx;
+	return S_OK;
 }
 
 bool AudioCapture::IsFloatFormat(WAVEFORMATEX *pwfx)
@@ -295,4 +294,26 @@ HRESULT AudioCapture::Capture()
 	}
 
 	return hr;
+}
+
+float AudioCapture::ParseValue(BYTE *pData, UINT index)
+{
+	switch (m_pwfx->wBitsPerSample)
+	{
+	case 8:
+		return (float)*(pData + index) / m_midValue;
+		break;
+	case 16:
+		return (float)*((INT16*)pData + index) / m_midValue;
+		break;
+	case 32:
+		if(m_bFloatFormat)
+			return (float)*((float*)pData + index);
+		else
+			return (float)*((int*)pData + index) / m_midValue;
+		break;
+	default:
+		break;
+	}
+	return 0;
 }
