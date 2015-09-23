@@ -128,23 +128,12 @@ HRESULT AudioRender::Render()
 		return E_FAIL;
 	}
 
-	HRESULT hr = S_FALSE;
-	UINT32 numFramesAvailable;
-	UINT32 numFramesPadding;
-	BYTE *pData;
+	HRESULT hr;
 	DWORD flags = 0;
 
 	do
 	{
-		// Grab the entire buffer for the initial fill operation.
-		hr = m_pRenderClient->GetBuffer(m_bufferFrameCount, &pData);
-		BREAK_ON_ERROR(hr);
-
-		// Load the initial data into the shared buffer.
-		hr = this->OnLoadData(pData, m_bufferFrameCount, &flags);
-		BREAK_ON_ERROR(hr);
-
-		hr = m_pRenderClient->ReleaseBuffer(m_bufferFrameCount, flags);
+		hr = LoadData(&flags);
 		BREAK_ON_ERROR(hr);
 
 		hr = this->Start();
@@ -155,21 +144,7 @@ HRESULT AudioRender::Render()
 			// Sleep for half the buffer duration.
 			Sleep((DWORD)(m_hnsActualDuration / REFTIMES_PER_MILLISEC / 2));
 
-			// See how much buffer space is available.
-			hr = m_pAudioClient->GetCurrentPadding(&numFramesPadding);
-			BREAK_ON_ERROR(hr);
-
-			numFramesAvailable = m_bufferFrameCount - numFramesPadding;
-
-			// Grab all the available space in the shared buffer.
-			hr = m_pRenderClient->GetBuffer(numFramesAvailable, &pData);
-			BREAK_ON_ERROR(hr);
-
-			// Get next 1/2-second of data from the audio source.
-			hr = this->OnLoadData(pData, numFramesAvailable, &flags);
-			BREAK_ON_ERROR(hr);
-
-			hr = m_pRenderClient->ReleaseBuffer(numFramesAvailable, flags);
+			hr = LoadData(&flags);
 			BREAK_ON_ERROR(hr);
 		}
 
@@ -184,14 +159,45 @@ HRESULT AudioRender::Render()
 	return hr;
 }
 
+inline HRESULT AudioRender::LoadData(DWORD *pFlags)
+{
+	HRESULT hr;
+	UINT32 numFramesPadding;
+	UINT32 numFramesAvailable;
+	BYTE *pData;
+
+	do
+	{
+		// See how much buffer space is available.
+		hr = m_pAudioClient->GetCurrentPadding(&numFramesPadding);
+		BREAK_ON_ERROR(hr);
+
+		numFramesAvailable = m_bufferFrameCount - numFramesPadding;
+
+		// Grab the entire buffer for the initial fill operation.
+		hr = m_pRenderClient->GetBuffer(numFramesAvailable, &pData);
+		BREAK_ON_ERROR(hr);
+
+		// Load the initial data into the shared buffer.
+		hr = this->OnLoadData(pData, numFramesAvailable, pFlags);
+		BREAK_ON_ERROR(hr);
+
+		hr = m_pRenderClient->ReleaseBuffer(numFramesAvailable, *pFlags);
+		BREAK_ON_ERROR(hr);
+
+	} while (false);
+
+	return hr;
+}
+
 HRESULT AudioRender::SetFormat(WAVEFORMATEX *pwfx)
 {
 	return S_OK;
 }
 
-HRESULT AudioRender::OnLoadData(BYTE *pData, UINT nDataLen, DWORD *flags)
+HRESULT AudioRender::OnLoadData(BYTE *pData, UINT nDataLen, DWORD *pFlags)
 {
-	*flags = AUDCLNT_BUFFERFLAGS_SILENT;
+	*pFlags = AUDCLNT_BUFFERFLAGS_SILENT;
 
 	return S_OK;
 }

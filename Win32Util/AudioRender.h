@@ -16,10 +16,11 @@ public:
 	virtual HRESULT Render();
 
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
-	virtual HRESULT OnLoadData(BYTE *pData, UINT nDataLen, DWORD *flags);
+	virtual HRESULT OnLoadData(BYTE *pData, UINT nDataLen, DWORD *pFlags);
 
 protected:
 	virtual void Release();
+	inline HRESULT LoadData(DWORD *pFlags);
 
 protected:
 	WAVEFORMATEX *m_pwfx;

@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "WaveGraph.h"
 #include "AudioRecorder.h"
+#include "AudioRenderer.h"
 #include <cstdio>
 
 #define MAX_LOADSTRING 100
@@ -11,10 +12,12 @@
 #define WINDOW_WIDTH 600
 #define WINDOW_HEIGHT 400
 
-#define START_CAPTURE_ID	200
-#define STOP_CAPTURE_ID		201
-#define START_PLAY_ID		202
-#define STOP_PLAY_ID		203
+#define START_CAPTURE_ID    200
+#define STOP_CAPTURE_ID     201
+#define START_PLAY_ID       202
+#define STOP_PLAY_ID        203
+#define ADD_SCALE_ID        204
+#define SUB_SCALE_ID        205
 
 #define TIMER_ID_SOUND 0x110
 UINT g_soundTimer = 0;
@@ -26,6 +29,7 @@ TCHAR szTitle[MAX_LOADSTRING];					// 标题栏文本
 TCHAR szWindowClass[MAX_LOADSTRING];			// 主窗口类名
 
 static AudioRecorder *g_pAudioRecorder = NULL;
+static AudioRenderer *g_pAudioRenderer = NULL;
 
 
 // 此代码模块中包含的函数的前向声明:
@@ -36,6 +40,8 @@ INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
 VOID StartRecord();
 VOID StopRecord();
+VOID StartPlay();
+VOID StopPlay();
 VOID AddScale();
 VOID SubScale();
 
@@ -77,6 +83,10 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	g_pAudioRecorder = new AudioRecorder();
 	if (!g_pAudioRecorder || FAILED(g_pAudioRecorder->Init()))
+		return FALSE;
+
+	g_pAudioRenderer = new AudioRenderer();
+	if (!g_pAudioRenderer || FAILED(g_pAudioRenderer->Init()))
 		return FALSE;
 
 	// 主消息循环:
@@ -170,11 +180,17 @@ VOID CreateControlButtons(HWND hWndParent)
 	HWND hWndStopRecord = CreateWindow(_T("BUTTON"), _T("Stop Capture"), dwButtonStyle,
 		150, 20, nButtonWidth, nButtonHeight, hWndParent, (HMENU)STOP_CAPTURE_ID, hInst, NULL);
 
+	HWND hWndStartRender = CreateWindow(_T("BUTTON"), _T("Start Play"), dwButtonStyle,
+		20, 60, nButtonWidth, nButtonHeight, hWndParent, (HMENU)START_PLAY_ID, hInst, NULL);
+
+	HWND hWndStopRender = CreateWindow(_T("BUTTON"), _T("Stop Play"), dwButtonStyle,
+		150, 60, nButtonWidth, nButtonHeight, hWndParent, (HMENU)STOP_PLAY_ID, hInst, NULL);
+
 	HWND hWndStartPlay = CreateWindow(_T("BUTTON"), _T("+Scale"), dwButtonStyle,
-		280, 20, nButtonWidth, nButtonHeight, hWndParent, (HMENU)START_PLAY_ID, hInst, NULL);
+		280, 20, nButtonWidth, nButtonHeight, hWndParent, (HMENU)ADD_SCALE_ID, hInst, NULL);
 
 	HWND hWndStopPlay = CreateWindow(_T("BUTTON"), _T("-Scale"), dwButtonStyle,
-		410, 20, nButtonWidth, nButtonHeight, hWndParent, (HMENU)STOP_PLAY_ID, hInst, NULL);
+		410, 20, nButtonWidth, nButtonHeight, hWndParent, (HMENU)SUB_SCALE_ID, hInst, NULL);
 }
 
 VOID UpdateButtonStatus(BOOL bEnableStartCapture, BOOL bEnableStopCapture, BOOL bEnableStartPlay, BOOL bEnableStopPlay)
@@ -183,11 +199,13 @@ VOID UpdateButtonStatus(BOOL bEnableStartCapture, BOOL bEnableStopCapture, BOOL 
 	HWND hWndStopRecord = GetDlgItem(g_hWndMain, STOP_CAPTURE_ID);
 	HWND hWndStartPlay = GetDlgItem(g_hWndMain, START_PLAY_ID);
 	HWND hWndStopPlay = GetDlgItem(g_hWndMain, STOP_PLAY_ID);
+	HWND hWndAddScale = GetDlgItem(g_hWndMain, ADD_SCALE_ID);
+	HWND hWndSubScale = GetDlgItem(g_hWndMain, SUB_SCALE_ID);
 
 	EnableWindow(hWndStartRecord, bEnableStartCapture);
 	EnableWindow(hWndStopRecord, bEnableStopCapture);
-	//EnableWindow(hWndStartPlay, bEnableStartPlay);
-	//EnableWindow(hWndStopPlay, bEnableStopPlay);
+	EnableWindow(hWndStartPlay, bEnableStartPlay);
+	EnableWindow(hWndStopPlay, bEnableStopPlay);
 }
 
 //
@@ -234,9 +252,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			StopRecord();
 			break;
 		case START_PLAY_ID:
-			AddScale();
+			StartPlay();
 			break;
 		case STOP_PLAY_ID:
+			StopPlay();
+			break;
+		case ADD_SCALE_ID:
+			AddScale();
+			break;
+		case SUB_SCALE_ID:
 			SubScale();
 			break;
 		default:
@@ -303,6 +327,21 @@ VOID StopRecord()
 {
 	g_pAudioRecorder->StopRecord();
 	UpdateButtonStatus(TRUE, FALSE, TRUE, TRUE);
+}
+
+VOID StartPlay()
+{
+	g_pAudioRenderer->SetStorage(g_pAudioRecorder->GetStorage());
+	if (g_pAudioRenderer->StartRender())
+	{
+		UpdateButtonStatus(FALSE, FALSE, FALSE, TRUE);
+	}
+}
+
+void StopPlay()
+{
+	g_pAudioRenderer->StopRender();
+	UpdateButtonStatus(TRUE, TRUE, TRUE, FALSE);
 }
 
 VOID AddScale()

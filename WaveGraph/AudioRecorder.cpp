@@ -232,3 +232,8 @@ float AudioRecorder::GetScale()
 {
 	return m_scaleY;
 }
+
+AudioFrameStorage* AudioRecorder::GetStorage()
+{
+	return &m_dataStorage;
+}

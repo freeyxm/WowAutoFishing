@@ -32,6 +32,8 @@ public:
 	void AddScale(float scale);
 	float GetScale();
 
+	AudioFrameStorage* GetStorage();
+
 private:
 	void ResetIter();
 	UINT GetNext(UINT range, float *pMin, float *pMax);
