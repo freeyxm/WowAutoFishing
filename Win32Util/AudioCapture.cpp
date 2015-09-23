@@ -6,7 +6,7 @@
 
 AudioCapture::AudioCapture(bool bLoopback)
 	: m_pEnumerator(NULL), m_pDevice(NULL), m_pAudioClient(NULL), m_pCaptureClient(NULL), m_pwfx(NULL)
-	, m_bInited(false), m_bLoopback(bLoopback)
+	, m_bInited(false), m_bLoopback(bLoopback), m_bFloatFormat(false)
 {
 }
 
@@ -26,12 +26,31 @@ HRESULT AudioCapture::SetFormat(WAVEFORMATEX *pwfx)
 	//printf("  wBitsPerSample: %d\n", pwfx->wBitsPerSample);
 	//printf("  cbSize: %d\n", pwfx->cbSize);
 
+	m_bFloatFormat = IsFloatFormat(pwfx);
+
 	return S_OK;
 }
 
 const WAVEFORMATEX* AudioCapture::GetFormat()
 {
 	return m_pwfx;
+}
+
+bool AudioCapture::IsFloatFormat(WAVEFORMATEX *pwfx)
+{
+	if (pwfx->wFormatTag == WAVE_FORMAT_IEEE_FLOAT)
+	{
+		return true;
+	}
+	else if (pwfx->wFormatTag == WAVE_FORMAT_EXTENSIBLE)
+	{
+		WAVEFORMATEXTENSIBLE *pfwxt = (WAVEFORMATEXTENSIBLE*)pwfx;
+		if (pfwxt->SubFormat == KSDATAFORMAT_SUBTYPE_IEEE_FLOAT)
+		{
+			return true;
+		}
+	}
+	return false;
 }
 
 HRESULT AudioCapture::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)

@@ -31,7 +31,5 @@ private:
 	UINT m_nBytesPerSample;
 	int m_maxValue;
 	int m_midValue;
-
-	bool m_waveFormatFloat;
 };
 

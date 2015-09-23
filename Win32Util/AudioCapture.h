@@ -25,6 +25,8 @@ public:
 
 	static void PrintDevices(IMMDeviceEnumerator *pEnumerator);
 
+	static bool IsFloatFormat(WAVEFORMATEX *pfwx);
+
 protected:
 	virtual void Release();
 	
@@ -32,6 +34,7 @@ protected:
 	WAVEFORMATEX *m_pwfx;
 	bool m_bInited;
 	bool m_bLoopback;
+	bool m_bFloatFormat;
 
 private:
 	IMMDeviceEnumerator *m_pEnumerator;

@@ -1,6 +1,6 @@
 #pragma once
 #include "Win32Util/AudioCapture.h"
-#include "WaveGraph/AudioFrameStorage.h"
+#include "AudioFrameStorage.h"
 #include <list>
 #include <process.h>
 
@@ -40,8 +40,6 @@ private:
 	CRITICAL_SECTION m_dataSection; // lock
 	AudioFrameStorage m_dataStorage;
 	UINT m_dataMaxBytes;
-
-	bool m_waveFormatFloat;
 
 	bool m_bDone;
 	HANDLE m_hThreadCapture;
