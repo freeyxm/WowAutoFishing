@@ -75,6 +75,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AudioCapture.h" />
+    <ClInclude Include="AudioRender.h" />
     <ClInclude Include="ImageUtil.h" />
     <ClInclude Include="KeyboardUtil.h" />
     <ClInclude Include="MouseUtil.h" />
@@ -84,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AudioCapture.cpp" />
+    <ClCompile Include="AudioRender.cpp" />
     <ClCompile Include="ImageUtil.cpp" />
     <ClCompile Include="KeyboardUtil.cpp" />
     <ClCompile Include="MouseUtil.cpp" />
