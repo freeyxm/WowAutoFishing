@@ -2,7 +2,7 @@
 #include "AudioRecorder.h"
 #include <process.h>
 
-UINT __stdcall CaptureTheadProc(LPVOID param);
+static UINT __stdcall CaptureTheadProc(LPVOID param);
 
 AudioRecorder::AudioRecorder(void)
 	: m_bDone(false), m_hThreadCapture(NULL), m_scaleY(1.0f)
@@ -13,6 +13,7 @@ AudioRecorder::AudioRecorder(void)
 AudioRecorder::~AudioRecorder(void)
 {
 	Clear();
+	DeleteCriticalSection(&m_dataSection);
 }
 
 HRESULT AudioRecorder::SetFormat(WAVEFORMATEX *pwfx)
@@ -111,16 +112,10 @@ void AudioRecorder::Clear()
 	m_dataStorage.Clear();
 }
 
-UINT __stdcall CaptureTheadProc(LPVOID param)
+static UINT __stdcall CaptureTheadProc(LPVOID param)
 {
-	CoInitialize(NULL);
-
 	AudioRecorder *pRecorder = (AudioRecorder*)param;
-	pRecorder->Capture();
-
-	CoUninitialize();
-
-	return S_OK;
+	return pRecorder->Capture();
 }
 
 void AudioRecorder::Paint(HWND hwnd, HDC hdc)

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "AudioExtractor.h"
 
+static UINT __stdcall CaptureTheadProc(LPVOID param);
 
 AudioExtractor::AudioExtractor()
 	: m_pCurSegment(NULL), m_bSegmentStarted(false), m_bDone(false)
@@ -8,12 +9,14 @@ AudioExtractor::AudioExtractor()
 	m_silentLimit = 0.0001f;
 	m_silentCount = 0;
 	m_silentMaxCount = 5;
+	InitializeCriticalSection(&m_segmentSection);
 }
 
 
 AudioExtractor::~AudioExtractor()
 {
 	Clear();
+	DeleteCriticalSection(&m_segmentSection);
 }
 
 void AudioExtractor::Clear()
@@ -125,7 +128,9 @@ void AudioExtractor::EndSegment()
 
 	if(m_pCurSegment != NULL)
 	{
+		::EnterCriticalSection(&m_segmentSection);
 		m_segmentList.push_back(m_pCurSegment);
+		::LeaveCriticalSection(&m_segmentSection);
 		m_pCurSegment = NULL;
 	}
 	m_bSegmentStarted = false;
@@ -145,4 +150,56 @@ void AudioExtractor::AppendSilentFrames()
 		}
 	}
 	m_silentCount = 0;
+}
+
+bool AudioExtractor::StartListen()
+{
+	HRESULT hr = Start();
+	if (FAILED(hr))
+		return false;
+
+	m_bDone = false;
+
+	m_hThreadCapture = (HANDLE)::_beginthreadex(NULL, 0, &CaptureTheadProc, this, 0, NULL);
+	if (m_hThreadCapture == NULL)
+		return false;
+
+	return true;
+}
+
+void AudioExtractor::StopListen()
+{
+	m_bDone = true;
+
+	Stop();
+
+	if (m_hThreadCapture != NULL)
+	{
+		CloseHandle(m_hThreadCapture);
+		m_hThreadCapture = NULL;
+	}
+}
+
+static UINT __stdcall CaptureTheadProc(LPVOID param)
+{
+	AudioExtractor *pAudio = (AudioExtractor*)param;
+	return pAudio->Capture();
+}
+
+UINT AudioExtractor::GetSegmentCount()
+{
+	return m_segmentList.size();
+}
+
+AudioFrameStorage* AudioExtractor::PopSegment()
+{
+	if (m_segmentList.size() > 0)
+	{
+		::EnterCriticalSection(&m_segmentSection);
+		AudioFrameStorage *pStorage = m_segmentList.front();
+		m_segmentList.pop_front();
+		::LeaveCriticalSection(&m_segmentSection);
+		return pStorage;
+	}
+	return NULL;
 }

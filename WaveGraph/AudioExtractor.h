@@ -23,12 +23,16 @@ public:
 
 	void Clear();
 
+	UINT GetSegmentCount();
+	AudioFrameStorage* PopSegment();
+
 private:
 	void StartSegment();
 	void EndSegment();
 	void AppendSilentFrames();
 
 private:
+	CRITICAL_SECTION m_segmentSection; // lock
 	std::list<AudioFrameStorage*> m_segmentList;
 	AudioFrameStorage *m_pCurSegment;
 	AudioFrameStorage m_silentFrames;

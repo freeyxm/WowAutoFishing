@@ -2,7 +2,7 @@
 #include "AudioRenderer.h"
 #include <process.h>
 
-UINT __stdcall RenderTheadProc(LPVOID param);
+static UINT __stdcall RenderTheadProc(LPVOID param);
 
 AudioRenderer::AudioRenderer()
 {
@@ -38,16 +38,10 @@ bool AudioRenderer::StopRender()
 	return true;
 }
 
-UINT __stdcall RenderTheadProc(LPVOID param)
+static UINT __stdcall RenderTheadProc(LPVOID param)
 {
-	CoInitialize(NULL);
-
 	AudioRenderer *pRender = (AudioRenderer*)param;
-	pRender->Render();
-
-	CoUninitialize();
-
-	return S_OK;
+	return pRender->Render();
 }
 
 HRESULT AudioRenderer::SetFormat(WAVEFORMATEX *pwfx)
