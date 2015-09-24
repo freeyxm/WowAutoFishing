@@ -22,7 +22,7 @@ bool AudioRenderer::StartRender()
 {
 	m_bDone = false;
 
-	m_dataIter = m_pStorage->begin();
+	m_dataIter = m_pStorage->cbegin();
 	m_dataIndex = 0;
 
 	m_hThreadCapture = (HANDLE)::_beginthreadex(NULL, 0, &RenderTheadProc, this, 0, NULL);
@@ -63,7 +63,7 @@ HRESULT AudioRenderer::OnLoadData(BYTE *pData, UINT32 nFrameCount, DWORD *pFlags
 	{
 		UINT32 nDataLen = nFrameCount * m_nBytesPerFrame;
 		UINT32 nLoaded = 0;
-		while (nLoaded < nDataLen && m_dataIter != m_pStorage->end())
+		while (nLoaded < nDataLen && m_dataIter != m_pStorage->cend())
 		{
 			AudioFrameData *pFrame = *m_dataIter;
 			UINT32 curLen = pFrame->nDataLen - m_dataIndex;

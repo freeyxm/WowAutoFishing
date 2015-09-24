@@ -174,7 +174,7 @@ void AudioRecorder::Paint(HWND hwnd, HDC hdc)
 
 void AudioRecorder::ResetIter()
 {
-	m_dataIter = m_dataStorage.begin();
+	m_dataIter = m_dataStorage.cbegin();
 	m_dataIndex = 0;
 }
 
@@ -184,12 +184,12 @@ UINT AudioRecorder::GetNext(UINT range, float *pMin, float *pMax)
 	range /= m_nBytesPerFrame;
 
 	float value = 0, min = 0, max = 0;
-	while (count < range && m_dataIter != m_dataStorage.end())
+	while (count < range && m_dataIter != m_dataStorage.cend())
 	{
 		BYTE *pData = (*m_dataIter)->pData;
 		UINT maxIndex = (*m_dataIter)->nDataLen / m_nBytesPerSample;
 
-		for (; m_dataIndex < maxIndex; m_dataIndex += m_pwfx->nChannels)
+		for (; m_dataIndex < maxIndex; m_dataIndex += m_pwfx->nChannels) // 只处理1个声道
 		{
 			if (count >= range)
 				break;

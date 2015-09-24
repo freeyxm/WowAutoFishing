@@ -11,6 +11,29 @@ AudioFrameStorage::~AudioFrameStorage()
 	Clear();
 }
 
+bool AudioFrameStorage::PushBack(AudioFrameData *pFrame)
+{
+	if(pFrame != NULL)
+	{
+		m_datas.push_back(pFrame);
+		m_totalBytes += pFrame->nDataLen;
+		return true;
+	}
+	return false;
+}
+
+AudioFrameData* AudioFrameStorage::PopFront()
+{
+	if(!m_datas.empty())
+	{
+		AudioFrameData *pFrame = m_datas.front();
+		m_datas.pop_front();
+		m_totalBytes -= pFrame->nDataLen;
+		return pFrame;
+	}
+	return NULL;
+}
+
 bool AudioFrameStorage::PushBack(BYTE *pData, UINT32 nDataLen)
 {
 	AudioFrameData *pFrame = new AudioFrameData();

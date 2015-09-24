@@ -19,12 +19,16 @@ public:
 	bool PushBack(BYTE *pData, UINT32 nDataLen);
 	bool ReplaceFront(BYTE *pData, UINT32 nDataLen);
 
+	bool PushBack(AudioFrameData *pFrame);
+	AudioFrameData* PopFront();
+
 	void Clear();
 
+	inline UINT GetSize();
 	inline UINT GetTotalBytes();
 
-	inline AudioFrameCIter begin();
-	inline AudioFrameCIter end();
+	inline AudioFrameCIter cbegin();
+	inline AudioFrameCIter cend();
 
 private:
 	inline void PushBack(AudioFrameData *pFrame, BYTE *pData, UINT32 nDataLen);
@@ -34,17 +38,22 @@ private:
 	UINT m_totalBytes;
 };
 
+inline UINT AudioFrameStorage::GetSize()
+{
+	return m_datas.size();
+}
+
 inline UINT AudioFrameStorage::GetTotalBytes()
 {
 	return m_totalBytes;
 }
 
-inline AudioFrameCIter AudioFrameStorage::begin()
+inline AudioFrameCIter AudioFrameStorage::cbegin()
 {
-	return m_datas.begin();
+	return m_datas.cbegin();
 }
 
-inline AudioFrameCIter AudioFrameStorage::end()
+inline AudioFrameCIter AudioFrameStorage::cend()
 {
-	return m_datas.end();
+	return m_datas.cend();
 }
