@@ -9,7 +9,7 @@ public:
 	AudioRenderer();
 	virtual ~AudioRenderer();
 
-	void SetStorage(AudioFrameStorage *pStorage);
+	void SetSource(AudioFrameStorage *pStorage);
 
 	virtual bool StartRender();
 	virtual bool StopRender();

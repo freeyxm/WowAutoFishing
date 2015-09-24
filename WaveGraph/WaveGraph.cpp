@@ -331,7 +331,7 @@ VOID StopRecord()
 
 VOID StartPlay()
 {
-	g_pAudioRenderer->SetStorage(g_pAudioRecorder->GetStorage());
+	g_pAudioRenderer->SetSource(g_pAudioRecorder->GetStorage());
 	if (g_pAudioRenderer->StartRender())
 	{
 		UpdateButtonStatus(FALSE, FALSE, FALSE, TRUE);

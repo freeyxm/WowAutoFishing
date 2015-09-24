@@ -83,6 +83,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AudioExtractor.h" />
     <ClInclude Include="AudioFrameStorage.h" />
     <ClInclude Include="AudioRecorder.h" />
     <ClInclude Include="AudioRenderer.h" />
@@ -93,6 +94,7 @@
     <ClInclude Include="Util\FFT.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="AudioExtractor.cpp" />
     <ClCompile Include="AudioFrameStorage.cpp" />
     <ClCompile Include="AudioRecorder.cpp" />
     <ClCompile Include="AudioRenderer.cpp" />

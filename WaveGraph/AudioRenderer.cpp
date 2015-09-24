@@ -13,7 +13,7 @@ AudioRenderer::~AudioRenderer()
 {
 }
 
-void AudioRenderer::SetStorage(AudioFrameStorage *pStorage)
+void AudioRenderer::SetSource(AudioFrameStorage *pStorage)
 {
 	m_pStorage = pStorage;
 }
