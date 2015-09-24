@@ -52,19 +52,22 @@ UINT __stdcall RenderTheadProc(LPVOID param)
 
 HRESULT AudioRenderer::SetFormat(WAVEFORMATEX *pwfx)
 {
+	AudioRender::SetFormat(pwfx);
+
 	return S_OK;
 }
 
-HRESULT AudioRenderer::OnLoadData(BYTE *pData, UINT nDataLen, DWORD *pFlags)
+HRESULT AudioRenderer::OnLoadData(BYTE *pData, UINT32 nFrameCount, DWORD *pFlags)
 {
 	if (!m_bDone)
 	{
-		UINT nLoaded = 0;
+		UINT32 nDataLen = nFrameCount * m_nBytesPerFrame;
+		UINT32 nLoaded = 0;
 		while (nLoaded < nDataLen && m_dataIter != m_pStorage->end())
 		{
 			AudioFrameData *pFrame = *m_dataIter;
-			UINT curLen = pFrame->nDataLen - m_dataIndex;
-			UINT minLen = nDataLen < curLen ? nDataLen : curLen;
+			UINT32 curLen = pFrame->nDataLen - m_dataIndex;
+			UINT32 minLen = nDataLen < curLen ? nDataLen : curLen;
 
 			::memcpy(pData + nLoaded, pFrame->pData + m_dataIndex, minLen);
 

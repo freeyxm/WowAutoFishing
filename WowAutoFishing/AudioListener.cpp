@@ -34,11 +34,11 @@ HRESULT AudioListener::SetFormat(WAVEFORMATEX *pwfx)
 	return S_OK;
 }
 
-HRESULT AudioListener::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
+HRESULT AudioListener::OnCaptureData(BYTE *pData, UINT32 nFrameCount, BOOL *bDone)
 {
 	if (pData != NULL)
 	{
-		if (MatchSound(pData, nDataLen))
+		if (MatchSound(pData, nFrameCount))
 		{
 			if (m_pFisher != NULL && m_funNotifyBite != NULL)
 			{
@@ -66,14 +66,14 @@ bool AudioListener::LoopDone()
 	return false;
 }
 
-bool AudioListener::MatchSound(BYTE *pData, UINT32 nDataLen)
+bool AudioListener::MatchSound(BYTE *pData, UINT32 nFrameCount)
 {
 	static float silent_min = 0.001f;
 	static float fish_min = 0.2f;
 	static float g_min = 0, g_max = 0;
 	static int g_globalIndex = 0;
 	static int g_startIndex = -1;
-	UINT32 count = nDataLen / m_nBytesPerSample;
+	UINT32 count = nFrameCount * m_pwfx->nChannels;
 	
 	++g_globalIndex;
 	if (pData != NULL)

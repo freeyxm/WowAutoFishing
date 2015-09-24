@@ -19,28 +19,29 @@ HRESULT AudioRecorder::SetFormat(WAVEFORMATEX *pwfx)
 {
 	AudioCapture::SetFormat(pwfx);
 
-	m_dataMaxBytes = (UINT)(pwfx->nAvgBytesPerSec * 1.0f);
+	m_dataMaxBytes = (UINT)(pwfx->nAvgBytesPerSec * 60.0f);
 
 	return S_OK;
 }
 
-HRESULT AudioRecorder::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
+HRESULT AudioRecorder::OnCaptureData(BYTE *pData, UINT32 nFrameCount, BOOL *bDone)
 {
 	::EnterCriticalSection(&m_dataSection);
 
 	bool bSuccess = false;
-	do 
+	do
 	{
-		if(m_dataStorage.GetTotalBytes() + nDataLen > m_dataMaxBytes)
+		UINT32 nDataLen = nFrameCount * m_nBytesPerFrame;
+		if (m_dataStorage.GetTotalBytes() + nDataLen > m_dataMaxBytes)
 		{
-			if(!m_dataStorage.ReplaceFront(pData, nDataLen))
+			if (!m_dataStorage.ReplaceFront(pData, nDataLen))
 			{
 				break;
 			}
 		}
 		else
 		{
-			if(!m_dataStorage.PushBack(pData, nDataLen))
+			if (!m_dataStorage.PushBack(pData, nDataLen))
 			{
 				break;
 			}
@@ -149,9 +150,8 @@ void AudioRecorder::Paint(HWND hwnd, HDC hdc)
 	//printf("Paint begin ...\n");
 
 	int step = (m_dataMaxBytes / w);
-	int minStep = m_nBytesPerSample * m_pwfx->nChannels;
-	if(step < minStep)
-		step = minStep;
+	if (step < m_nBytesPerFrame)
+		step = m_nBytesPerFrame;
 
 	float min, max;
 	ResetIter();
@@ -181,7 +181,7 @@ void AudioRecorder::ResetIter()
 UINT AudioRecorder::GetNext(UINT range, float *pMin, float *pMax)
 {
 	UINT count = 0;
-	range /= (m_nBytesPerSample * m_pwfx->nChannels);
+	range /= m_nBytesPerFrame;
 
 	float value = 0, min = 0, max = 0;
 	while (count < range && m_dataIter != m_dataStorage.end())
@@ -196,9 +196,9 @@ UINT AudioRecorder::GetNext(UINT range, float *pMin, float *pMax)
 
 			value = ParseValue(pData, m_dataIndex);
 
-			if(value < min)
+			if (value < min)
 				min = value;
-			if(value > max)
+			if (value > max)
 				max = value;
 
 			++count;

@@ -16,12 +16,12 @@ public:
 	void SetCheckTimeout(Fun_CheckTimeout callback);
 	void SetNotifyBite(Fun_NotifyBite callback);
 
-	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone);
+	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nFrameCount, BOOL *bDone);
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
 	virtual bool LoopDone();
 
 private:
-	bool MatchSound(BYTE *pData, UINT32 nDataLen);
+	bool MatchSound(BYTE *pData, UINT32 nFrameCount);
 
 private:
 	Fisher *m_pFisher;

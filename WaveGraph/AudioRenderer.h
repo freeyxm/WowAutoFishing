@@ -15,7 +15,7 @@ public:
 	virtual bool StopRender();
 
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
-	virtual HRESULT OnLoadData(BYTE *pData, UINT nDataLen, DWORD *pFlags);
+	virtual HRESULT OnLoadData(BYTE *pData, UINT32 nFrameCount, DWORD *pFlags);
 
 private:
 	AudioFrameStorage *m_pStorage;

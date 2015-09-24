@@ -18,7 +18,7 @@ public:
 	virtual HRESULT Capture();
 
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
-	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone);
+	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nFrameCount, BOOL *bDone);
 	virtual bool LoopDone();
 
 	float ParseValue(BYTE *pData, UINT index);
@@ -37,6 +37,7 @@ protected:
 
 	bool m_bFloatFormat;
 	UINT m_nBytesPerSample;
+	UINT m_nBytesPerFrame;
 	int m_maxValue;
 	int m_midValue;
 

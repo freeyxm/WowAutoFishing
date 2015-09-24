@@ -262,15 +262,16 @@ HRESULT AudioCapture::SetFormat(WAVEFORMATEX *pwfx)
 	m_bFloatFormat = IsFloatFormat(pwfx);
 
 	m_nBytesPerSample = pwfx->wBitsPerSample / 8;
+	m_nBytesPerFrame = m_nBytesPerSample * m_pwfx->nChannels;
 	m_maxValue = (1L << (pwfx->wBitsPerSample - 1)) - 1;
 	m_midValue = m_maxValue >> 1;
 
 	return S_OK;
 }
 
-HRESULT AudioCapture::OnCaptureData(BYTE *pData, UINT32 nDataLen, BOOL *bDone)
+HRESULT AudioCapture::OnCaptureData(BYTE *pData, UINT32 nFrameCount, BOOL *bDone)
 {
-	//printf("OnCaptureData: %d\n", nDataLen);
+	//printf("OnCaptureData: %d\n", nFrameCount);
 	*bDone = false;
 	return S_OK;
 }

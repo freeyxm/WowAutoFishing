@@ -192,10 +192,13 @@ inline HRESULT AudioRender::LoadData(DWORD *pFlags)
 
 HRESULT AudioRender::SetFormat(WAVEFORMATEX *pwfx)
 {
+	m_nBytesPerSample = pwfx->wBitsPerSample / 8;
+	m_nBytesPerFrame = m_nBytesPerSample * m_pwfx->nChannels;
+
 	return S_OK;
 }
 
-HRESULT AudioRender::OnLoadData(BYTE *pData, UINT nDataLen, DWORD *pFlags)
+HRESULT AudioRender::OnLoadData(BYTE *pData, UINT32 nFrameCount, DWORD *pFlags)
 {
 	*pFlags = AUDCLNT_BUFFERFLAGS_SILENT;
 

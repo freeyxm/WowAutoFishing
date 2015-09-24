@@ -16,7 +16,7 @@ public:
 	virtual HRESULT Render();
 
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
-	virtual HRESULT OnLoadData(BYTE *pData, UINT nDataLen, DWORD *pFlags);
+	virtual HRESULT OnLoadData(BYTE *pData, UINT32 nFrameCount, DWORD *pFlags);
 
 protected:
 	virtual void Release();
@@ -25,6 +25,9 @@ protected:
 protected:
 	WAVEFORMATEX *m_pwfx;
 	bool m_bInited;
+
+	UINT m_nBytesPerSample;
+	UINT m_nBytesPerFrame;
 
 private:
 	IMMDeviceEnumerator *m_pEnumerator;
