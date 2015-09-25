@@ -37,7 +37,7 @@ private:
 	int m_midValue;
 
 	const AudioFrameStorage *m_pCurStorage;
-	AudioFrameCIter m_dataIter;
+	AudioFrameStorage::AudioFrameCIter m_dataIter;
 	UINT m_dataIndex;
 
 	float m_scaleY;

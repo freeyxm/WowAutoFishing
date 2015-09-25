@@ -19,7 +19,7 @@ public:
 
 private:
 	const AudioFrameStorage *m_pStorage;
-	AudioFrameCIter m_dataIter;
+	AudioFrameStorage::AudioFrameCIter m_dataIter;
 	UINT m_dataIndex;
 
 	HANDLE m_hThreadCapture;

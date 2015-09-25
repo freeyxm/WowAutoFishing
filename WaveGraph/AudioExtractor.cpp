@@ -145,7 +145,7 @@ void AudioExtractor::AppendSilentFrames()
 	m_silentCount = 0;
 }
 
-bool AudioExtractor::StartListen()
+bool AudioExtractor::StartExtract()
 {
 	HRESULT hr = Start();
 	if (FAILED(hr))
@@ -160,7 +160,7 @@ bool AudioExtractor::StartListen()
 	return true;
 }
 
-void AudioExtractor::StopListen()
+void AudioExtractor::StopExtract()
 {
 	SetDone(true);
 
@@ -195,4 +195,14 @@ AudioFrameStorage* AudioExtractor::PopSegment()
 		return pStorage;
 	}
 	return NULL;
+}
+
+AudioExtractor::SegmentCIter AudioExtractor::cbegin() const
+{
+	return m_segmentList.cbegin();
+}
+
+AudioExtractor::SegmentCIter AudioExtractor::cend() const
+{
+	return m_segmentList.cend();
 }

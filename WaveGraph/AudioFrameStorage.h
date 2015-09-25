@@ -7,11 +7,12 @@ typedef struct
 	BYTE *pData;
 } AudioFrameData;
 
-typedef std::list<AudioFrameData*> AudioFrameList;
-typedef AudioFrameList::const_iterator AudioFrameCIter;
-
 class AudioFrameStorage
 {
+public:
+	typedef std::list<AudioFrameData*> AudioFrameList;
+	typedef AudioFrameList::const_iterator AudioFrameCIter;
+
 public:
 	AudioFrameStorage();
 	~AudioFrameStorage();
@@ -48,12 +49,12 @@ inline UINT AudioFrameStorage::GetTotalBytes() const
 	return m_totalBytes;
 }
 
-inline AudioFrameCIter AudioFrameStorage::cbegin() const
+inline AudioFrameStorage::AudioFrameCIter AudioFrameStorage::cbegin() const
 {
 	return m_datas.cbegin();
 }
 
-inline AudioFrameCIter AudioFrameStorage::cend() const
+inline AudioFrameStorage::AudioFrameCIter AudioFrameStorage::cend() const
 {
 	return m_datas.cend();
 }

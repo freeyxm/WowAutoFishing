@@ -5,6 +5,7 @@
 #include "WaveGraph.h"
 #include "AudioRecorder.h"
 #include "AudioRenderer.h"
+#include "AudioExtractor.h"
 #include "AudioPainter.h"
 #include <cstdio>
 
@@ -17,12 +18,26 @@
 #define STOP_CAPTURE_ID     201
 #define START_PLAY_ID       202
 #define STOP_PLAY_ID        203
-#define ADD_SCALE_ID        204
-#define SUB_SCALE_ID        205
-#define ENABLE_PAINT_ID     206
+#define START_EXTRACT_ID    204
+#define STOP_EXTRACT_ID     205
 
-#define TIMER_ID_SOUND 0x110
+#define PAINT_RECORD_ID     300
+#define PAINT_EXTRACT_ID    301
+#define ADD_SCALE_ID        310
+#define SUB_SCALE_ID        311
+
+#define TIMER_ID_SOUND      999
 UINT g_soundTimer = 0;
+
+
+enum Mode
+{
+	Mode_None,
+	Mode_Record,
+	Mode_Play,
+	Mode_Extract,
+};
+static Mode g_mode = Mode_None;
 
 // 全局变量:
 HINSTANCE hInst;								// 当前实例
@@ -32,6 +47,7 @@ TCHAR szWindowClass[MAX_LOADSTRING];			// 主窗口类名
 
 static AudioRecorder *g_pAudioRecorder = NULL;
 static AudioRenderer *g_pAudioRenderer = NULL;
+static AudioExtractor *g_pAudioExtractor = NULL;
 static AudioPainter *g_pAudioPainter = NULL;
 
 
@@ -43,11 +59,17 @@ INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
 VOID StartRecord();
 VOID StopRecord();
+
 VOID StartPlay();
 VOID StopPlay();
+
+VOID StartExtract();
+VOID StopExtract();
+
 VOID AddScale();
 VOID SubScale();
-void EnablePaint();
+VOID PaintRecorder();
+VOID PaintExtractor();
 
 
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
@@ -92,11 +114,24 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	g_pAudioRecorder = new AudioRecorder();
 	if (!g_pAudioRecorder || FAILED(g_pAudioRecorder->Init()))
+	{
+		printf("Init AudioRecorder failed!\n");
 		return FALSE;
+	}
 
 	g_pAudioRenderer = new AudioRenderer();
 	if (!g_pAudioRenderer || FAILED(g_pAudioRenderer->Init()))
+	{
+		printf("Init AudioRenderer failed!\n");
 		return FALSE;
+	}
+
+	g_pAudioExtractor = new AudioExtractor();
+	if(!g_pAudioExtractor || FAILED(g_pAudioExtractor->Init()))
+	{
+		printf("Init AudioExtractor failed!\n");
+		return FALSE;
+	}
 
 	// 主消息循环:
 	while (GetMessage(&msg, NULL, 0, 0))
@@ -188,41 +223,58 @@ VOID CreateControlButtons(HWND hWndParent)
 	int w2 = w + 10;
 	int h2 = h + 10;
 
-	HWND hWndStartRecord = CreateWindow(_T("BUTTON"), _T("Start Capture"), dwButtonStyle,
-		(x + w2 * 0), (y + h2 * 0), w, h, hWndParent, (HMENU)START_CAPTURE_ID, hInst, NULL);
+	int c = -1;
 
-	HWND hWndStopRecord = CreateWindow(_T("BUTTON"), _T("Stop Capture"), dwButtonStyle,
-		(x + w2 * 0), (y + h2 * 1), w, h, hWndParent, (HMENU)STOP_CAPTURE_ID, hInst, NULL);
-
-	HWND hWndStartRender = CreateWindow(_T("BUTTON"), _T("Start Play"), dwButtonStyle,
-		(x + w2 * 1), (y + h2 * 0), w, h, hWndParent, (HMENU)START_PLAY_ID, hInst, NULL);
-
-	HWND hWndStopRender = CreateWindow(_T("BUTTON"), _T("Stop Play"), dwButtonStyle,
-		(x + w2 * 1), (y + h2 * 1), w, h, hWndParent, (HMENU)STOP_PLAY_ID, hInst, NULL);
-
+	++c;
 	HWND hWndStartPlay = CreateWindow(_T("BUTTON"), _T("+Scale"), dwButtonStyle,
-		(x + w2 * 2), (y + h2 * 0), w, h, hWndParent, (HMENU)ADD_SCALE_ID, hInst, NULL);
-
+		(x + w2 * c), (y + h2 * 0), w, h, hWndParent, (HMENU)ADD_SCALE_ID, hInst, NULL);
 	HWND hWndStopPlay = CreateWindow(_T("BUTTON"), _T("-Scale"), dwButtonStyle,
-		(x + w2 * 2), (y + h2 * 1), w, h, hWndParent, (HMENU)SUB_SCALE_ID, hInst, NULL);
+		(x + w2 * c), (y + h2 * 1), w, h, hWndParent, (HMENU)SUB_SCALE_ID, hInst, NULL);
 
-	HWND hWndPaint = CreateWindow(_T("BUTTON"), _T("Paint"), dwButtonStyle,
-		(x + w2 * 3), (y + h2 * 0), w, h, hWndParent, (HMENU)ENABLE_PAINT_ID, hInst, NULL);
+	++c;
+	HWND hWndStartRecord = CreateWindow(_T("BUTTON"), _T("Start Record"), dwButtonStyle,
+		(x + w2 * c), (y + h2 * 0), w, h, hWndParent, (HMENU)START_CAPTURE_ID, hInst, NULL);
+	HWND hWndStopRecord = CreateWindow(_T("BUTTON"), _T("Stop Record"), dwButtonStyle,
+		(x + w2 * c), (y + h2 * 1), w, h, hWndParent, (HMENU)STOP_CAPTURE_ID, hInst, NULL);
+
+	++c;
+	HWND hWndStartRender = CreateWindow(_T("BUTTON"), _T("Start Play"), dwButtonStyle,
+		(x + w2 * c), (y + h2 * 0), w, h, hWndParent, (HMENU)START_PLAY_ID, hInst, NULL);
+	HWND hWndStopRender = CreateWindow(_T("BUTTON"), _T("Stop Play"), dwButtonStyle,
+		(x + w2 * c), (y + h2 * 1), w, h, hWndParent, (HMENU)STOP_PLAY_ID, hInst, NULL);
+
+	++c;
+	HWND hWndStartExtract = CreateWindow(_T("BUTTON"), _T("Start Extract"), dwButtonStyle,
+		(x + w2 * c), (y + h2 * 0), w, h, hWndParent, (HMENU)START_EXTRACT_ID, hInst, NULL);
+	HWND hWndStopExtract = CreateWindow(_T("BUTTON"), _T("Stop Extract"), dwButtonStyle,
+		(x + w2 * c), (y + h2 * 1), w, h, hWndParent, (HMENU)STOP_EXTRACT_ID, hInst, NULL);
+
+	++c;
+	HWND hWndPaintRecord = CreateWindow(_T("BUTTON"), _T("Paint Record"), dwButtonStyle,
+		(x + w2 * c), (y + h2 * 0), w, h, hWndParent, (HMENU)PAINT_RECORD_ID, hInst, NULL);
+	HWND hWndPaintExtract = CreateWindow(_T("BUTTON"), _T("Paint Extract"), dwButtonStyle,
+		(x + w2 * c), (y + h2 * 1), w, h, hWndParent, (HMENU)PAINT_EXTRACT_ID, hInst, NULL);
 }
 
-VOID UpdateButtonStatus(BOOL bEnableStartCapture, BOOL bEnableStopCapture, BOOL bEnableStartPlay, BOOL bEnableStopPlay)
+VOID UpdateButtonStatus()
 {
 	HWND hWndStartRecord = GetDlgItem(g_hWndMain, START_CAPTURE_ID);
 	HWND hWndStopRecord = GetDlgItem(g_hWndMain, STOP_CAPTURE_ID);
+
 	HWND hWndStartPlay = GetDlgItem(g_hWndMain, START_PLAY_ID);
 	HWND hWndStopPlay = GetDlgItem(g_hWndMain, STOP_PLAY_ID);
-	HWND hWndAddScale = GetDlgItem(g_hWndMain, ADD_SCALE_ID);
-	HWND hWndSubScale = GetDlgItem(g_hWndMain, SUB_SCALE_ID);
 
-	EnableWindow(hWndStartRecord, bEnableStartCapture);
-	EnableWindow(hWndStopRecord, bEnableStopCapture);
-	EnableWindow(hWndStartPlay, bEnableStartPlay);
-	EnableWindow(hWndStopPlay, bEnableStopPlay);
+	HWND hWndStartExtract = GetDlgItem(g_hWndMain, START_EXTRACT_ID);
+	HWND hWndStopExtract = GetDlgItem(g_hWndMain, STOP_EXTRACT_ID);
+
+	EnableWindow(hWndStartRecord, g_mode == Mode_None);
+	EnableWindow(hWndStopRecord, g_mode == Mode_Record);
+	
+	EnableWindow(hWndStartPlay, g_mode == Mode_None);
+	EnableWindow(hWndStopPlay,  g_mode == Mode_Play);
+
+	EnableWindow(hWndStartExtract, g_mode == Mode_None);
+	EnableWindow(hWndStopExtract, g_mode == Mode_Extract);
 }
 
 //
@@ -247,7 +299,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			g_hWndMain = hWnd;
 			CreateControlButtons(hWnd);
-			UpdateButtonStatus(TRUE, FALSE, FALSE, FALSE);
+			UpdateButtonStatus();
 		}
 		break;
 	case WM_COMMAND:
@@ -274,14 +326,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case STOP_PLAY_ID:
 			StopPlay();
 			break;
+		case START_EXTRACT_ID:
+			StartExtract();
+			break;
+		case STOP_EXTRACT_ID:
+			StopExtract();
+			break;
 		case ADD_SCALE_ID:
 			AddScale();
 			break;
 		case SUB_SCALE_ID:
 			SubScale();
 			break;
-		case ENABLE_PAINT_ID:
-			EnablePaint();
+		case PAINT_RECORD_ID:
+			PaintRecorder();
+			break;
+		case PAINT_EXTRACT_ID:
+			PaintExtractor();
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
@@ -351,14 +412,32 @@ VOID StartRecord()
 {
 	if (g_pAudioRecorder->StartRecord())
 	{
-		UpdateButtonStatus(FALSE, TRUE, FALSE, FALSE);
+		g_mode = Mode_Record;
+		UpdateButtonStatus();
 	}
 }
 
 VOID StopRecord()
 {
+	g_mode = Mode_None;
 	g_pAudioRecorder->StopRecord();
-	UpdateButtonStatus(TRUE, FALSE, TRUE, TRUE);
+	UpdateButtonStatus();
+}
+
+VOID StartExtract()
+{
+	if (g_pAudioExtractor->StartExtract())
+	{
+		g_mode = Mode_Extract;
+		UpdateButtonStatus();
+	}
+}
+
+VOID StopExtract()
+{
+	g_mode = Mode_None;
+	g_pAudioExtractor->StopExtract();
+	UpdateButtonStatus();
 }
 
 VOID StartPlay()
@@ -366,29 +445,38 @@ VOID StartPlay()
 	g_pAudioRenderer->SetSource(g_pAudioRecorder->GetStorage());
 	if (g_pAudioRenderer->StartRender())
 	{
-		UpdateButtonStatus(FALSE, FALSE, FALSE, TRUE);
+		g_mode = Mode_Play;
+		UpdateButtonStatus();
 	}
 }
 
 void StopPlay()
 {
+	g_mode = Mode_None;
 	g_pAudioRenderer->StopRender();
-	UpdateButtonStatus(TRUE, TRUE, TRUE, FALSE);
+	UpdateButtonStatus();
 }
 
 VOID AddScale()
 {
 	g_pAudioPainter->AddScale(+0.5f);
+	
+	RECT rect = { 0, 0, 100, 20 };
+	::InvalidateRect(g_hWndMain, &rect, true);
 }
 
 VOID SubScale()
 {
 	g_pAudioPainter->AddScale(-0.5f);
+
+	RECT rect = { 0, 0, 100, 20 };
+	::InvalidateRect(g_hWndMain, &rect, true);
 }
 
-VOID EnablePaint()
+VOID PaintRecorder()
 {
-	bool enable = !g_pAudioPainter->IsEnable();
+	static bool enable = false;
+	enable = !enable;
 	if (enable)
 	{
 		g_pAudioPainter->Clear();
@@ -397,3 +485,20 @@ VOID EnablePaint()
 	}
 	g_pAudioPainter->SetEnable(enable);
 }
+
+VOID PaintExtractor()
+{
+	static bool enable = false;
+	enable = !enable;
+	if (enable)
+	{
+		g_pAudioPainter->Clear();
+		g_pAudioPainter->SetFormat(g_pAudioExtractor->GetFormat());
+		for(AudioExtractor::SegmentCIter iter = g_pAudioExtractor->cbegin(); iter != g_pAudioExtractor->cend(); ++iter)
+		{
+			g_pAudioPainter->AddSource(*iter);
+		}
+	}
+	g_pAudioPainter->SetEnable(enable);
+}
+

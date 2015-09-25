@@ -8,11 +8,14 @@ class AudioExtractor :
 	public AudioCapture
 {
 public:
+	typedef std::list<AudioFrameStorage*>::const_iterator SegmentCIter;
+
+public:
 	AudioExtractor();
 	~AudioExtractor();
 
-	bool StartListen();
-	void StopListen();
+	bool StartExtract();
+	void StopExtract();
 
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
 	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nFrameCount);
@@ -24,6 +27,9 @@ public:
 
 	UINT GetSegmentCount() const;
 	AudioFrameStorage* PopSegment();
+
+	SegmentCIter cbegin() const;
+	SegmentCIter cend() const;
 
 private:
 	void StartSegment();
