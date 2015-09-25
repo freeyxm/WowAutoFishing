@@ -85,6 +85,7 @@
   <ItemGroup>
     <ClInclude Include="AudioExtractor.h" />
     <ClInclude Include="AudioFrameStorage.h" />
+    <ClInclude Include="AudioPainter.h" />
     <ClInclude Include="AudioRecorder.h" />
     <ClInclude Include="AudioRenderer.h" />
     <ClInclude Include="Resource.h" />
@@ -96,6 +97,7 @@
   <ItemGroup>
     <ClCompile Include="AudioExtractor.cpp" />
     <ClCompile Include="AudioFrameStorage.cpp" />
+    <ClCompile Include="AudioPainter.cpp" />
     <ClCompile Include="AudioRecorder.cpp" />
     <ClCompile Include="AudioRenderer.cpp" />
     <ClCompile Include="stdafx.cpp">

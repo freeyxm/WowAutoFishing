@@ -4,7 +4,7 @@
 static UINT __stdcall CaptureTheadProc(LPVOID param);
 
 AudioExtractor::AudioExtractor()
-	: m_pCurSegment(NULL), m_bSegmentStarted(false), m_bDone(false)
+	: m_pCurSegment(NULL), m_bSegmentStarted(false)
 {
 	m_silentLimit = 0.0001f;
 	m_silentCount = 0;
@@ -46,7 +46,7 @@ HRESULT AudioExtractor::SetFormat(WAVEFORMATEX *pwfx)
 	return S_OK;
 }
 
-HRESULT AudioExtractor::OnCaptureData(BYTE *pData, UINT32 nFrameCount, BOOL *bDone)
+HRESULT AudioExtractor::OnCaptureData(BYTE *pData, UINT32 nFrameCount)
 {
 	float value, min = 0, max = 0, avg = 0;
 	for(UINT32 i = 0; i < nFrameCount; ++i)
@@ -87,15 +87,8 @@ HRESULT AudioExtractor::OnCaptureData(BYTE *pData, UINT32 nFrameCount, BOOL *bDo
 			}
 		}
 	}
-	
-	*bDone = m_bDone;
 
 	return S_OK;
-}
-
-bool AudioExtractor::LoopDone()
-{
-	return m_bDone;
 }
 
 void AudioExtractor::SetSilentLimit(float limit)
@@ -158,7 +151,7 @@ bool AudioExtractor::StartListen()
 	if (FAILED(hr))
 		return false;
 
-	m_bDone = false;
+	SetDone(false);
 
 	m_hThreadCapture = (HANDLE)::_beginthreadex(NULL, 0, &CaptureTheadProc, this, 0, NULL);
 	if (m_hThreadCapture == NULL)
@@ -169,7 +162,7 @@ bool AudioExtractor::StartListen()
 
 void AudioExtractor::StopListen()
 {
-	m_bDone = true;
+	SetDone(true);
 
 	Stop();
 
@@ -186,7 +179,7 @@ static UINT __stdcall CaptureTheadProc(LPVOID param)
 	return pAudio->Capture();
 }
 
-UINT AudioExtractor::GetSegmentCount()
+UINT AudioExtractor::GetSegmentCount() const
 {
 	return m_segmentList.size();
 }

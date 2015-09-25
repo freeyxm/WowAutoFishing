@@ -15,8 +15,13 @@ public:
 	virtual HRESULT Stop();
 	virtual HRESULT Render();
 
+	virtual const WAVEFORMATEX* GetFormat() const;
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
+
 	virtual HRESULT OnLoadData(BYTE *pData, UINT32 nFrameCount, DWORD *pFlags);
+
+	virtual bool IsDone() const;
+	virtual void SetDone(bool bDone);
 
 protected:
 	virtual void Release();
@@ -25,6 +30,7 @@ protected:
 protected:
 	WAVEFORMATEX *m_pwfx;
 	bool m_bInited;
+	bool m_bDone;
 
 	UINT m_nBytesPerSample;
 	UINT m_nBytesPerFrame;

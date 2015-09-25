@@ -57,7 +57,7 @@ HRESULT AudioListener::OnCaptureData(BYTE *pData, UINT32 nFrameCount, BOOL *bDon
 	return S_OK;
 }
 
-bool AudioListener::LoopDone()
+bool AudioListener::IsDone()
 {
 	if (m_pFisher != NULL && m_funCheckTimeout != NULL)
 	{

@@ -15,15 +15,14 @@ public:
 	void StopListen();
 
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
-	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nFrameCount, BOOL *bDone);
-	virtual bool LoopDone();
+	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nFrameCount);
 
 	void SetSilentLimit(float limit);
 	void SetSilentMaxCount(UINT count);
 
 	void Clear();
 
-	UINT GetSegmentCount();
+	UINT GetSegmentCount() const;
 	AudioFrameStorage* PopSegment();
 
 private:
@@ -41,7 +40,6 @@ private:
 	UINT m_silentMaxCount;
 	float m_silentLimit;
 	
-	bool m_bDone;
 	HANDLE m_hThreadCapture;
 };
 

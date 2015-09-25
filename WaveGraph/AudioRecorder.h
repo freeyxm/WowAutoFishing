@@ -22,33 +22,15 @@ public:
 	void Clear();
 
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
-	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nFrameCount, BOOL *bDone);
-	virtual bool LoopDone();
+	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nFrameCount);
 
-	void SetDone(bool bDone);
-
-	void Paint(HWND hwnd, HDC hdc);
-
-	void AddScale(float scale);
-	float GetScale();
-
-	AudioFrameStorage* GetStorage();
-
-private:
-	void ResetIter();
-	UINT GetNext(UINT range, float *pMin, float *pMax);
+	const AudioFrameStorage* GetStorage() const;
 
 private:
 	CRITICAL_SECTION m_dataSection; // lock
 	AudioFrameStorage m_dataStorage;
 	UINT m_dataMaxBytes;
 
-	bool m_bDone;
 	HANDLE m_hThreadCapture;
-
-	AudioFrameCIter m_dataIter;
-	UINT m_dataIndex;
-
-	float m_scaleY;
 };
 

@@ -24,11 +24,11 @@ public:
 
 	void Clear();
 
-	inline UINT GetSize();
-	inline UINT GetTotalBytes();
+	inline UINT GetSize() const;
+	inline UINT GetTotalBytes() const;
 
-	inline AudioFrameCIter cbegin();
-	inline AudioFrameCIter cend();
+	inline AudioFrameCIter cbegin() const;
+	inline AudioFrameCIter cend() const;
 
 private:
 	inline void PushBack(AudioFrameData *pFrame, BYTE *pData, UINT32 nDataLen);
@@ -38,22 +38,22 @@ private:
 	UINT m_totalBytes;
 };
 
-inline UINT AudioFrameStorage::GetSize()
+inline UINT AudioFrameStorage::GetSize() const
 {
 	return m_datas.size();
 }
 
-inline UINT AudioFrameStorage::GetTotalBytes()
+inline UINT AudioFrameStorage::GetTotalBytes() const
 {
 	return m_totalBytes;
 }
 
-inline AudioFrameCIter AudioFrameStorage::cbegin()
+inline AudioFrameCIter AudioFrameStorage::cbegin() const
 {
 	return m_datas.cbegin();
 }
 
-inline AudioFrameCIter AudioFrameStorage::cend()
+inline AudioFrameCIter AudioFrameStorage::cend() const
 {
 	return m_datas.cend();
 }

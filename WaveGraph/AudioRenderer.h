@@ -9,20 +9,19 @@ public:
 	AudioRenderer();
 	virtual ~AudioRenderer();
 
-	void SetSource(AudioFrameStorage *pStorage);
+	void SetSource(const AudioFrameStorage *pStorage);
 
 	virtual bool StartRender();
-	virtual bool StopRender();
+	virtual void StopRender();
 
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
 	virtual HRESULT OnLoadData(BYTE *pData, UINT32 nFrameCount, DWORD *pFlags);
 
 private:
-	AudioFrameStorage *m_pStorage;
+	const AudioFrameStorage *m_pStorage;
 	AudioFrameCIter m_dataIter;
 	UINT m_dataIndex;
 
-	bool m_bDone;
 	HANDLE m_hThreadCapture;
 };
 

@@ -17,15 +17,19 @@ public:
 	virtual HRESULT Stop();
 	virtual HRESULT Capture();
 
+	virtual const WAVEFORMATEX* GetFormat() const;
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
-	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nFrameCount, BOOL *bDone);
-	virtual bool LoopDone();
 
-	float ParseValue(BYTE *pData, UINT index);
+	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nFrameCount);
+	
+	virtual bool IsDone() const;
+	virtual void SetDone(bool bDone);
+
+	float ParseValue(BYTE *pData, UINT index) const;
 
 	static void PrintDevices(IMMDeviceEnumerator *pEnumerator);
 
-	static bool IsFloatFormat(WAVEFORMATEX *pfwx);
+	static bool IsFloatFormat(const WAVEFORMATEX *pfwx);
 
 protected:
 	virtual void Release();
@@ -34,6 +38,7 @@ protected:
 	WAVEFORMATEX *m_pwfx;
 	bool m_bInited;
 	bool m_bLoopback;
+	bool m_bDone;
 
 	bool m_bFloatFormat;
 	UINT m_nBytesPerSample;

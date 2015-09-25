@@ -5,7 +5,7 @@
 static UINT __stdcall CaptureTheadProc(LPVOID param);
 
 AudioRecorder::AudioRecorder(void)
-	: m_bDone(false), m_hThreadCapture(NULL), m_scaleY(1.0f)
+	: m_hThreadCapture(NULL)
 {
 	InitializeCriticalSection(&m_dataSection);
 }
@@ -20,12 +20,12 @@ HRESULT AudioRecorder::SetFormat(WAVEFORMATEX *pwfx)
 {
 	AudioCapture::SetFormat(pwfx);
 
-	m_dataMaxBytes = (UINT)(pwfx->nAvgBytesPerSec * 60.0f);
+	m_dataMaxBytes = (UINT)(pwfx->nAvgBytesPerSec * 10.0f);
 
 	return S_OK;
 }
 
-HRESULT AudioRecorder::OnCaptureData(BYTE *pData, UINT32 nFrameCount, BOOL *bDone)
+HRESULT AudioRecorder::OnCaptureData(BYTE *pData, UINT32 nFrameCount)
 {
 	::EnterCriticalSection(&m_dataSection);
 
@@ -54,19 +54,7 @@ HRESULT AudioRecorder::OnCaptureData(BYTE *pData, UINT32 nFrameCount, BOOL *bDon
 
 	::LeaveCriticalSection(&m_dataSection);
 
-	*bDone = m_bDone;
-
 	return bSuccess ? S_OK : E_FAIL;
-}
-
-bool AudioRecorder::LoopDone()
-{
-	return m_bDone;
-}
-
-void AudioRecorder::SetDone(bool bDone)
-{
-	m_bDone = bDone;
 }
 
 bool AudioRecorder::StartRecord()
@@ -77,7 +65,7 @@ bool AudioRecorder::StartRecord()
 	if (FAILED(hr))
 		return false;
 
-	m_bDone = false;
+	SetDone(false);
 
 	m_hThreadCapture = (HANDLE)::_beginthreadex(NULL, 0, &CaptureTheadProc, this, 0, NULL);
 	if (m_hThreadCapture == NULL)
@@ -96,7 +84,7 @@ bool AudioRecorder::StartRecord()
 
 void AudioRecorder::StopRecord()
 {
-	m_bDone = true;
+	SetDone(true);
 
 	Stop();
 
@@ -118,117 +106,7 @@ static UINT __stdcall CaptureTheadProc(LPVOID param)
 	return pRecorder->Capture();
 }
 
-void AudioRecorder::Paint(HWND hwnd, HDC hdc)
-{
-	RECT rect;
-	if (FAILED(::GetWindowRect(hwnd, &rect)))
-		return;
-
-	int x = 8;
-	int y = 0;
-
-	int w = rect.right - rect.left - x * 4;
-	int h = 200;
-	int m = (rect.bottom - rect.top) / 2;
-	int h2 = h / 2;
-
-	::MoveToEx(hdc, x, m, NULL);
-	::LineTo(hdc, x + w, m);
-
-	::MoveToEx(hdc, x, m - h2, NULL);
-	::LineTo(hdc, x + w, m - h2);
-
-	::MoveToEx(hdc, x, m + h2, NULL);
-	::LineTo(hdc, x + w, m + h2);
-
-	::EnterCriticalSection(&m_dataSection);
-	//printf("Paint begin ...\n");
-
-	int step = (m_dataMaxBytes / w);
-	if (step < m_nBytesPerFrame)
-		step = m_nBytesPerFrame;
-
-	float min, max;
-	ResetIter();
-	while (GetNext(step, &min, &max) > 0)
-	{
-		y = (int)(min * m_scaleY * h2);
-		::MoveToEx(hdc, x, m, NULL);
-		::LineTo(hdc, x, m + y);
-
-		y = (int)(max * m_scaleY * h2);
-		::MoveToEx(hdc, x, m, NULL);
-		::LineTo(hdc, x, m + y);
-
-		++x;
-	}
-
-	//printf("Paint end.\n");
-	::LeaveCriticalSection(&m_dataSection);
-}
-
-void AudioRecorder::ResetIter()
-{
-	m_dataIter = m_dataStorage.cbegin();
-	m_dataIndex = 0;
-}
-
-UINT AudioRecorder::GetNext(UINT range, float *pMin, float *pMax)
-{
-	UINT count = 0;
-	range /= m_nBytesPerFrame;
-
-	float value = 0, min = 0, max = 0;
-	while (count < range && m_dataIter != m_dataStorage.cend())
-	{
-		BYTE *pData = (*m_dataIter)->pData;
-		UINT maxIndex = (*m_dataIter)->nDataLen / m_nBytesPerSample;
-
-		for (; m_dataIndex < maxIndex; m_dataIndex += m_pwfx->nChannels) // 只处理1个声道
-		{
-			if (count >= range)
-				break;
-
-			value = ParseValue(pData, m_dataIndex);
-
-			if (value < min)
-				min = value;
-			if (value > max)
-				max = value;
-
-			++count;
-		}
-
-		if (count < range)
-		{
-			++m_dataIter;
-			m_dataIndex = 0;
-		}
-	}
-
-	if (count > 0)
-	{
-		*pMin = min;
-		*pMax = max;
-	}
-
-	return count;
-}
-
-void AudioRecorder::AddScale(float scale)
-{
-	m_scaleY += scale;
-
-	if (m_scaleY < 0)
-		m_scaleY = 0;
-}
-
-float AudioRecorder::GetScale()
-{
-	return m_scaleY;
-}
-
-AudioFrameStorage* AudioRecorder::GetStorage()
+const AudioFrameStorage* AudioRecorder::GetStorage() const
 {
 	return &m_dataStorage;
 }

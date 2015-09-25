@@ -13,14 +13,14 @@ AudioRenderer::~AudioRenderer()
 {
 }
 
-void AudioRenderer::SetSource(AudioFrameStorage *pStorage)
+void AudioRenderer::SetSource(const AudioFrameStorage *pStorage)
 {
 	m_pStorage = pStorage;
 }
 
 bool AudioRenderer::StartRender()
 {
-	m_bDone = false;
+	SetDone(false);
 
 	m_dataIter = m_pStorage->cbegin();
 	m_dataIndex = 0;
@@ -32,10 +32,9 @@ bool AudioRenderer::StartRender()
 	return true;
 }
 
-bool AudioRenderer::StopRender()
+void AudioRenderer::StopRender()
 {
-	m_bDone = true;
-	return true;
+	SetDone(true);
 }
 
 static UINT __stdcall RenderTheadProc(LPVOID param)
@@ -53,7 +52,7 @@ HRESULT AudioRenderer::SetFormat(WAVEFORMATEX *pwfx)
 
 HRESULT AudioRenderer::OnLoadData(BYTE *pData, UINT32 nFrameCount, DWORD *pFlags)
 {
-	if (!m_bDone)
+	if (!IsDone())
 	{
 		UINT32 nDataLen = nFrameCount * m_nBytesPerFrame;
 		UINT32 nLoaded = 0;
@@ -75,11 +74,11 @@ HRESULT AudioRenderer::OnLoadData(BYTE *pData, UINT32 nFrameCount, DWORD *pFlags
 		}
 		if (nLoaded < nDataLen)
 		{
-			m_bDone = true;
+			SetDone(true);
 		}
 	}
 
-	if (m_bDone)
+	if (IsDone())
 	{
 		*pFlags = AUDCLNT_BUFFERFLAGS_SILENT;
 	}

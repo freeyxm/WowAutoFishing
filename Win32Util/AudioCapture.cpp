@@ -6,7 +6,7 @@
 
 AudioCapture::AudioCapture(bool bLoopback)
 	: m_pEnumerator(NULL), m_pDevice(NULL), m_pAudioClient(NULL), m_pCaptureClient(NULL), m_pwfx(NULL)
-	, m_bInited(false), m_bLoopback(bLoopback), m_bFloatFormat(false)
+	, m_bInited(false), m_bLoopback(bLoopback), m_bDone(true), m_bFloatFormat(false)
 {
 }
 
@@ -117,6 +117,7 @@ void AudioCapture::Release()
 	SAFE_RELEASE(m_pAudioClient);
 	SAFE_RELEASE(m_pCaptureClient);
 	m_bInited = false;
+	m_bDone = true;
 }
 
 void AudioCapture::PrintDevices(IMMDeviceEnumerator *pEnumerator)
@@ -201,12 +202,11 @@ HRESULT AudioCapture::Capture()
 	HRESULT hr = S_OK;
 	UINT32 numFramesAvailable;
 	UINT32 packetLength = 0;
-	BOOL bDone = FALSE;
 	BYTE *pData;
 	DWORD flags;
 
 	// Each loop fills about half of the shared buffer.
-	while (bDone == FALSE)
+	while (!IsDone())
 	{
 		// Sleep for half the buffer duration.
 		Sleep((DWORD)(m_hnsActualDuration / REFTIMES_PER_MILLISEC / 2));
@@ -214,7 +214,7 @@ HRESULT AudioCapture::Capture()
 		hr = m_pCaptureClient->GetNextPacketSize(&packetLength);
 		BREAK_ON_ERROR(hr);
 
-		while (packetLength != 0 && !bDone)
+		while (packetLength != 0 && !IsDone())
 		{
 			// Get the available data in the shared buffer.
 			hr = m_pCaptureClient->GetBuffer(&pData, &numFramesAvailable, &flags, NULL, NULL);
@@ -228,7 +228,7 @@ HRESULT AudioCapture::Capture()
 			if (numFramesAvailable != 0)
 			{
 				// Copy the available capture data to the audio sink.
-				hr = this->OnCaptureData(pData, numFramesAvailable, &bDone);
+				hr = this->OnCaptureData(pData, numFramesAvailable);
 				BREAK_ON_ERROR(hr);
 			}
 
@@ -238,14 +238,14 @@ HRESULT AudioCapture::Capture()
 			hr = m_pCaptureClient->GetNextPacketSize(&packetLength);
 			BREAK_ON_ERROR(hr);
 		}
-
-		if (!bDone)
-		{
-			bDone = this->LoopDone();
-		}
 	}
 
 	return hr;
+}
+
+const WAVEFORMATEX* AudioCapture::GetFormat() const
+{
+	return m_pwfx;
 }
 
 HRESULT AudioCapture::SetFormat(WAVEFORMATEX *pwfx)
@@ -269,19 +269,23 @@ HRESULT AudioCapture::SetFormat(WAVEFORMATEX *pwfx)
 	return S_OK;
 }
 
-HRESULT AudioCapture::OnCaptureData(BYTE *pData, UINT32 nFrameCount, BOOL *bDone)
+HRESULT AudioCapture::OnCaptureData(BYTE *pData, UINT32 nFrameCount)
 {
 	//printf("OnCaptureData: %d\n", nFrameCount);
-	*bDone = false;
 	return S_OK;
 }
 
-bool AudioCapture::LoopDone()
+bool AudioCapture::IsDone() const
 {
-	return false;
+	return m_bDone;
 }
 
-bool AudioCapture::IsFloatFormat(WAVEFORMATEX *pwfx)
+void AudioCapture::SetDone(bool bDone)
+{
+	m_bDone = bDone;
+}
+
+bool AudioCapture::IsFloatFormat(const WAVEFORMATEX *pwfx)
 {
 	if (pwfx->wFormatTag == WAVE_FORMAT_IEEE_FLOAT)
 	{
@@ -298,7 +302,7 @@ bool AudioCapture::IsFloatFormat(WAVEFORMATEX *pwfx)
 	return false;
 }
 
-float AudioCapture::ParseValue(BYTE *pData, UINT index)
+float AudioCapture::ParseValue(BYTE *pData, UINT index) const
 {
 	switch (m_pwfx->wBitsPerSample)
 	{

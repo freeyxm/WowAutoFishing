@@ -4,7 +4,7 @@
 
 AudioRender::AudioRender()
 	: m_pEnumerator(NULL), m_pDevice(NULL), m_pAudioClient(NULL), m_pRenderClient(NULL), m_pwfx(NULL)
-	, m_bInited(false)
+	, m_bInited(false), m_bDone(true)
 {
 }
 
@@ -103,6 +103,7 @@ void AudioRender::Release()
 	SAFE_RELEASE(m_pAudioClient);
 	SAFE_RELEASE(m_pRenderClient);
 	m_bInited = false;
+	m_bDone = true;
 }
 
 HRESULT AudioRender::Start()
@@ -190,6 +191,11 @@ inline HRESULT AudioRender::LoadData(DWORD *pFlags)
 	return hr;
 }
 
+const WAVEFORMATEX* AudioRender::GetFormat() const
+{
+	return m_pwfx;
+}
+
 HRESULT AudioRender::SetFormat(WAVEFORMATEX *pwfx)
 {
 	m_nBytesPerSample = pwfx->wBitsPerSample / 8;
@@ -203,4 +209,14 @@ HRESULT AudioRender::OnLoadData(BYTE *pData, UINT32 nFrameCount, DWORD *pFlags)
 	*pFlags = AUDCLNT_BUFFERFLAGS_SILENT;
 
 	return S_OK;
+}
+
+bool AudioRender::IsDone() const
+{
+	return m_bDone;
+}
+
+void AudioRender::SetDone(bool bDone)
+{
+	m_bDone = bDone;
 }

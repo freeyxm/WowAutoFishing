@@ -18,7 +18,7 @@ public:
 
 	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nFrameCount, BOOL *bDone);
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
-	virtual bool LoopDone();
+	virtual bool IsDone();
 
 private:
 	bool MatchSound(BYTE *pData, UINT32 nFrameCount);
