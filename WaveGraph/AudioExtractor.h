@@ -46,7 +46,6 @@ private:
 	
 	UINT m_silentCount;
 	UINT m_silentMaxCount;
-	UINT m_soundCount;
 	UINT m_soundMinCount;
 
 	enum class SoundState
