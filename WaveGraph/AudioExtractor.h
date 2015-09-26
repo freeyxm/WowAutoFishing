@@ -20,8 +20,9 @@ public:
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
 	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nFrameCount);
 
-	void SetSilentLimit(float limit);
 	void SetSilentMaxCount(UINT count);
+	void SetSoundMinCount(UINT count);
+	void SetAmpZcr(UINT frameCount, float ampL, float ampH, float zcrL, float zcrH);
 
 	void Clear();
 
@@ -34,6 +35,7 @@ public:
 private:
 	void StartSegment();
 	void EndSegment();
+	void CancelSegment();
 	void AppendSilentFrames();
 
 private:
@@ -41,10 +43,25 @@ private:
 	std::list<AudioFrameStorage*> m_segmentList;
 	AudioFrameStorage *m_pCurSegment;
 	AudioFrameStorage m_silentFrames;
-	bool m_bSegmentStarted;
+	
 	UINT m_silentCount;
 	UINT m_silentMaxCount;
-	float m_silentLimit;
+	UINT m_soundCount;
+	UINT m_soundMinCount;
+
+	enum class SoundState
+	{
+		Silent,
+		Sound,
+	} m_eSoundState;
+	struct
+	{
+		UINT frameCount; // 短时能量参考帧数。
+		float ampL; // 短时能量低门限
+		float ampH; // 短时能量高门限
+		float zcrL; // 过零率低门限
+		float zcrH; // 过零率高门限
+	} m_sAmpZcr;
 	
 	HANDLE m_hThreadCapture;
 };

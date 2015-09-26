@@ -4,11 +4,8 @@
 static UINT __stdcall CaptureTheadProc(LPVOID param);
 
 AudioExtractor::AudioExtractor()
-	: m_pCurSegment(NULL), m_bSegmentStarted(false)
+	: m_pCurSegment(NULL), m_eSoundState(SoundState::Silent), m_silentCount(0), m_soundCount(0)
 {
-	m_silentLimit = 0.0001f;
-	m_silentCount = 0;
-	m_silentMaxCount = 5;
 	InitializeCriticalSection(&m_segmentSection);
 }
 
@@ -38,62 +35,135 @@ void AudioExtractor::Clear()
 		m_pCurSegment = NULL;
 	}
 	m_silentFrames.Clear();
+
+	// reset state:
+	m_eSoundState = SoundState::Silent;
+	m_silentCount = 0;
+	m_soundCount = 0;
 }
 
 HRESULT AudioExtractor::SetFormat(WAVEFORMATEX *pwfx)
 {
 	AudioCapture::SetFormat(pwfx);
+
+	SetSilentMaxCount(5);
+	SetSoundMinCount(10);
+	SetAmpZcr(480, 0.01f, 1.0f, 0.05f, 0.1f);
+
 	return S_OK;
 }
 
 HRESULT AudioExtractor::OnCaptureData(BYTE *pData, UINT32 nFrameCount)
 {
-	float value, min = 0, max = 0, avg = 0;
+	float amp = 0, zcr = 0;
+	char pre_sign = 0;
 	for(UINT32 i = 0; i < nFrameCount; ++i)
 	{
-		for(int k = 0; k < m_pwfx->nChannels; ++k)
+		UINT32 baseIndex = i * m_pwfx->nChannels;
+		float value = ParseValue(pData, baseIndex);
+		char sign;
+		if (value < 0)
 		{
-			value = ParseValue(pData, i*2);
-			if(value < min)
-				min = value;
-			else if(value > max)
-				max = value;
+			sign = -1;
+			value = -value;
+		}
+		else
+		{
+			sign = 1;
+		}
+		for(int k = 1; k < m_pwfx->nChannels; ++k)
+		{
+			float tmp = ParseValue(pData, baseIndex + k);
+			if (tmp < 0)
+				tmp = -tmp;
+			if (tmp > value)
+				value = tmp;
+		}
+		amp += value * value;
+		if(value > 1E-6) // need to repair!!!
+		{
+			zcr += (sign != pre_sign) ? 1 : 0;
+			pre_sign = sign;
 		}
 	}
-	if(max > m_silentLimit || min < -m_silentLimit)
+	amp = amp * nFrameCount / m_sAmpZcr.frameCount;
+	zcr = zcr / nFrameCount;
+
+	if(amp > 1E-6 || zcr > 1E-6)
 	{
-		if(!m_bSegmentStarted)
-		{
-			StartSegment();
-		}
-		if(m_silentCount > 0)
-		{
-			AppendSilentFrames();
-		}
-		m_pCurSegment->PushBack(pData, nFrameCount * m_nBytesPerFrame);
+		printf("Segment: amp = %f, zcr = %f\n", amp, zcr);
 	}
-	else
+
+	switch (m_eSoundState)
 	{
-		if(m_bSegmentStarted)
+	case AudioExtractor::SoundState::Silent:
 		{
-			if(++m_silentCount < m_silentMaxCount)
+			if(amp > m_sAmpZcr.ampH || zcr > m_sAmpZcr.zcrH)
 			{
-				m_silentFrames.PushBack(pData, nFrameCount * m_nBytesPerFrame);
+				printf("StartSegment: amp = %f, zcr = %f\n", amp, zcr);
+				StartSegment();
+				if(m_silentCount > 0)
+				{
+					AppendSilentFrames();
+				}
+				m_pCurSegment->PushBack(pData, nFrameCount * m_nBytesPerFrame);
+			}
+			else if(amp > m_sAmpZcr.ampL || zcr > m_sAmpZcr.zcrL)
+			{
+				if(m_silentCount < m_silentMaxCount)
+				{
+					++m_silentCount;
+					m_silentFrames.PushBack(pData, nFrameCount * m_nBytesPerFrame);
+				}
+				else
+				{
+					m_silentFrames.ReplaceFront(pData, nFrameCount * m_nBytesPerFrame);
+				}
 			}
 			else
 			{
-				EndSegment();
+				m_silentCount = 0;
 				m_silentFrames.Clear();
 			}
 		}
+		break;
+	case AudioExtractor::SoundState::Sound:
+		{
+			if(amp > m_sAmpZcr.ampL || zcr > m_sAmpZcr.zcrL)
+			{
+				++m_soundCount;
+				m_pCurSegment->PushBack(pData, nFrameCount * m_nBytesPerFrame);
+			}
+			else
+			{
+				++m_silentCount;
+				if(m_silentCount <= m_silentMaxCount)
+				{
+					++m_soundCount;
+					m_pCurSegment->PushBack(pData, nFrameCount * m_nBytesPerFrame);
+				}
+				else
+				{
+					if(m_soundCount >= m_soundMinCount)
+					{
+						EndSegment();
+						printf("EndSegment: amp = %f, zcr = %f\n", amp, zcr);
+					}
+					else
+					{
+						CancelSegment();
+						printf("CancelSegment: amp = %f, zcr = %f\n", amp, zcr);
+					}
+					m_eSoundState = SoundState::Silent;
+				}
+			}
+		}
+		break;
+	default:
+		break;
 	}
 
 	return S_OK;
-}
-
-void AudioExtractor::SetSilentLimit(float limit)
-{
-	m_silentLimit = limit;
 }
 
 void AudioExtractor::SetSilentMaxCount(UINT count)
@@ -101,22 +171,36 @@ void AudioExtractor::SetSilentMaxCount(UINT count)
 	m_silentMaxCount = count;
 }
 
+void AudioExtractor::SetSoundMinCount(UINT count)
+{
+	m_soundMinCount = count;
+}
+
+void AudioExtractor::SetAmpZcr(UINT frameCount, float ampL, float ampH, float zcrL, float zcrH)
+{
+	m_sAmpZcr.frameCount = frameCount;
+	m_sAmpZcr.ampL = ampL;
+	m_sAmpZcr.ampH = ampH;
+	m_sAmpZcr.zcrL = zcrL;
+	m_sAmpZcr.zcrH = zcrH;
+}
+
 void AudioExtractor::StartSegment()
 {
-	if(m_bSegmentStarted)
+	if(m_eSoundState == SoundState::Sound)
 		return;
 
 	if(m_pCurSegment == NULL)
 	{
 		m_pCurSegment = new AudioFrameStorage();
 	}
-	m_silentCount = 0;
-	m_bSegmentStarted = true;
+	m_soundCount = 0;
+	m_eSoundState = SoundState::Sound;
 }
 
 void AudioExtractor::EndSegment()
 {
-	if(!m_bSegmentStarted)
+	if(m_eSoundState != SoundState::Sound)
 		return;
 
 	if(m_pCurSegment != NULL)
@@ -126,7 +210,19 @@ void AudioExtractor::EndSegment()
 		::LeaveCriticalSection(&m_segmentSection);
 		m_pCurSegment = NULL;
 	}
-	m_bSegmentStarted = false;
+	m_eSoundState = SoundState::Silent;
+}
+
+void AudioExtractor::CancelSegment()
+{
+	if(m_eSoundState != SoundState::Sound)
+		return;
+
+	if(m_pCurSegment != NULL)
+	{
+		m_pCurSegment->Clear();
+	}
+	m_eSoundState = SoundState::Silent;
 }
 
 void AudioExtractor::AppendSilentFrames()
@@ -134,13 +230,10 @@ void AudioExtractor::AppendSilentFrames()
 	if(m_pCurSegment == NULL)
 		return;
 
+	m_soundCount += m_silentFrames.GetSize();
 	while(m_silentFrames.GetSize() > 0)
 	{
-		AudioFrameData *pFrame = m_silentFrames.PopFront();
-		if(pFrame != NULL)
-		{
-			m_pCurSegment->PushBack(pFrame);
-		}
+		m_pCurSegment->PushBack(m_silentFrames.PopFront());
 	}
 	m_silentCount = 0;
 }
