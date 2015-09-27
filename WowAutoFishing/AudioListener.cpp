@@ -27,14 +27,7 @@ void AudioListener::SetNotifyBite(Fun_NotifyBite callback)
 	m_funNotifyBite = callback;
 }
 
-HRESULT AudioListener::SetFormat(WAVEFORMATEX *pwfx)
-{
-	AudioCapture::SetFormat(pwfx);
-
-	return S_OK;
-}
-
-HRESULT AudioListener::OnCaptureData(BYTE *pData, UINT32 nFrameCount, BOOL *bDone)
+HRESULT AudioListener::OnCaptureData(BYTE *pData, UINT32 nFrameCount)
 {
 	if (pData != NULL)
 	{
@@ -44,11 +37,11 @@ HRESULT AudioListener::OnCaptureData(BYTE *pData, UINT32 nFrameCount, BOOL *bDon
 			{
 				(m_pFisher->*m_funNotifyBite)();
 			}
-			*bDone = true;
+			SetDone(true);
 		}
 		else
 		{
-			*bDone = false;
+			SetDone(false);
 		}
 	}
 	
@@ -57,19 +50,19 @@ HRESULT AudioListener::OnCaptureData(BYTE *pData, UINT32 nFrameCount, BOOL *bDon
 	return S_OK;
 }
 
-bool AudioListener::IsDone()
+bool AudioListener::IsDone() const
 {
-	if (m_pFisher != NULL && m_funCheckTimeout != NULL)
+	if (!m_bDone && m_pFisher != NULL && m_funCheckTimeout != NULL)
 	{
 		return (m_pFisher->*m_funCheckTimeout)();
 	}
-	return false;
+	return m_bDone;
 }
 
 bool AudioListener::MatchSound(BYTE *pData, UINT32 nFrameCount)
 {
 	static float silent_min = 0.001f;
-	static float fish_min = 0.2f;
+	static float fish_min = 0.4f;
 	static float g_min = 0, g_max = 0;
 	static int g_globalIndex = 0;
 	static int g_startIndex = -1;

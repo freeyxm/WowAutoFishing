@@ -16,9 +16,8 @@ public:
 	void SetCheckTimeout(Fun_CheckTimeout callback);
 	void SetNotifyBite(Fun_NotifyBite callback);
 
-	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nFrameCount, BOOL *bDone);
-	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
-	virtual bool IsDone();
+	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nFrameCount);
+	virtual bool IsDone() const;
 
 private:
 	bool MatchSound(BYTE *pData, UINT32 nFrameCount);

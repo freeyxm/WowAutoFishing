@@ -304,6 +304,9 @@ bool AudioCapture::IsFloatFormat(const WAVEFORMATEX *pwfx)
 
 float AudioCapture::ParseValue(BYTE *pData, UINT index) const
 {
+	if (pData == NULL)
+		return 0;
+
 	switch (m_pwfx->wBitsPerSample)
 	{
 	case 8:
