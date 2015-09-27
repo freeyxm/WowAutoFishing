@@ -37,6 +37,7 @@ private:
 	void EndSegment();
 	void CancelSegment();
 	void AppendSilentFrames();
+	void ClearSilentFrames();
 
 private:
 	CRITICAL_SECTION m_segmentSection; // lock
