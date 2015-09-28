@@ -147,6 +147,35 @@ int _tmain(int argc, _TCHAR* argv[])
 			}
 			delete pAudio;
 		}
+		else if (ch == 'k')
+		{
+			bool isLeft = true;
+			time_t move_time_interval = 5000;
+			time_t move_time = 0;
+
+			while (true)
+			{
+				::SetForegroundWindow(hwnd);
+				::SetActiveWindow(hwnd);
+				keyboard.PressKey(VK_F9, "A+C");
+
+				DWORD sleepTime = 1000 + rand() % 1000;
+				if (move_time <= sleepTime)
+				{
+					if (isLeft)
+						keyboard.PressKey(VK_F7, "A+C"); // ×ó×ª
+					else
+						keyboard.PressKey(VK_F8, "A+C"); // ÓÒ×ª
+					isLeft = !isLeft;
+					move_time = move_time_interval;
+				}
+				else
+				{
+					move_time -= sleepTime;
+				}
+				::Sleep(sleepTime);
+			}
+		}
 		else
 		{
 			test(ch);
