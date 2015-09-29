@@ -4,7 +4,7 @@
 #include <ctime>
 
 Fisher::Fisher(HWND hwnd, int x, int y, int w, int h)
-	: m_hwnd(hwnd), m_posX(x), m_posY(y), m_width(w), m_height(h), m_sound(this)
+	: m_hwnd(hwnd), m_posX(x), m_posY(y), m_width(w), m_height(h), m_sound(this), m_keyboard(hwnd)
 {
 	Init();
 }

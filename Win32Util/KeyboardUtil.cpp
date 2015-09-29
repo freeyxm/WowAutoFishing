@@ -3,7 +3,8 @@
 #include "KeyboardUtil.h"
 #include <cstdlib>
 
-KeyboardUtil::KeyboardUtil()
+KeyboardUtil::KeyboardUtil(HWND hwnd)
+	: m_hwnd(hwnd)
 {
 }
 
@@ -13,9 +14,8 @@ KeyboardUtil::~KeyboardUtil()
 
 void KeyboardUtil::PressKey(int key, int interval)
 {
-	::keybd_event(key, ::MapVirtualKey(key, 0), 0, 0);
-	::Sleep(interval > 0 ? interval : (10 + ::rand() % 10));
-	::keybd_event(key, ::MapVirtualKey(key, 0), KEYEVENTF_KEYUP, 0);
+	_KeyDown(key, interval);
+	_KeyUp(key, interval);
 }
 
 /*
@@ -67,12 +67,26 @@ void KeyboardUtil::PressKey(int key, const char *pCtl, int interval)
 
 void KeyboardUtil::_KeyDown(int key, int interval)
 {
-	::keybd_event(key, ::MapVirtualKey(key, 0), 0, 0);
+	if (!m_hwnd)
+	{
+		::keybd_event(key, ::MapVirtualKey(key, 0), 0, 0);
+	}
+	else
+	{
+		::PostMessage(m_hwnd, WM_KEYDOWN, key, 0);
+	}
 	::Sleep(interval > 0 ? interval : (5 + ::rand() % 5));
 }
 
 void KeyboardUtil::_KeyUp(int key, int interval)
 {
-	::keybd_event(key, ::MapVirtualKey(key, 0), KEYEVENTF_KEYUP, 0);
+	if (!m_hwnd)
+	{
+		::keybd_event(key, ::MapVirtualKey(key, 0), KEYEVENTF_KEYUP, 0);
+	}
+	else
+	{
+		::PostMessage(m_hwnd, WM_KEYUP, key, 0);
+	}
 	::Sleep(interval > 0 ? interval : (5 + ::rand() % 5));
 }

@@ -20,7 +20,7 @@ void test(char ch);
 int _tmain(int argc, _TCHAR* argv[])
 {
 	HWND hwnd = NULL;
-	KeyboardUtil keyboard;
+	KeyboardUtil *pKeyboard = NULL;
 	MouseUtil mouse;
 
 	::srand((unsigned int)::time(NULL));
@@ -153,19 +153,19 @@ int _tmain(int argc, _TCHAR* argv[])
 			time_t move_time_interval = 5000;
 			time_t move_time = 0;
 
+			pKeyboard = new KeyboardUtil(hwnd);
+
 			while (true)
 			{
-				::SetForegroundWindow(hwnd);
-				::SetActiveWindow(hwnd);
-				keyboard.PressKey(VK_F9, "A+C");
+				pKeyboard->PressKey(VK_F9, "A+C");
 
-				DWORD sleepTime = 1000 + rand() % 1000;
+				DWORD sleepTime = 5000 + rand() % 500;
 				if (move_time <= sleepTime)
 				{
 					if (isLeft)
-						keyboard.PressKey(VK_F7, "A+C"); // 左转
+						pKeyboard->PressKey(VK_F7, "A+C"); // 左转
 					else
-						keyboard.PressKey(VK_F8, "A+C"); // 右转
+						pKeyboard->PressKey(VK_F8, "A+C"); // 右转
 					isLeft = !isLeft;
 					move_time = move_time_interval;
 				}
@@ -173,6 +173,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				{
 					move_time -= sleepTime;
 				}
+
 				::Sleep(sleepTime);
 			}
 		}

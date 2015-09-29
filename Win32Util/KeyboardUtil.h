@@ -5,14 +5,17 @@
 class KeyboardUtil
 {
 public:
-	KeyboardUtil();
+	KeyboardUtil(HWND hwnd);
 	~KeyboardUtil();
 
-	static void PressKey(int key, int interval = 0);
-	static void PressKey(int key, const char *pCtl, int interval = 0);
+	void PressKey(int key, int interval = 0);
+	void PressKey(int key, const char *pCtl, int interval = 0);
 
 private:
-	static void _KeyDown(int key, int interval = 0);
-	static void _KeyUp(int key, int interval = 0);
+	void _KeyDown(int key, int interval = 0);
+	void _KeyUp(int key, int interval = 0);
+
+private:
+	HWND m_hwnd;
 };
 
