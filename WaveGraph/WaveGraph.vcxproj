@@ -59,7 +59,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Win32Util.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>Win32Util.lib;AudioUtil.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -83,31 +83,19 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AudioExtractor.h" />
-    <ClInclude Include="AudioFrameStorage.h" />
-    <ClInclude Include="AudioPainter.h" />
-    <ClInclude Include="AudioRecorder.h" />
-    <ClInclude Include="AudioRenderer.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Util\FastFourierTransform.h" />
     <ClInclude Include="Util\FFT.h" />
-    <ClInclude Include="WaveCreator.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AudioExtractor.cpp" />
-    <ClCompile Include="AudioFrameStorage.cpp" />
-    <ClCompile Include="AudioPainter.cpp" />
-    <ClCompile Include="AudioRecorder.cpp" />
-    <ClCompile Include="AudioRenderer.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Util\FastFourierTransform.cpp" />
     <ClCompile Include="Util\FFT.cpp" />
-    <ClCompile Include="WaveCreator.cpp" />
     <ClCompile Include="WaveGraph.cpp" />
   </ItemGroup>
   <ItemGroup>

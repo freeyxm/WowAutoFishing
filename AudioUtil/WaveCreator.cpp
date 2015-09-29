@@ -19,7 +19,8 @@ WaveCreator::~WaveCreator()
 
 bool WaveCreator::LoadWave(const char *path, WAVEFORMATEX *pwfx, BYTE **ppData, UINT32 *pDataLen, BYTE **ppExtData)
 {
-	FILE *fp = ::fopen(path, "rb");
+	FILE *fp;
+	::fopen_s(&fp, path, "rb");
 	if (!fp)
 	{
 		printf("Can't open %s\n", path);

@@ -1,10 +1,11 @@
 #pragma once
 #include <list>
+#include <stdint.h>
 
 typedef struct
 {
-	UINT nDataLen;
-	BYTE *pData;
+	uint32_t nDataLen;
+	uint8_t *pData;
 } AudioFrameData;
 
 class AudioFrameStorage
@@ -17,8 +18,8 @@ public:
 	AudioFrameStorage();
 	~AudioFrameStorage();
 
-	bool PushBack(BYTE *pData, UINT32 nDataLen);
-	bool ReplaceFront(BYTE *pData, UINT32 nDataLen);
+	bool PushBack(uint8_t *pData, uint32_t nDataLen);
+	bool ReplaceFront(uint8_t *pData, uint32_t nDataLen);
 
 	bool PushBack(AudioFrameData *pFrame);
 	AudioFrameData* PopFront();
@@ -26,31 +27,31 @@ public:
 	void Clear();
 	void ClearCache();
 
-	void SetCacheSize(UINT size);
+	void SetCacheSize(uint32_t size);
 
-	inline UINT GetSize() const;
-	inline UINT GetTotalBytes() const;
+	inline uint32_t GetSize() const;
+	inline uint32_t GetTotalBytes() const;
 
 	inline AudioFrameCIter cbegin() const;
 	inline AudioFrameCIter cend() const;
 
 private:
-	inline void PushBack(AudioFrameData *pFrame, BYTE *pData, UINT32 nDataLen);
-	inline bool ResizeFrame(AudioFrameData *pFrame, UINT32 nDataLen);
+	inline void PushBack(AudioFrameData *pFrame, uint8_t *pData, uint32_t nDataLen);
+	inline bool ResizeFrame(AudioFrameData *pFrame, uint32_t nDataLen);
 
 private:
 	AudioFrameList m_datas;
 	AudioFrameList m_cache;
-	UINT m_totalBytes;
-	UINT m_nCacheSize;
+	uint32_t m_totalBytes;
+	uint32_t m_nCacheSize;
 };
 
-inline UINT AudioFrameStorage::GetSize() const
+inline uint32_t AudioFrameStorage::GetSize() const
 {
 	return m_datas.size();
 }
 
-inline UINT AudioFrameStorage::GetTotalBytes() const
+inline uint32_t AudioFrameStorage::GetTotalBytes() const
 {
 	return m_totalBytes;
 }

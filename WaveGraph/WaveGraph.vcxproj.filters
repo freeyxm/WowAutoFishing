@@ -36,24 +36,6 @@
     <ClInclude Include="Util\FFT.h">
       <Filter>Util</Filter>
     </ClInclude>
-    <ClInclude Include="AudioRecorder.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="AudioFrameStorage.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="AudioRenderer.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="AudioExtractor.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="AudioPainter.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="WaveCreator.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -67,24 +49,6 @@
     </ClCompile>
     <ClCompile Include="Util\FFT.cpp">
       <Filter>Util</Filter>
-    </ClCompile>
-    <ClCompile Include="AudioRecorder.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="AudioFrameStorage.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="AudioRenderer.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="AudioExtractor.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="AudioPainter.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="WaveCreator.cpp">
-      <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

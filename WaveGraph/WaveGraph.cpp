@@ -3,11 +3,11 @@
 
 #include "stdafx.h"
 #include "WaveGraph.h"
-#include "AudioRecorder.h"
-#include "AudioRenderer.h"
-#include "AudioExtractor.h"
-#include "AudioPainter.h"
-#include "WaveCreator.h"
+#include "AudioUtil/AudioRecorder.h"
+#include "AudioUtil/AudioRenderer.h"
+#include "AudioUtil/AudioExtractor.h"
+#include "AudioUtil/AudioPainter.h"
+#include "AudioUtil/WaveCreator.h"
 #include <cstdio>
 
 #define MAX_LOADSTRING 100

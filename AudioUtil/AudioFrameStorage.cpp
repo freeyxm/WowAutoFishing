@@ -35,7 +35,7 @@ AudioFrameData* AudioFrameStorage::PopFront()
 	return NULL;
 }
 
-bool AudioFrameStorage::PushBack(BYTE *pData, UINT32 nDataLen)
+bool AudioFrameStorage::PushBack(uint8_t *pData, uint32_t nDataLen)
 {
 	AudioFrameData *pFrame = NULL;
 	if(m_cache.size() > 0)
@@ -56,7 +56,7 @@ bool AudioFrameStorage::PushBack(BYTE *pData, UINT32 nDataLen)
 			printf("new AudioFrameData failed.\n");
 			return false;
 		}
-		pFrame->pData = (BYTE*)::malloc(nDataLen);
+		pFrame->pData = (uint8_t*)::malloc(nDataLen);
 		if(pFrame->pData == NULL)
 		{
 			delete pFrame;
@@ -71,7 +71,7 @@ bool AudioFrameStorage::PushBack(BYTE *pData, UINT32 nDataLen)
 	return true;
 }
 
-inline void AudioFrameStorage::PushBack(AudioFrameData *pFrame, BYTE *pData, UINT32 nDataLen)
+inline void AudioFrameStorage::PushBack(AudioFrameData *pFrame, uint8_t *pData, uint32_t nDataLen)
 {
 	if (pData == NULL) // silent data.
 		::memset(pFrame->pData, 0, nDataLen);
@@ -82,13 +82,13 @@ inline void AudioFrameStorage::PushBack(AudioFrameData *pFrame, BYTE *pData, UIN
 	m_totalBytes += nDataLen;
 }
 
-bool AudioFrameStorage::ReplaceFront(BYTE *pData, UINT32 nDataLen)
+bool AudioFrameStorage::ReplaceFront(uint8_t *pData, uint32_t nDataLen)
 {
 	if(m_datas.empty())
 		return false;
 
 	AudioFrameData *pFrame = m_datas.front();
-	UINT preLen = pFrame->nDataLen;
+	uint32_t preLen = pFrame->nDataLen;
 	if(pFrame->nDataLen < nDataLen)
 	{
 		if(!ResizeFrame(pFrame, nDataLen))
@@ -103,7 +103,7 @@ bool AudioFrameStorage::ReplaceFront(BYTE *pData, UINT32 nDataLen)
 	return true;
 }
 
-inline bool AudioFrameStorage::ResizeFrame(AudioFrameData *pFrame, UINT32 nDataLen)
+inline bool AudioFrameStorage::ResizeFrame(AudioFrameData *pFrame, uint32_t nDataLen)
 {
 	void *pMem = ::realloc(pFrame->pData, nDataLen);
 	if(pMem == NULL)
@@ -113,7 +113,7 @@ inline bool AudioFrameStorage::ResizeFrame(AudioFrameData *pFrame, UINT32 nDataL
 	}
 	else
 	{
-		pFrame->pData = (BYTE*)pMem;
+		pFrame->pData = (uint8_t*)pMem;
 		pFrame->nDataLen = nDataLen;
 		return true;
 	}
@@ -149,7 +149,7 @@ void AudioFrameStorage::ClearCache()
 	}
 }
 
-void AudioFrameStorage::SetCacheSize(UINT size)
+void AudioFrameStorage::SetCacheSize(uint32_t size)
 {
 	m_nCacheSize = size;
 }
