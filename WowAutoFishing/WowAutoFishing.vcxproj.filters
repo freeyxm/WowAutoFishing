@@ -39,6 +39,9 @@
     <ClInclude Include="AudioListener.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="NpcScanAlertor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -60,6 +63,9 @@
       <Filter>WaveUtil</Filter>
     </ClCompile>
     <ClCompile Include="AudioListener.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NpcScanAlertor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

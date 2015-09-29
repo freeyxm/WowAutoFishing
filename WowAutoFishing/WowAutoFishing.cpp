@@ -11,6 +11,7 @@
 #include "Win32Util/AudioCapture.h"
 #include "Fisher.h"
 #include "AudioListener.h"
+#include "NpcScanAlertor.h"
 #include <locale.h>
 #include <cstdlib>
 #include <ctime>
@@ -70,8 +71,10 @@ int _tmain(int argc, _TCHAR* argv[])
 			::SetForegroundWindow(hwnd);
 			::SetActiveWindow(hwnd);
 
-			int x = 200, y = 20;
-			int w = 600, h = 400;
+			//int x = 200, y = 20;
+			//int w = 600, h = 400;
+			int x = 280, y = 0;
+			int w = 190, h = 90;
 			char *lpBits = (char*)malloc(w * h * 4);
 
 			BITMAPINFOHEADER bi;
@@ -83,8 +86,9 @@ int _tmain(int argc, _TCHAR* argv[])
 					printf("window image save to %ls\n", path);
 				}
 				
+				/*
 				std::list<POINT> points;
-				ImageUtil::FindGray((char*)lpBits, w, h, 20, 3, points);
+				ImageUtil::FindGray((char*)lpBits, w, h, 20, 3, points, 10000);
 				
 				POINT p;
 				if (ImageUtil::SelectBestPoint(points, 30, p))
@@ -100,6 +104,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					mouse.SetCursorPos(p.x, p.y);
 					//mouse.MoveCursor(p, 10);
 				}
+				*/
 			}
 
 			free(lpBits);
@@ -149,32 +154,10 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 		else if (ch == 'k')
 		{
-			bool isLeft = true;
-			time_t move_time_interval = 5000;
-			time_t move_time = 0;
-
-			pKeyboard = new KeyboardUtil(hwnd);
-
-			while (true)
+			NpcScanAlertor alertor(hwnd);
+			if (alertor.Init())
 			{
-				pKeyboard->PressKey(VK_F9, "A+C");
-
-				DWORD sleepTime = 5000 + rand() % 500;
-				if (move_time <= sleepTime)
-				{
-					if (isLeft)
-						pKeyboard->PressKey(VK_F7, "A+C"); // ×ó×ª
-					else
-						pKeyboard->PressKey(VK_F8, "A+C"); // ÓÒ×ª
-					isLeft = !isLeft;
-					move_time = move_time_interval;
-				}
-				else
-				{
-					move_time -= sleepTime;
-				}
-
-				::Sleep(sleepTime);
+				alertor.Start();
 			}
 		}
 		else

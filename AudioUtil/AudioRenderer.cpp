@@ -5,6 +5,7 @@
 static UINT __stdcall RenderTheadProc(LPVOID param);
 
 AudioRenderer::AudioRenderer()
+	: m_bPlaying(false)
 {
 }
 
@@ -25,9 +26,13 @@ bool AudioRenderer::StartRender()
 	m_dataIter = m_pStorage->cbegin();
 	m_dataIndex = 0;
 
+	m_bPlaying = true;
 	m_hThreadCapture = (HANDLE)::_beginthreadex(NULL, 0, &RenderTheadProc, this, 0, NULL);
 	if (m_hThreadCapture == NULL)
+	{
+		m_bPlaying = false;
 		return false;
+	}
 
 	return true;
 }
@@ -39,8 +44,15 @@ void AudioRenderer::StopRender()
 
 static UINT __stdcall RenderTheadProc(LPVOID param)
 {
+	HRESULT hr = S_OK;
 	AudioRenderer *pRender = (AudioRenderer*)param;
-	return pRender->Render();
+	if (pRender)
+	{
+		hr = pRender->Render();
+		pRender->SetDone(true);
+		pRender->m_bPlaying = false;
+	}
+	return hr;
 }
 
 HRESULT AudioRenderer::SetFormat(WAVEFORMATEX *pwfx)
@@ -52,7 +64,8 @@ HRESULT AudioRenderer::SetFormat(WAVEFORMATEX *pwfx)
 
 HRESULT AudioRenderer::OnLoadData(BYTE *pData, UINT32 nFrameCount, DWORD *pFlags)
 {
-	if (!IsDone())
+	bool isDone = IsDone();
+	if (!isDone)
 	{
 		UINT32 nDataLen = nFrameCount * m_nBytesPerFrame;
 		UINT32 nLoaded = 0;
@@ -74,14 +87,19 @@ HRESULT AudioRenderer::OnLoadData(BYTE *pData, UINT32 nFrameCount, DWORD *pFlags
 		}
 		if (nLoaded < nDataLen)
 		{
-			SetDone(true);
+			isDone = true;
 		}
 	}
 
-	if (IsDone())
+	if (isDone)
 	{
 		*pFlags = AUDCLNT_BUFFERFLAGS_SILENT;
 	}
 
 	return S_OK;
+}
+
+bool AudioRenderer::IsDone() const
+{
+	return m_bDone && !m_bPlaying;
 }
