@@ -157,7 +157,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			NpcScanAlertor alertor(hwnd);
 			if (alertor.Init())
 			{
-				alertor.Start();
+				alertor.Start(true, false);
 			}
 		}
 		else

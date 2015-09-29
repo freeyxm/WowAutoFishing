@@ -10,11 +10,11 @@ public:
 	~NpcScanAlertor();
 
 	bool Init();
-	void Start();
+	void Start(bool bRare, bool bRed);
 
 private:
 	void PlayAlarm();
-	bool CheckNpcHeadIcon(bool isRare);
+	bool CheckNpcHeadIcon();
 
 private:
 	HWND m_hwnd;
@@ -24,5 +24,8 @@ private:
 	
 	char *m_lpBits; // 窗口位图像素数据
 	RECT m_targetRect; // 头像矩形框
+
+	bool m_bRare;
+	bool m_bRed;
 };
 

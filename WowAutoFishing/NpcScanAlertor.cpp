@@ -7,6 +7,7 @@
 
 NpcScanAlertor::NpcScanAlertor(HWND hwnd)
 	: m_hwnd(hwnd), m_keyboard(hwnd)
+	, m_bRare(true), m_bRed(false)
 {
 	//RECT rect;
 	//::GetWindowRect(hwnd, &rect);
@@ -50,19 +51,22 @@ bool NpcScanAlertor::Init()
 	m_audioPlayer.SetSourceFormat(&wfx);
 	if (FAILED(m_audioPlayer.Init()))
 	{
-		printf("audio player init failed.");
+		printf("audio player init failed.\n");
 		return false;
 	}
 
-	printf("init success.");
+	printf("init success.\n");
 	return true;
 }
 
-void NpcScanAlertor::Start()
+void NpcScanAlertor::Start(bool bRare, bool bRed)
 {
 	bool isLeft = true;
 	time_t move_time_interval = 10000;
 	time_t move_time = 0;
+
+	m_bRare = bRare;
+	m_bRed = bRed;
 
 	while (true)
 	{
@@ -83,7 +87,7 @@ void NpcScanAlertor::Start()
 			move_time -= sleepTime;
 		}
 
-		if (CheckNpcHeadIcon(false))
+		if (CheckNpcHeadIcon())
 		{
 			PlayAlarm();
 		}
@@ -100,7 +104,7 @@ void NpcScanAlertor::PlayAlarm()
 	}
 }
 
-bool NpcScanAlertor::CheckNpcHeadIcon(bool isRare)
+bool NpcScanAlertor::CheckNpcHeadIcon()
 {
 	int x = m_targetRect.left;
 	int y = m_targetRect.top;
@@ -134,13 +138,15 @@ bool NpcScanAlertor::CheckNpcHeadIcon(bool isRare)
 	bool hasTarget = max(yellow_count, red_count) * step_x * 1.0f / (max_x - min_x) > 0.4f; // 大于40%颜色符合，判定为已选择目标。
 	if (!hasTarget)
 	{
-		printf("hasTarget failed\n");
+		//printf("hasTarget failed\n");
 		return false;
 	}
-	printf("hasTarget pass, color = %s\n", red_count > yellow_count ? "red" : "yellow");
-		
+	bool isRed = red_count > yellow_count;
+	if (m_bRed != isRed)
+		return false;
 
-	if (isRare)
+
+	if (m_bRare)
 	{
 		// 稀有精英，银龙标识采样区域
 		RECT rects[] = {
@@ -167,7 +173,7 @@ bool NpcScanAlertor::CheckNpcHeadIcon(bool isRare)
 					char r = RGB_R(color);
 					char g = RGB_G(color);
 					char b = RGB_B(color);
-					if (abs(r - g) < rare_range && abs(r - b) < rare_range) // 银龙标识为近似灰色
+					if (r >= 40 && r <= 90 && abs(r - g) < rare_range && abs(r - b) < rare_range) // 银龙标识为近似灰色
 						++count;
 				}
 			}
@@ -182,9 +188,8 @@ bool NpcScanAlertor::CheckNpcHeadIcon(bool isRare)
 			printf("isRare failed.\n");
 			return false;
 		}
-		printf("isRare pass.\n");
 	}
 
-	printf("CheckNpcHeadIcon pass.\n");
+	printf("CheckNpcHeadIcon pass, rare = %d, color = %s\n", m_bRare, isRed ? "red" : "yellow");
 	return true;
 }
