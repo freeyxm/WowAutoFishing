@@ -1,4 +1,4 @@
-﻿#pragma execution_character_set("utf-8")
+#pragma execution_character_set("utf-8")
 #include "stdafx.h"
 #include "ImageUtil.h"
 #include <list>
@@ -388,3 +388,24 @@ bool ImageUtil::SelectBestPoint(std::list<POINT> points, int radius, POINT &p)
 	return false;
 }
 
+int ImageUtil::GetColor(char *lpBits, int w, int h, int x, int y)
+{
+	int color = 0;
+	if (x < w && y < h)
+	{
+		int index = (y * w + x) * 4;
+		color = RGB(lpBits[index + 2], lpBits[index + 1], lpBits[index]);
+	}
+	return color;
+}
+
+bool ImageUtil::IsColorAlike(int c1, int c2, int range)
+{
+	char tr = RGB_R(range);
+	char tg = RGB_G(range);
+	char tb = RGB_B(range);
+	char dr = RGB_R(c1) - RGB_R(c2);
+	char dg = RGB_G(c1) - RGB_G(c2);
+	char db = RGB_B(c1) - RGB_B(c2);
+	return (dr < tr && dr > -tr && dg < tg && dg >-tg && db < tb && db >-tb);
+}
