@@ -17,6 +17,7 @@ public:
 
 	virtual const WAVEFORMATEX* GetFormat() const;
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
+	virtual HRESULT SetSourceFormat(WAVEFORMATEX *pwfx);
 
 	virtual HRESULT OnLoadData(BYTE *pData, UINT32 nFrameCount, DWORD *pFlags);
 
@@ -29,6 +30,7 @@ protected:
 
 protected:
 	WAVEFORMATEX *m_pwfx;
+	WAVEFORMATEX m_srcWfx;
 	bool m_bInited;
 	bool m_bDone;
 

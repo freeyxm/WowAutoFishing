@@ -6,6 +6,7 @@ AudioRender::AudioRender()
 	: m_pEnumerator(NULL), m_pDevice(NULL), m_pAudioClient(NULL), m_pRenderClient(NULL), m_pwfx(NULL)
 	, m_bInited(false), m_bDone(true)
 {
+	::memset(&m_srcWfx, 0, sizeof(m_srcWfx));
 }
 
 
@@ -54,14 +55,32 @@ HRESULT AudioRender::Init()
 		hr = m_pDevice->Activate(IID_IAudioClient, CLSCTX_ALL, NULL, (void**)&m_pAudioClient);
 		BREAK_ON_ERROR(hr);
 
-		hr = m_pAudioClient->GetMixFormat(&m_pwfx);
-		BREAK_ON_ERROR(hr);
+		WAVEFORMATEX *pwfx = NULL;
+		if (m_srcWfx.wFormatTag)
+		{
+			hr = m_pAudioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED, &m_srcWfx, &m_pwfx);
+			BREAK_ON_ERROR(hr);
+			if (hr != S_OK)
+			{
+				if (hr == S_FALSE)
+					hr = E_FAIL;
+				printf("source format not support!\n"); // need to repair!!!
+				break;
+			}
+			pwfx = &m_srcWfx;
+		}
+		else
+		{
+			hr = m_pAudioClient->GetMixFormat(&m_pwfx);
+			BREAK_ON_ERROR(hr);
+			pwfx = m_pwfx;
+		}
 
-		hr = m_pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, 0, hnsRequestedDuration, 0, m_pwfx, NULL);
+		hr = m_pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, 0, hnsRequestedDuration, 0, pwfx, NULL);
 		BREAK_ON_ERROR(hr);
 
 		// Tell the audio source which format to use.
-		hr = this->SetFormat(m_pwfx);
+		hr = this->SetFormat(pwfx);
 		BREAK_ON_ERROR(hr);
 
 		// Get the actual size of the allocated buffer.
@@ -72,7 +91,7 @@ HRESULT AudioRender::Init()
 		BREAK_ON_ERROR(hr);
 
 		// Calculate the actual duration of the allocated buffer.
-		m_hnsActualDuration = (REFERENCE_TIME)((double)REFTIMES_PER_SEC * m_bufferFrameCount / m_pwfx->nSamplesPerSec);
+		m_hnsActualDuration = (REFERENCE_TIME)((double)REFTIMES_PER_SEC * m_bufferFrameCount / pwfx->nSamplesPerSec);
 
 		hr = S_OK;
 
@@ -193,13 +212,20 @@ inline HRESULT AudioRender::LoadData(DWORD *pFlags)
 
 const WAVEFORMATEX* AudioRender::GetFormat() const
 {
-	return m_pwfx;
+	return m_pwfx != NULL ? m_pwfx : &m_srcWfx;
 }
 
 HRESULT AudioRender::SetFormat(WAVEFORMATEX *pwfx)
 {
 	m_nBytesPerSample = pwfx->wBitsPerSample / 8;
-	m_nBytesPerFrame = m_nBytesPerSample * m_pwfx->nChannels;
+	m_nBytesPerFrame = m_nBytesPerSample * pwfx->nChannels;
+
+	return S_OK;
+}
+
+HRESULT AudioRender::SetSourceFormat(WAVEFORMATEX *pwfx)
+{
+	::memcpy(&m_srcWfx, pwfx, sizeof(WAVEFORMATEX));
 
 	return S_OK;
 }

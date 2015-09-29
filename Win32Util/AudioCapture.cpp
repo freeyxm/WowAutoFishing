@@ -310,7 +310,7 @@ float AudioCapture::ParseValue(BYTE *pData, UINT index) const
 	switch (m_pwfx->wBitsPerSample)
 	{
 	case 8:
-		return (float)*(pData + index) / m_midValue;
+		return (float)*((INT8*)pData + index) / m_midValue;
 		break;
 	case 16:
 		return (float)*((INT16*)pData + index) / m_midValue;
@@ -319,7 +319,7 @@ float AudioCapture::ParseValue(BYTE *pData, UINT index) const
 		if (m_bFloatFormat)
 			return (float)*((float*)pData + index);
 		else
-			return (float)*((int*)pData + index) / m_midValue;
+			return (float)*((INT32*)pData + index) / m_midValue;
 		break;
 	default:
 		break;

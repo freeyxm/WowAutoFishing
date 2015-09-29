@@ -7,6 +7,7 @@
 #include "AudioRenderer.h"
 #include "AudioExtractor.h"
 #include "AudioPainter.h"
+#include "WaveCreator.h"
 #include <cstdio>
 
 #define MAX_LOADSTRING 100

@@ -93,6 +93,7 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Util\FastFourierTransform.h" />
     <ClInclude Include="Util\FFT.h" />
+    <ClInclude Include="WaveCreator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AudioExtractor.cpp" />
@@ -106,6 +107,7 @@
     </ClCompile>
     <ClCompile Include="Util\FastFourierTransform.cpp" />
     <ClCompile Include="Util\FFT.cpp" />
+    <ClCompile Include="WaveCreator.cpp" />
     <ClCompile Include="WaveGraph.cpp" />
   </ItemGroup>
   <ItemGroup>

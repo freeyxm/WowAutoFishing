@@ -51,6 +51,9 @@
     <ClInclude Include="AudioPainter.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="WaveCreator.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -78,6 +81,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="AudioPainter.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="WaveCreator.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
