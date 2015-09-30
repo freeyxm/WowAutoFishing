@@ -6,11 +6,18 @@
 class NpcScanAlertor
 {
 public:
+	enum class ColorType
+	{
+		Color_Red = 0x01,
+		Color_Yellow = 0x02,
+	};
+
+public:
 	NpcScanAlertor(HWND hwnd);
 	~NpcScanAlertor();
 
 	bool Init();
-	void Start(bool bRare, bool bRed);
+	void Start(int colorType, bool bRare);
 
 private:
 	void PlayAlarm();
@@ -26,6 +33,6 @@ private:
 	RECT m_targetRect; // 头像矩形框
 
 	bool m_bRare;
-	bool m_bRed;
+	int m_colorType;
 };
 

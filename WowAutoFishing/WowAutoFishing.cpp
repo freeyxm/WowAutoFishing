@@ -68,8 +68,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 		else if (ch == 'p')
 		{
-			::SetForegroundWindow(hwnd);
-			::SetActiveWindow(hwnd);
+			//::SetForegroundWindow(hwnd);
+			//::SetActiveWindow(hwnd);
 
 			//int x = 200, y = 20;
 			//int w = 600, h = 400;
@@ -157,7 +157,8 @@ int _tmain(int argc, _TCHAR* argv[])
 			NpcScanAlertor alertor(hwnd);
 			if (alertor.Init())
 			{
-				alertor.Start(true, false);
+				int colorType = (int)NpcScanAlertor::ColorType::Color_Red | (int)NpcScanAlertor::ColorType::Color_Yellow;
+				alertor.Start(colorType, false);
 			}
 		}
 		else

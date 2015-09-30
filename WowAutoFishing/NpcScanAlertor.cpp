@@ -7,7 +7,7 @@
 
 NpcScanAlertor::NpcScanAlertor(HWND hwnd)
 	: m_hwnd(hwnd), m_keyboard(hwnd)
-	, m_bRare(true), m_bRed(false)
+	, m_bRare(true), m_colorType(0)
 {
 	//RECT rect;
 	//::GetWindowRect(hwnd, &rect);
@@ -59,14 +59,14 @@ bool NpcScanAlertor::Init()
 	return true;
 }
 
-void NpcScanAlertor::Start(bool bRare, bool bRed)
+void NpcScanAlertor::Start(int colorType, bool bRare)
 {
 	bool isLeft = true;
 	time_t move_time_interval = 10000;
 	time_t move_time = 0;
 
+	m_colorType = colorType;
 	m_bRare = bRare;
-	m_bRed = bRed;
 
 	while (true)
 	{
@@ -125,7 +125,7 @@ bool NpcScanAlertor::CheckNpcHeadIcon()
 
 	// 根据血条颜色判断是否选中了目标
 	int yellow_count = 0, red_count = 0;
-	int min_x = 8, max_x = 108, step_x = 2;
+	int min_x = 8, max_x = 108, step_x = 2; // 目标头像面板位置
 	int ty = 33;
 	for (int tx = min_x; tx <= max_x; tx += step_x)
 	{
@@ -141,10 +141,14 @@ bool NpcScanAlertor::CheckNpcHeadIcon()
 		//printf("hasTarget failed\n");
 		return false;
 	}
-	bool isRed = red_count > yellow_count;
-	if (m_bRed != isRed)
-		return false;
 
+	bool isRed = red_count > yellow_count;
+	bool isYellow = yellow_count > red_count;
+	if (isRed && !(m_colorType & (int)ColorType::Color_Red)
+		&& isYellow && !(m_colorType & (int)ColorType::Color_Yellow))
+	{
+		return false;
+	}
 
 	if (m_bRare)
 	{
