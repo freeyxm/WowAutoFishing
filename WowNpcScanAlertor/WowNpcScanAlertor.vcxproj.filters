@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="WaveUtil">
-      <UniqueIdentifier>{0bd1fd12-d376-4908-8414-f9b786263823}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -27,40 +24,25 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Fisher.h">
+    <ClInclude Include="NpcScanAlertor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AudioListener.h">
+    <ClInclude Include="NpcScanAlertorMgr.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\WaveGraph\Util\FastFourierTransform.h">
-      <Filter>WaveUtil</Filter>
-    </ClInclude>
-    <ClInclude Include="..\WaveGraph\Util\FFT.h">
-      <Filter>WaveUtil</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WowAutoFishing.cpp">
+    <ClCompile Include="WowNpcScanAlertor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Test.cpp">
+    <ClCompile Include="NpcScanAlertor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Fisher.cpp">
+    <ClCompile Include="NpcScanAlertorMgr.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="AudioListener.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\WaveGraph\Util\FastFourierTransform.cpp">
-      <Filter>WaveUtil</Filter>
-    </ClCompile>
-    <ClCompile Include="..\WaveGraph\Util\FFT.cpp">
-      <Filter>WaveUtil</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

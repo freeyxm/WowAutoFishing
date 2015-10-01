@@ -44,7 +44,7 @@ void AudioPainter::Paint(HWND hwnd, HDC hdc, RECT rect, float maxTime)
 	UINT maxBytes = 0;
 	if (maxTime > 0.01f)
 	{
-		maxBytes = m_pwfx->nAvgBytesPerSec * maxTime;
+		maxBytes = (UINT)(m_pwfx->nAvgBytesPerSec * maxTime);
 	}
 	else
 	{

@@ -11,7 +11,6 @@
 #include "Win32Util/AudioCapture.h"
 #include "Fisher.h"
 #include "AudioListener.h"
-#include "NpcScanAlertor.h"
 #include <locale.h>
 #include <cstdlib>
 #include <ctime>
@@ -152,15 +151,6 @@ int _tmain(int argc, _TCHAR* argv[])
 			}
 			delete pAudio;
 		}
-		else if (ch == 'k')
-		{
-			NpcScanAlertor alertor(hwnd);
-			if (alertor.Init())
-			{
-				int colorType = (int)NpcScanAlertor::ColorType::Color_Red | (int)NpcScanAlertor::ColorType::Color_Yellow;
-				alertor.Start(colorType, false);
-			}
-		}
 		else
 		{
 			test(ch);
@@ -171,6 +161,4 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	return 0;
 }
-
-
 

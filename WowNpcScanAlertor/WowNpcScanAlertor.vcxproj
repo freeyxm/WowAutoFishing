@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{5CE685D4-F84D-4711-B444-A0EE85F748AC}</ProjectGuid>
+    <ProjectGuid>{34C289A8-7D4F-45DA-B95B-6282972CE776}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>WowAutoFishing</RootNamespace>
+    <RootNamespace>WowNpcScanAlertor</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -41,9 +41,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>$(ProjectDir);$(SolutionDir);$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir);$(IncludePath)</IncludePath>
     <LibraryPath>$(SolutionDir)$(Configuration)\;$(LibraryPath)</LibraryPath>
-    <SourcePath>$(SourcePath)</SourcePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -83,24 +82,19 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\WaveGraph\Util\FastFourierTransform.h" />
-    <ClInclude Include="..\WaveGraph\Util\FFT.h" />
-    <ClInclude Include="AudioListener.h" />
-    <ClInclude Include="Fisher.h" />
+    <ClInclude Include="NpcScanAlertor.h" />
+    <ClInclude Include="NpcScanAlertorMgr.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\WaveGraph\Util\FastFourierTransform.cpp" />
-    <ClCompile Include="..\WaveGraph\Util\FFT.cpp" />
-    <ClCompile Include="AudioListener.cpp" />
-    <ClCompile Include="Fisher.cpp" />
+    <ClCompile Include="NpcScanAlertor.cpp" />
+    <ClCompile Include="NpcScanAlertorMgr.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Test.cpp" />
-    <ClCompile Include="WowAutoFishing.cpp" />
+    <ClCompile Include="WowNpcScanAlertor.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

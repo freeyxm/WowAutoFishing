@@ -22,6 +22,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AudioUtil", "AudioUtil\Audi
 		{82597547-3A6D-4E82-9979-32D4CDAD7AB1} = {82597547-3A6D-4E82-9979-32D4CDAD7AB1}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WowNpcScanAlertor", "WowNpcScanAlertor\WowNpcScanAlertor.vcxproj", "{34C289A8-7D4F-45DA-B95B-6282972CE776}"
+	ProjectSection(ProjectDependencies) = postProject
+		{82597547-3A6D-4E82-9979-32D4CDAD7AB1} = {82597547-3A6D-4E82-9979-32D4CDAD7AB1}
+		{05A82F4C-BBAC-4CDB-8C8E-D5A9ED3FE69F} = {05A82F4C-BBAC-4CDB-8C8E-D5A9ED3FE69F}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -46,6 +52,10 @@ Global
 		{05A82F4C-BBAC-4CDB-8C8E-D5A9ED3FE69F}.Debug|Win32.Build.0 = Debug|Win32
 		{05A82F4C-BBAC-4CDB-8C8E-D5A9ED3FE69F}.Release|Win32.ActiveCfg = Release|Win32
 		{05A82F4C-BBAC-4CDB-8C8E-D5A9ED3FE69F}.Release|Win32.Build.0 = Release|Win32
+		{34C289A8-7D4F-45DA-B95B-6282972CE776}.Debug|Win32.ActiveCfg = Debug|Win32
+		{34C289A8-7D4F-45DA-B95B-6282972CE776}.Debug|Win32.Build.0 = Debug|Win32
+		{34C289A8-7D4F-45DA-B95B-6282972CE776}.Release|Win32.ActiveCfg = Release|Win32
+		{34C289A8-7D4F-45DA-B95B-6282972CE776}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

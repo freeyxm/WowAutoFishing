@@ -13,11 +13,15 @@ public:
 	};
 
 public:
-	NpcScanAlertor(HWND hwnd);
+	NpcScanAlertor(HWND hwnd, AudioRenderer *pAudioPlayer);
 	~NpcScanAlertor();
 
 	bool Init();
 	void Start(int colorType, bool bRare);
+	void Stop();
+	void Update(int deltaTime);
+
+	bool IsRunning();
 
 private:
 	void PlayAlarm();
@@ -25,8 +29,8 @@ private:
 
 private:
 	HWND m_hwnd;
-	AudioFrameStorage m_alarm;
-	AudioRenderer m_audioPlayer;
+	DWORD m_pid; // 窗口所属进程ID
+	AudioRenderer *m_pAudioPlayer;
 	KeyboardUtil m_keyboard;
 	
 	char *m_lpBits; // 窗口位图像素数据
@@ -34,5 +38,10 @@ private:
 
 	bool m_bRare;
 	int m_colorType;
+
+	bool m_bRunning;
+	long m_searchTargetTime;
+	long m_moveTime;
+	bool m_moveLeft;
 };
 

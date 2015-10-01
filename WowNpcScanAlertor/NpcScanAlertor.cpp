@@ -3,11 +3,10 @@
 #include "NpcScanAlertor.h"
 #include "Win32Util/ImageUtil.h"
 #include "Win32Util/Utility.h"
-#include "AudioUtil/WaveCreator.h"
 
 
-NpcScanAlertor::NpcScanAlertor(HWND hwnd)
-	: m_hwnd(hwnd), m_keyboard(hwnd)
+NpcScanAlertor::NpcScanAlertor(HWND hwnd, AudioRenderer *pAudioPlayer)
+	: m_hwnd(hwnd), m_keyboard(hwnd), m_pAudioPlayer(pAudioPlayer)
 	, m_bRare(true), m_colorType(0)
 {
 	//RECT rect;
@@ -35,73 +34,80 @@ bool NpcScanAlertor::Init()
 	int w = m_targetRect.right - m_targetRect.left;
 	int h = m_targetRect.bottom - m_targetRect.top;
 	
+	DWORD tid = ::GetWindowThreadProcessId(m_hwnd, &m_pid);
+	if (tid == 0)
+	{
+		printf("GetWindowThreadProcessId faield.\n");
+		return false;
+	}
+
 	m_lpBits = new char[w * h * 4];
 	if (!m_lpBits)
 		return false;
 
-	WAVEFORMATEX wfx;
-	AudioFrameData *pFrame = new AudioFrameData();
-	if (!pFrame)
-		return false;
-	if (!WaveCreator::LoadWave("f:/npcscan.wav", &wfx, &pFrame->pData, &pFrame->nDataLen, NULL))
-		return false;
-
-	m_alarm.PushBack(pFrame);
-
-	m_audioPlayer.SetSource(&m_alarm);
-	m_audioPlayer.SetSourceFormat(&wfx);
-	if (FAILED(m_audioPlayer.Init()))
-	{
-		Utility::printf_t("audio player init failed.\n");
-		return false;
-	}
-
-	Utility::printf_t("init success.\n");
+	Utility::printf_t("pid = %d, Init success.\n", m_pid);
 	return true;
 }
 
 void NpcScanAlertor::Start(int colorType, bool bRare)
 {
-	bool isLeft = true;
-	time_t move_time_interval = 10000;
-	time_t move_time = 0;
-
 	m_colorType = colorType;
 	m_bRare = bRare;
 
-	while (true)
+	m_searchTargetTime = 0;
+	m_moveTime = 0;
+	m_moveLeft = true;
+
+	m_bRunning = true;
+}
+
+void NpcScanAlertor::Stop()
+{
+	m_bRunning = false;
+}
+
+bool NpcScanAlertor::IsRunning()
+{
+	return m_bRunning;
+}
+
+void NpcScanAlertor::Update(int deltaTime)
+{
+	if (!m_bRunning)
+		return;
+
+	m_searchTargetTime -= deltaTime;
+	if (m_searchTargetTime <= 0)
 	{
 		m_keyboard.PressKey(VK_F9, "A+C");
-
-		DWORD sleepTime = 2000 + rand() % 500;
-		if (move_time <= sleepTime)
-		{
-			if (isLeft)
-				m_keyboard.PressKey(VK_F7, "A+C"); // 左转
-			else
-				m_keyboard.PressKey(VK_F8, "A+C"); // 右转
-			isLeft = !isLeft;
-			move_time = move_time_interval;
-		}
-		else
-		{
-			move_time -= sleepTime;
-		}
 
 		if (CheckNpcHeadIcon())
 		{
 			PlayAlarm();
 		}
 
-		::Sleep(sleepTime);
+		m_searchTargetTime = 2000 + ::rand() % 500;
+	}
+
+	m_moveTime -= deltaTime;
+	if (m_moveTime <= 0)
+	{
+		// 定时转向，防止掉线
+		if (m_moveLeft)
+			m_keyboard.PressKey(VK_F7, "A+C"); // 左转
+		else
+			m_keyboard.PressKey(VK_F8, "A+C"); // 右转
+		m_moveLeft = !m_moveLeft;
+
+		m_moveTime = 10000 + ::rand() % 5000; // 10s - 15s
 	}
 }
 
 void NpcScanAlertor::PlayAlarm()
 {
-	if (m_audioPlayer.IsDone())
+	if (m_pAudioPlayer && m_pAudioPlayer->IsDone())
 	{
-		m_audioPlayer.StartRender();
+		m_pAudioPlayer->StartRender();
 	}
 }
 
@@ -195,6 +201,6 @@ bool NpcScanAlertor::CheckNpcHeadIcon()
 		}
 	}
 
-	Utility::printf_t("Find target, rare = %d, color = %s\n", m_bRare, isRed ? "red" : "yellow");
+	Utility::printf_t("pid = %d, Find target, rare = %d, color = %s\n", m_pid, m_bRare, isRed ? "red" : "yellow");
 	return true;
 }
