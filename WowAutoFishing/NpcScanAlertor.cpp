@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "NpcScanAlertor.h"
 #include "Win32Util/ImageUtil.h"
+#include "Win32Util/Utility.h"
 #include "AudioUtil/WaveCreator.h"
 
 
@@ -51,11 +52,11 @@ bool NpcScanAlertor::Init()
 	m_audioPlayer.SetSourceFormat(&wfx);
 	if (FAILED(m_audioPlayer.Init()))
 	{
-		printf("audio player init failed.\n");
+		Utility::printf_t("audio player init failed.\n");
 		return false;
 	}
 
-	printf("init success.\n");
+	Utility::printf_t("init success.\n");
 	return true;
 }
 
@@ -113,7 +114,7 @@ bool NpcScanAlertor::CheckNpcHeadIcon()
 
 	if (!ImageUtil::GetWindowSnapshot(m_hwnd, x, y, w, h, m_lpBits))
 	{
-		printf("GetWindowSnapshot failed!\n");
+		Utility::printf_t("GetWindowSnapshot failed!\n");
 		return false;
 	}
 
@@ -138,7 +139,7 @@ bool NpcScanAlertor::CheckNpcHeadIcon()
 	bool hasTarget = max(yellow_count, red_count) * step_x * 1.0f / (max_x - min_x) > 0.4f; // 大于40%颜色符合，判定为已选择目标。
 	if (!hasTarget)
 	{
-		//printf("hasTarget failed\n");
+		//Utility::printf_t("hasTarget failed\n");
 		return false;
 	}
 
@@ -182,18 +183,18 @@ bool NpcScanAlertor::CheckNpcHeadIcon()
 				}
 			}
 
-			if (count * 1.0f / (rects[i].right * rects[i].bottom) > 0.5f)
+			if (count * 1.0f / (rects[i].right * rects[i].bottom) > 0.4f)
 			{
 				++rare_count;
 			}
 		}
 		if (rare_count <= total_count / 2)
 		{
-			printf("isRare failed.\n");
+			Utility::printf_t("isRare failed.\n");
 			return false;
 		}
 	}
 
-	printf("CheckNpcHeadIcon pass, rare = %d, color = %s\n", m_bRare, isRed ? "red" : "yellow");
+	Utility::printf_t("Find target, rare = %d, color = %s\n", m_bRare, isRed ? "red" : "yellow");
 	return true;
 }
