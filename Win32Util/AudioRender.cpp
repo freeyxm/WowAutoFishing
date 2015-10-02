@@ -33,7 +33,7 @@ AudioRender::~AudioRender()
 	if ((punk) != NULL) { (punk)->Release(); (punk) = NULL; }
 
 
-HRESULT AudioRender::Init()
+bool AudioRender::Init()
 {
 	HRESULT hr = S_FALSE;
 	REFERENCE_TIME hnsRequestedDuration = REFTIMES_PER_SEC;
@@ -101,13 +101,13 @@ HRESULT AudioRender::Init()
 	{
 		Release();
 		::printf("Init failed, error code: 0x%x\n", hr);
+		return false;
 	}
 	else
 	{
 		m_bInited = true;
+		return true;
 	}
-
-	return hr;
 }
 
 void AudioRender::Release()
@@ -125,20 +125,22 @@ void AudioRender::Release()
 	m_bDone = true;
 }
 
-HRESULT AudioRender::Start()
+HRESULT AudioRender::StartRender()
 {
-	if (!m_bInited || m_pRenderClient == NULL)
-		return E_FAIL;
-
-	return m_pAudioClient->Start();
+	if (m_bInited && m_pAudioClient)
+	{
+		return m_pAudioClient->Start();
+	}
+	return E_FAIL;
 }
 
-HRESULT AudioRender::Stop()
+HRESULT AudioRender::StopRender()
 {
-	if (!m_bInited || m_pRenderClient == NULL)
-		return E_FAIL;
-
-	return m_pAudioClient->Stop();
+	if (m_bInited && m_pAudioClient)
+	{
+		return m_pAudioClient->Stop();
+	}
+	return E_FAIL;
 }
 
 HRESULT AudioRender::Render()
@@ -156,7 +158,7 @@ HRESULT AudioRender::Render()
 		hr = LoadData(&flags);
 		BREAK_ON_ERROR(hr);
 
-		hr = this->Start();
+		hr = this->StartRender();
 		BREAK_ON_ERROR(hr);
 
 		while (flags != AUDCLNT_BUFFERFLAGS_SILENT)
@@ -171,7 +173,7 @@ HRESULT AudioRender::Render()
 		// Wait for last data in buffer to play before stopping.
 		Sleep((DWORD)(m_hnsActualDuration / REFTIMES_PER_MILLISEC / 2));
 
-		hr = this->Stop();
+		hr = this->StopRender();
 		BREAK_ON_ERROR(hr);
 
 	} while (false);

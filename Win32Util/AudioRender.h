@@ -10,9 +10,8 @@ public:
 	AudioRender();
 	virtual ~AudioRender();
 
-	virtual HRESULT Init();
-	virtual HRESULT Start();
-	virtual HRESULT Stop();
+	virtual bool Init();
+	
 	virtual HRESULT Render();
 
 	virtual const WAVEFORMATEX* GetFormat() const;
@@ -26,6 +25,8 @@ public:
 
 protected:
 	virtual void Release();
+	virtual HRESULT StartRender();
+	virtual HRESULT StopRender();
 	inline HRESULT LoadData(DWORD *pFlags);
 
 protected:

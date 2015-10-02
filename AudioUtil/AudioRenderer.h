@@ -11,8 +11,8 @@ public:
 
 	void SetSource(const AudioFrameStorage *pStorage);
 
-	virtual bool StartRender();
-	virtual void StopRender();
+	virtual bool Start();
+	virtual void Stop();
 
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
 	virtual HRESULT OnLoadData(BYTE *pData, UINT32 nFrameCount, DWORD *pFlags);

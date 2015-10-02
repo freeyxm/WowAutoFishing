@@ -107,7 +107,7 @@ void NpcScanAlertor::PlayAlarm()
 {
 	if (m_pAudioPlayer && m_pAudioPlayer->IsDone())
 	{
-		m_pAudioPlayer->StartRender();
+		m_pAudioPlayer->Start();
 	}
 }
 
@@ -124,8 +124,8 @@ bool NpcScanAlertor::CheckNpcHeadIcon()
 		return false;
 	}
 
-	const int color_yellow = RGB(177, 175, 0); // 中立怪血条颜色 (300, 33)
-	const int color_yellow_range = RGB(20, 20, 10);
+	const int color_yellow = RGB(175, 175, 0); // 中立怪血条颜色 (300, 33)
+	const int color_yellow_range = RGB(30, 30, 10);
 
 	const int color_red = RGB(181, 0, 0); // 敌对怪血条颜色 (300, 33)
 	const int color_red_range = RGB(20, 10, 10);

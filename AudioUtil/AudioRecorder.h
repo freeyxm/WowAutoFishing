@@ -17,8 +17,8 @@ public:
 	AudioRecorder(void);
 	~AudioRecorder(void);
 
-	bool StartRecord();
-	void StopRecord();
+	bool Start();
+	void Stop();
 	void Clear();
 
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);

@@ -159,15 +159,15 @@ int _tmain(int argc, _TCHAR* argv[])
 		else if (ch == 's')
 		{
 			FishingSoundListener *pAudio = new FishingSoundListener(NULL);
-			if (SUCCEEDED(pAudio->Init()))
+			if (pAudio->Init())
 			{
-				if (pAudio->StartExtract())
+				if (pAudio->Start())
 				{
 					while (!pAudio->IsDone())
 					{
 						Sleep(10);
 					}
-					pAudio->StopExtract();
+					pAudio->Stop();
 				}
 			}
 			delete pAudio;

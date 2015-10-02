@@ -23,7 +23,7 @@ FishingSoundListener::~FishingSoundListener()
 	}
 }
 
-HRESULT FishingSoundListener::Init()
+bool FishingSoundListener::Init()
 {
 	if (m_pSampleFile == NULL)
 	{
@@ -37,7 +37,7 @@ HRESULT FishingSoundListener::Init()
 		if (ret != 0)
 		{
 			printf("Can't open file: %s\n", buf);
-			return E_FAIL;
+			return false;
 		}
 	}
 

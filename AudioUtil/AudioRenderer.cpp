@@ -19,7 +19,7 @@ void AudioRenderer::SetSource(const AudioFrameStorage *pStorage)
 	m_pStorage = pStorage;
 }
 
-bool AudioRenderer::StartRender()
+bool AudioRenderer::Start()
 {
 	SetDone(false);
 
@@ -37,7 +37,7 @@ bool AudioRenderer::StartRender()
 	return true;
 }
 
-void AudioRenderer::StopRender()
+void AudioRenderer::Stop()
 {
 	SetDone(true);
 }

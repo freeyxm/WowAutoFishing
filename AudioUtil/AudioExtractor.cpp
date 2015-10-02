@@ -254,10 +254,9 @@ inline UINT AudioExtractor::GetCurFrameCount()
 	return m_pCurSegment->GetSize();
 }
 
-bool AudioExtractor::StartExtract()
+bool AudioExtractor::Start()
 {
-	HRESULT hr = Start();
-	if (FAILED(hr))
+	if (!StartCapture())
 		return false;
 
 	SetDone(false);
@@ -269,11 +268,11 @@ bool AudioExtractor::StartExtract()
 	return true;
 }
 
-void AudioExtractor::StopExtract()
+void AudioExtractor::Stop()
 {
 	SetDone(true);
 
-	Stop();
+	StopCapture();
 
 	if (m_hThreadCapture != NULL)
 	{

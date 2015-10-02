@@ -33,7 +33,7 @@ AudioCapture::~AudioCapture()
 	if ((punk) != NULL) { (punk)->Release(); (punk) = NULL; }
 
 
-HRESULT AudioCapture::Init()
+bool AudioCapture::Init()
 {
 	HRESULT hr = S_FALSE;
 	REFERENCE_TIME hnsRequestedDuration = REFTIMES_PER_SEC;
@@ -96,13 +96,13 @@ HRESULT AudioCapture::Init()
 	{
 		Release();
 		::printf("Init failed, error code: 0x%x\n", hr);
+		return false;
 	}
 	else
 	{
 		m_bInited = true;
+		return true;
 	}
-
-	return hr;
 }
 
 void AudioCapture::Release()
@@ -174,22 +174,24 @@ void AudioCapture::PrintDevices(IMMDeviceEnumerator *pEnumerator)
 	} while (false);
 }
 
-HRESULT AudioCapture::Start()
+bool AudioCapture::StartCapture()
 {
 	if (m_bInited && m_pAudioClient)
 	{
-		return m_pAudioClient->Start();  // Start recording.
+		HRESULT hr = m_pAudioClient->Start();  // Start recording.
+		return SUCCEEDED(hr);
 	}
-	return E_FAIL;
+	return false;
 }
 
-HRESULT AudioCapture::Stop()
+bool AudioCapture::StopCapture()
 {
 	if (m_bInited && m_pAudioClient)
 	{
-		return m_pAudioClient->Stop();  // Stop recording.
+		HRESULT hr = m_pAudioClient->Stop();  // Stop recording.
+		return SUCCEEDED(hr);
 	}
-	return E_FAIL;
+	return false;
 }
 
 HRESULT AudioCapture::Capture()

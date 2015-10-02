@@ -12,9 +12,8 @@ public:
 	AudioCapture(bool bLoopback = true);
 	virtual ~AudioCapture();
 
-	virtual HRESULT Init();
-	virtual HRESULT Start();
-	virtual HRESULT Stop();
+	virtual bool Init();
+
 	virtual HRESULT Capture();
 
 	virtual const WAVEFORMATEX* GetFormat() const;
@@ -33,6 +32,8 @@ public:
 
 protected:
 	virtual void Release();
+	virtual bool StartCapture();
+	virtual bool StopCapture();
 	
 protected:
 	WAVEFORMATEX *m_pwfx;

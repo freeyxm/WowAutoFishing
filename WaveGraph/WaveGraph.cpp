@@ -114,21 +114,21 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	g_pAudioPainter->SetEnable(false);
 
 	g_pAudioRecorder = new AudioRecorder();
-	if (!g_pAudioRecorder || FAILED(g_pAudioRecorder->Init()))
+	if (!g_pAudioRecorder || !g_pAudioRecorder->Init())
 	{
 		printf("Init AudioRecorder failed!\n");
 		return FALSE;
 	}
 
 	g_pAudioRenderer = new AudioRenderer();
-	if (!g_pAudioRenderer || FAILED(g_pAudioRenderer->Init()))
+	if (!g_pAudioRenderer || !g_pAudioRenderer->Init())
 	{
 		printf("Init AudioRenderer failed!\n");
 		return FALSE;
 	}
 
 	g_pAudioExtractor = new AudioExtractor();
-	if(!g_pAudioExtractor || FAILED(g_pAudioExtractor->Init()))
+	if(!g_pAudioExtractor || !g_pAudioExtractor->Init())
 	{
 		printf("Init AudioExtractor failed!\n");
 		return FALSE;
@@ -411,7 +411,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 VOID StartRecord()
 {
-	if (g_pAudioRecorder->StartRecord())
+	if (g_pAudioRecorder->Start())
 	{
 		g_mode = Mode_Record;
 		UpdateButtonStatus();
@@ -421,13 +421,13 @@ VOID StartRecord()
 VOID StopRecord()
 {
 	g_mode = Mode_None;
-	g_pAudioRecorder->StopRecord();
+	g_pAudioRecorder->Stop();
 	UpdateButtonStatus();
 }
 
 VOID StartExtract()
 {
-	if (g_pAudioExtractor->StartExtract())
+	if (g_pAudioExtractor->Start())
 	{
 		g_mode = Mode_Extract;
 		UpdateButtonStatus();
@@ -437,14 +437,14 @@ VOID StartExtract()
 VOID StopExtract()
 {
 	g_mode = Mode_None;
-	g_pAudioExtractor->StopExtract();
+	g_pAudioExtractor->Stop();
 	UpdateButtonStatus();
 }
 
 VOID StartPlay()
 {
 	g_pAudioRenderer->SetSource(g_pAudioRecorder->GetStorage());
-	if (g_pAudioRenderer->StartRender())
+	if (g_pAudioRenderer->Start())
 	{
 		g_mode = Mode_Play;
 		UpdateButtonStatus();
@@ -454,7 +454,7 @@ VOID StartPlay()
 void StopPlay()
 {
 	g_mode = Mode_None;
-	g_pAudioRenderer->StopRender();
+	g_pAudioRenderer->Stop();
 	UpdateButtonStatus();
 }
 

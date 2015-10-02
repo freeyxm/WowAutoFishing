@@ -14,8 +14,8 @@ public:
 	AudioExtractor();
 	~AudioExtractor();
 
-	bool StartExtract();
-	void StopExtract();
+	bool Start();
+	void Stop();
 
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
 	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nFrameCount);

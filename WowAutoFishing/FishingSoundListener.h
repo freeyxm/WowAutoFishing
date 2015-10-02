@@ -17,7 +17,7 @@ public:
 	void SetCheckTimeoutProc(CheckTimeoutProc callback);
 	void SetNotifyBiteProc(NotifyBiteProc callback);
 
-	virtual HRESULT Init();
+	virtual bool Init();
 
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
 	virtual bool IsDone() const;

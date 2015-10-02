@@ -36,7 +36,7 @@ bool Fisher::Init()
 	m_sound.SetNotifyBiteProc(&Fisher::NotifyBite);
 	m_sound.SetCheckTimeoutProc(&Fisher::CheckTimeout);
 
-	if (FAILED(m_sound.Init()))
+	if (!m_sound.Init())
 	{
 		return false;
 	}
@@ -220,7 +220,7 @@ bool Fisher::WaitBiteStart()
 	m_bHasBite = false;
 	m_bTimeout = false;
 	
-	return m_sound.StartExtract();
+	return m_sound.Start();
 }
 
 void Fisher::WaitBite()
@@ -233,7 +233,7 @@ void Fisher::WaitBite()
 
 void Fisher::WaitBiteEnd()
 {
-	m_sound.StopExtract();
+	m_sound.Stop();
 
 	if (m_bHasBite)
 	{

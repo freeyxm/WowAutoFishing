@@ -57,12 +57,11 @@ HRESULT AudioRecorder::OnCaptureData(BYTE *pData, UINT32 nFrameCount)
 	return bSuccess ? S_OK : E_FAIL;
 }
 
-bool AudioRecorder::StartRecord()
+bool AudioRecorder::Start()
 {
 	Clear();
 
-	HRESULT hr = Start();
-	if (FAILED(hr))
+	if (!StartCapture())
 		return false;
 
 	SetDone(false);
@@ -82,11 +81,11 @@ bool AudioRecorder::StartRecord()
 	return true;
 }
 
-void AudioRecorder::StopRecord()
+void AudioRecorder::Stop()
 {
 	SetDone(true);
 
-	Stop();
+	StopCapture();
 
 	if (m_hThreadCapture != NULL)
 	{
