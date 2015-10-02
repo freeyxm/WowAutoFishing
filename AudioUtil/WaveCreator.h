@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <Audioclient.h>
 #include "AudioFrameStorage.h"
 

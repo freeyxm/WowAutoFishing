@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Win32Util/AudioCapture.h"
 #include "AudioFrameStorage.h"
 #include <list>

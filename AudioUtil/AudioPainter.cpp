@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "AudioPainter.h"
 #include "Win32Util/AudioCapture.h"
 
@@ -114,7 +114,7 @@ UINT AudioPainter::GetNext(UINT range, float *pMin, float *pMax)
 		BYTE *pData = (*m_dataIter)->pData;
 		UINT maxIndex = (*m_dataIter)->nDataLen / m_nBytesPerSample;
 
-		for (; m_dataIndex < maxIndex; m_dataIndex += m_pwfx->nChannels) // Ö»´¦Àí1¸öÉùµÀ
+		for (; m_dataIndex < maxIndex; m_dataIndex += m_pwfx->nChannels) // åªå¤„ç†1ä¸ªå£°é“
 		{
 			if (count >= range)
 				break;

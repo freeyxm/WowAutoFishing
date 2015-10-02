@@ -1,4 +1,4 @@
-#pragma once
+ï»¿#pragma once
 #include "Win32Util/AudioCapture.h"
 #include "AudioFrameStorage.h"
 #include <process.h>
@@ -62,11 +62,11 @@ protected:
 	} m_eSoundState;
 	struct
 	{
-		UINT frameCount; // ¶ÌÊ±ÄÜÁ¿²Î¿¼Ö¡Êı¡£
-		float ampL; // ¶ÌÊ±ÄÜÁ¿µÍÃÅÏŞ
-		float ampH; // ¶ÌÊ±ÄÜÁ¿¸ßÃÅÏŞ
-		float zcrL; // ¹ıÁãÂÊµÍÃÅÏŞ
-		float zcrH; // ¹ıÁãÂÊ¸ßÃÅÏŞ
+		UINT frameCount; // çŸ­æ—¶èƒ½é‡å‚è€ƒå¸§æ•°ã€‚
+		float ampL; // çŸ­æ—¶èƒ½é‡ä½é—¨é™
+		float ampH; // çŸ­æ—¶èƒ½é‡é«˜é—¨é™
+		float zcrL; // è¿‡é›¶ç‡ä½é—¨é™
+		float zcrH; // è¿‡é›¶ç‡é«˜é—¨é™
 	} m_sAmpZcr;
 	
 	HANDLE m_hThreadCapture;

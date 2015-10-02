@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "NpcScanAlertorMgr.h"
 #include "Win32Util/Utility.h"
 #include "AudioUtil/WaveCreator.h"
@@ -60,7 +60,7 @@ bool NpcScanAlertorMgr::Init()
 	HWND preHWnd = NULL;
 	do
 	{
-		preHWnd = ::FindWindowEx(NULL, preHWnd, NULL, L"Ä§ÊÞÊÀ½ç");
+		preHWnd = ::FindWindowEx(NULL, preHWnd, NULL, L"é­”å…½ä¸–ç•Œ");
 		if (preHWnd != NULL)
 		{
 			BindWindow(preHWnd);

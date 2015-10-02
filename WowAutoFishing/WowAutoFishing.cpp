@@ -1,4 +1,4 @@
-// WowAutoFishing.cpp : Defines the entry point for the console application.
+ï»¿// WowAutoFishing.cpp : Defines the entry point for the console application.
 //
 //#pragma execution_character_set("utf-8")
 #include "stdafx.h"
@@ -27,7 +27,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	setlocale(LC_CTYPE, "");
 
-	wprintf(L">¿ªÊ¼...\n");
+	wprintf(L">å¼€å§‹...\n");
 
 	while (true)
 	{
@@ -39,7 +39,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		if (ch == 'w')
 		{
-			hwnd = ::FindWindow(NULL, L"Ä§ÊÞÊÀ½ç");
+			hwnd = ::FindWindow(NULL, L"é­”å…½ä¸–ç•Œ");
 			if (!hwnd)
 				printf("FindWindow failed.\n");
 			else
@@ -47,7 +47,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 		else if (ch == 'f')
 		{
-			HWND hwnd = ::FindWindow(NULL, L"Ä§ÊÞÊÀ½ç");
+			HWND hwnd = ::FindWindow(NULL, L"é­”å…½ä¸–ç•Œ");
 			if (hwnd)
 			{
 				int x = 200, y = 20;

@@ -1,4 +1,4 @@
-#pragma execution_character_set("utf-8")
+ï»¿#pragma execution_character_set("utf-8")
 #include "stdafx.h"
 #include "Win32Util/ImageUtil.h"
 #include "Win32Util/MouseUtil.h"
@@ -16,7 +16,7 @@ void UninstallHook(HHOOK hook);
 
 HWND test_getwnd()
 {
-	HWND hwnd = ::FindWindow(NULL, L"Ä§ÊÞÊÀ½ç");
+	HWND hwnd = ::FindWindow(NULL, L"é­”å…½ä¸–ç•Œ");
 	//HWND hwnd = ::FindWindow(L"notepad", NULL);
 	printf("hwnd=%ld\n", hwnd);
 	if (hwnd)

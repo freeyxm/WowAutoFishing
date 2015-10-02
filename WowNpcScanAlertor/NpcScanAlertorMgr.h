@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "NpcScanAlertor.h"
 #include "AudioUtil/AudioRenderer.h"
 #include <list>

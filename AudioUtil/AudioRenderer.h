@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Win32Util/AudioRender.h"
 #include "AudioFrameStorage.h"
 
