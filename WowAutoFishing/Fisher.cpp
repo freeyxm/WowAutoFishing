@@ -6,10 +6,7 @@
 
 const int SEC_PER_MINUTE = 60;
 const int MAX_BAIT_TIME = 10 * SEC_PER_MINUTE; // 鱼饵持续时间，单位秒
-const int MAX_WAIT_TIME = 20; // 最长等待咬钩时间，单位秒
-
-const int SWITCH_TIME_MIN = 100; // 状态切换间隔，单位毫秒
-const int SWITCH_TIME_MAX = 900; // 状态切换间隔，单位毫秒
+const int MAX_WAIT_TIME = 23; // 最长等待咬钩时间，单位秒
 
 const POINT FLOAT_OFFSET = { 10, 25 }; // 鱼漂偏移，以便鼠标居中（1024x768窗口模式）
 

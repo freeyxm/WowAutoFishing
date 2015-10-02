@@ -99,7 +99,7 @@ HRESULT AudioExtractor::OnCaptureData(BYTE *pData, UINT32 nFrameCount)
 		{
 			if(amp > m_sAmpZcr.ampH || zcr > m_sAmpZcr.zcrH)
 			{
-				printf("StartSegment: amp = %f, zcr = %f\n", amp, zcr);
+				//printf("StartSegment: amp = %f, zcr = %f\n", amp, zcr);
 				StartSegment();
 				if(m_silentCount > 0)
 				{
@@ -147,12 +147,12 @@ HRESULT AudioExtractor::OnCaptureData(BYTE *pData, UINT32 nFrameCount)
 				{
 					if (GetCurFrameCount() >= m_soundMinCount)
 					{
-						printf("EndSegment: amp = %f, zcr = %f, frameCount = %d\n", amp, zcr, GetCurFrameCount());
+						//printf("EndSegment: amp = %f, zcr = %f, frameCount = %d\n", amp, zcr, GetCurFrameCount());
 						EndSegment();
 					}
 					else
 					{
-						printf("CancelSegment: amp = %f, zcr = %f\n", amp, zcr);
+						//printf("CancelSegment: amp = %f, zcr = %f\n", amp, zcr);
 						CancelSegment();
 					}
 					ClearSilentFrames();

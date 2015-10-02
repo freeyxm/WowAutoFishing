@@ -83,7 +83,7 @@ void FishingSoundListener::EndSegment()
 		::fflush(m_pSampleFile);
 	}
 		
-	::printf("amp: sum = %f, avg = %f\n", m_totalAmp, m_totalAmp / m_nFrameCount);
+	//::printf("amp: sum = %f, avg = %f\n", m_totalAmp, m_totalAmp / m_nFrameCount);
 
 	if (m_nFrameCount > 140)
 	{
