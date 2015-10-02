@@ -6,6 +6,10 @@
 KeyboardUtil::KeyboardUtil(HWND hwnd)
 	: m_hwnd(hwnd)
 {
+	::memset(m_singleKeyInputs, 0, sizeof(m_singleKeyInputs));
+	m_singleKeyInputs[0].type = INPUT_KEYBOARD;
+	m_singleKeyInputs[1].type = INPUT_KEYBOARD;
+	m_singleKeyInputs[1].ki.dwFlags = KEYEVENTF_KEYUP;
 }
 
 KeyboardUtil::~KeyboardUtil()
@@ -14,8 +18,16 @@ KeyboardUtil::~KeyboardUtil()
 
 void KeyboardUtil::PressKey(int key, int interval)
 {
-	_KeyDown(key, interval);
-	_KeyUp(key, interval);
+	if (!m_hwnd)
+	{
+		m_singleKeyInputs[0].ki.wVk = m_singleKeyInputs[1].ki.wVk = key;
+		::SendInput(2, m_singleKeyInputs, sizeof(INPUT));
+	}
+	else
+	{
+		_KeyDown(key, interval);
+		_KeyUp(key, interval);
+	}
 }
 
 /*

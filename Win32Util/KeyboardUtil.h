@@ -17,5 +17,6 @@ private:
 
 private:
 	HWND m_hwnd;
+	INPUT m_singleKeyInputs[2];
 };
 
