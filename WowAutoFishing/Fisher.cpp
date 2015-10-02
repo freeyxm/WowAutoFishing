@@ -3,6 +3,17 @@
 #include "Fisher.h"
 #include <ctime>
 
+
+const int SEC_PER_MINUTE = 60;
+const int MAX_BAIT_TIME = 10 * SEC_PER_MINUTE; // 鱼饵持续时间，单位秒
+const int MAX_WAIT_TIME = 20; // 最长等待咬钩时间，单位秒
+
+const int SWITCH_TIME_MIN = 100; // 状态切换间隔，单位毫秒
+const int SWITCH_TIME_MAX = 900; // 状态切换间隔，单位毫秒
+
+const POINT FLOAT_OFFSET = { 10, 25 }; // 鱼漂偏移，以便鼠标居中（1024x768窗口模式）
+
+
 Fisher::Fisher(HWND hwnd, int x, int y, int w, int h)
 	: m_hwnd(hwnd), m_keyboard(hwnd), m_mouse(hwnd)
 	, m_posX(x), m_posY(y), m_width(w), m_height(h), m_sound(this)
@@ -64,34 +75,41 @@ void Fisher::StartFishing()
 				m_state = FishingState::State_ThrowPole;
 			break;
 		case FishingState::State_Bait:
-			DoBait();
+			Bait();
 			m_state = FishingState::State_CheckState;
 			break;
 		case FishingState::State_ThrowPole:
-			if(DoThrowPole())
-				m_state = FishingState::State_FindFloat;
-			else
-				m_state = FishingState::State_End;
+			ThrowPole();
+			m_state = FishingState::State_FindFloat;
 			break;
 		case FishingState::State_FindFloat:
-			if (DoFindFloat())
+			if (FindFloat())
+				m_state = FishingState::State_WaitBiteStart;
+			else
+				m_state = FishingState::State_WaitFloatHide;
+			break;
+		case FishingState::State_WaitBiteStart:
+			if (WaitBiteStart())
 				m_state = FishingState::State_WaitBite;
 			else
-				m_state = FishingState::State_End;
+				m_state = FishingState::State_WaitFloatHide;
 			break;
 		case FishingState::State_WaitBite:
-			if (DoWaitBite())
-				m_state = FishingState::State_Shaduf;
-			else
-				m_state = FishingState::State_End;
+			WaitBite();
+			break;
+		case FishingState::State_WaitBiteEnd:
+			WaitBiteEnd();
 			break;
 		case FishingState::State_Shaduf:
-			DoShaduf();
+			Shaduf();
+			m_state = FishingState::State_WaitFloatHide;
+			break;
+		case FishingState::State_WaitFloatHide:
+			WaitFloatHide();
 			m_state = FishingState::State_End;
 			break;
 		case FishingState::State_End:
-			wprintf(L"throw: %d, timeout: %d, float: %d\n", m_throwCount, m_timeoutCount, m_findFloatFailCount);
-			wprintf(L"---------------------------------------\n");
+			StateEnd();
 			m_state = FishingState::State_Start;
 			break;
 		default:
@@ -114,7 +132,7 @@ bool Fisher::CheckBaitTime()
 }
 
 // 上饵
-bool Fisher::DoBait()
+bool Fisher::Bait()
 {
 	wprintf(L"上饵...\n");
 	ActiveWindow();
@@ -127,7 +145,7 @@ bool Fisher::DoBait()
 }
 
 // 甩竿
-bool Fisher::DoThrowPole()
+bool Fisher::ThrowPole()
 {
 	wprintf(L"甩竿...\n");
 	++m_throwCount;
@@ -156,7 +174,7 @@ static bool MatchFloatColor(char _r, char _g, char _b)
 }
 
 // 寻找鱼漂
-bool Fisher::DoFindFloat()
+bool Fisher::FindFloat()
 {
 	wprintf(L"寻找鱼漂...\n");
 	ActiveWindow();
@@ -196,26 +214,41 @@ bool Fisher::DoFindFloat()
 }
 
 // 等待上钩
-bool Fisher::DoWaitBite()
+bool Fisher::WaitBiteStart()
 {
 	wprintf(L"等待上钩...\n");
-	m_hasBite = false;
+	m_bHasBite = false;
+	m_bTimeout = false;
+	
+	return m_sound.StartExtract();
+}
 
-	m_sound.SetDone(false);
-	m_sound.Start();
-	m_sound.Capture();
-	m_sound.Stop();
-
-	if (m_hasBite)
+void Fisher::WaitBite()
+{
+	if (m_bHasBite || m_bTimeout)
 	{
-		m_waitTime += 100 + rand() % 100; // 咬钩后，延迟100-200毫秒提竿
+		m_state = FishingState::State_WaitBiteEnd;
 	}
+}
 
-	return m_hasBite;
+void Fisher::WaitBiteEnd()
+{
+	m_sound.StopExtract();
+
+	if (m_bHasBite)
+	{
+		m_state = FishingState::State_Shaduf;
+	}
+	else
+	{
+		wprintf(L"没有鱼儿上钩！\n");
+		++m_timeoutCount;
+		m_state = FishingState::State_WaitFloatHide;
+	}
 }
 
 // 提竿
-bool Fisher::DoShaduf()
+bool Fisher::Shaduf()
 {
 	wprintf(L"提竿...\n");
 	ActiveWindow();
@@ -230,25 +263,33 @@ bool Fisher::DoShaduf()
 	m_mouse.SetCursorPos(m_floatPoint.x + rect.left, m_floatPoint.y + rect.top); // 重新设定鼠标，防止中间移动而在错误的位置。
 	Sleep(10);
 	m_mouse.ClickRightButton();
-	m_waitTime += 2500; // 等待物品进包及旧鱼漂消失
 	return true;
+}
+
+void Fisher::WaitFloatHide()
+{
+	m_waitTime += 2500; // 等待物品进包及旧鱼漂消失
+}
+
+void Fisher::StateEnd()
+{
+	wprintf(L"throw: %d, timeout: %d, float: %d\n", m_throwCount, m_timeoutCount, m_findFloatFailCount);
+	wprintf(L"---------------------------------------\n");
 }
 
 void Fisher::NotifyBite()
 {
 	wprintf(L"咬钩了！\n");
-	m_hasBite = true;
+	m_bHasBite = true;
 }
 
 bool Fisher::CheckTimeout()
 {
 	time_t now = time(NULL);
-	bool timeout = now - m_throwTime >= MAX_WAIT_TIME;
-	if (timeout)
+	bool isTimeout = now - m_throwTime >= MAX_WAIT_TIME;
+	if (isTimeout && m_state == FishingState::State_WaitBite)
 	{
-		wprintf(L"没有鱼儿上钩！\n");
-		++m_timeoutCount;
-		m_waitTime += 2500; // 等待旧鱼漂消失
+		m_bTimeout = true;
 	}
-	return timeout;
+	return isTimeout;
 }
