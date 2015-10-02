@@ -30,14 +30,14 @@
     <ClInclude Include="Fisher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AudioListener.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\WaveGraph\Util\FastFourierTransform.h">
       <Filter>WaveUtil</Filter>
     </ClInclude>
     <ClInclude Include="..\WaveGraph\Util\FFT.h">
       <Filter>WaveUtil</Filter>
+    </ClInclude>
+    <ClInclude Include="FishingSoundListener.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -53,14 +53,14 @@
     <ClCompile Include="Fisher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AudioListener.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\WaveGraph\Util\FastFourierTransform.cpp">
       <Filter>WaveUtil</Filter>
     </ClCompile>
     <ClCompile Include="..\WaveGraph\Util\FFT.cpp">
       <Filter>WaveUtil</Filter>
+    </ClCompile>
+    <ClCompile Include="FishingSoundListener.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

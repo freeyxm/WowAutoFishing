@@ -85,16 +85,16 @@
   <ItemGroup>
     <ClInclude Include="..\WaveGraph\Util\FastFourierTransform.h" />
     <ClInclude Include="..\WaveGraph\Util\FFT.h" />
-    <ClInclude Include="AudioListener.h" />
     <ClInclude Include="Fisher.h" />
+    <ClInclude Include="FishingSoundListener.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\WaveGraph\Util\FastFourierTransform.cpp" />
     <ClCompile Include="..\WaveGraph\Util\FFT.cpp" />
-    <ClCompile Include="AudioListener.cpp" />
     <ClCompile Include="Fisher.cpp" />
+    <ClCompile Include="FishingSoundListener.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>

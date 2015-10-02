@@ -47,7 +47,7 @@ HRESULT AudioExtractor::SetFormat(WAVEFORMATEX *pwfx)
 
 	SetSilentMaxCount(5); // need to repair!!!
 	SetSoundMinCount(20); // need to repair!!!
-	SetAmpZcr(480, 0.01f, 1.0f, 0.05f, 0.1f);
+	SetAmpZcr(480, 0.001f, 0.01f, 0.3f, 0.5f);
 
 	return S_OK;
 }
@@ -105,7 +105,7 @@ HRESULT AudioExtractor::OnCaptureData(BYTE *pData, UINT32 nFrameCount)
 				{
 					AppendSilentFrames();
 				}
-				m_pCurSegment->PushBack(pData, nFrameCount * m_nBytesPerFrame);
+				AddFrame(pData, nFrameCount, amp);
 				m_eSoundState = SoundState::Sound;
 			}
 			else if(amp > m_sAmpZcr.ampL || zcr > m_sAmpZcr.zcrL)
@@ -113,11 +113,11 @@ HRESULT AudioExtractor::OnCaptureData(BYTE *pData, UINT32 nFrameCount)
 				if(m_silentCount < m_silentMaxCount)
 				{
 					++m_silentCount;
-					m_silentFrames.PushBack(pData, nFrameCount * m_nBytesPerFrame);
+					AddSilentFrame(pData, nFrameCount, amp);
 				}
 				else
 				{
-					m_silentFrames.ReplaceFront(pData, nFrameCount * m_nBytesPerFrame);
+					PopSilentFrame(pData, nFrameCount, amp);
 				}
 			}
 			else
@@ -134,20 +134,20 @@ HRESULT AudioExtractor::OnCaptureData(BYTE *pData, UINT32 nFrameCount)
 				{
 					AppendSilentFrames();
 				}
-				m_pCurSegment->PushBack(pData, nFrameCount * m_nBytesPerFrame);
+				AddFrame(pData, nFrameCount, amp);
 			}
 			else
 			{
-				++m_silentCount;
-				if(m_silentCount <= m_silentMaxCount)
+				if(m_silentCount < m_silentMaxCount)
 				{
-					m_silentFrames.PushBack(pData, nFrameCount * m_nBytesPerFrame);
+					++m_silentCount;
+					AddSilentFrame(pData, nFrameCount, amp);
 				}
 				else
 				{
-					if(m_pCurSegment->GetSize() >= m_soundMinCount)
+					if (GetCurFrameCount() >= m_soundMinCount)
 					{
-						printf("EndSegment: amp = %f, zcr = %f, frameCount = %d\n", amp, zcr, m_pCurSegment->GetSize());
+						printf("EndSegment: amp = %f, zcr = %f, frameCount = %d\n", amp, zcr, GetCurFrameCount());
 						EndSegment();
 					}
 					else
@@ -232,6 +232,26 @@ void AudioExtractor::ClearSilentFrames()
 {
 	m_silentFrames.Clear();
 	m_silentCount = 0;
+}
+
+inline void AudioExtractor::AddFrame(BYTE *pData, UINT32 nFrameCount, float amp)
+{
+	m_pCurSegment->PushBack(pData, nFrameCount * m_nBytesPerFrame);
+}
+
+inline void AudioExtractor::AddSilentFrame(BYTE *pData, UINT32 nFrameCount, float amp)
+{
+	m_silentFrames.PushBack(pData, nFrameCount * m_nBytesPerFrame);
+}
+
+inline void AudioExtractor::PopSilentFrame(BYTE *pData, UINT32 nFrameCount, float amp)
+{
+	m_silentFrames.ReplaceFront(pData, nFrameCount * m_nBytesPerFrame);
+}
+
+inline UINT AudioExtractor::GetCurFrameCount()
+{
+	return m_pCurSegment->GetSize();
 }
 
 bool AudioExtractor::StartExtract()

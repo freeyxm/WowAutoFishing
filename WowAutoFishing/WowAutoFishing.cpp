@@ -10,7 +10,7 @@
 #include "Win32Util/KeyboardUtil.h"
 #include "Win32Util/AudioCapture.h"
 #include "Fisher.h"
-#include "AudioListener.h"
+#include "FishingSoundListener.h"
 #include <locale.h>
 #include <cstdlib>
 #include <ctime>
@@ -158,13 +158,16 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 		else if (ch == 's')
 		{
-			AudioCapture *pAudio = new AudioListener(NULL);
+			FishingSoundListener *pAudio = new FishingSoundListener(NULL);
 			if (SUCCEEDED(pAudio->Init()))
 			{
-				if (SUCCEEDED(pAudio->Start()))
+				if (pAudio->StartExtract())
 				{
-					pAudio->Capture();
-					pAudio->Stop();
+					while (!pAudio->IsDone())
+					{
+						Sleep(10);
+					}
+					pAudio->StopExtract();
 				}
 			}
 			delete pAudio;

@@ -32,14 +32,20 @@ public:
 	SegmentCIter cbegin() const;
 	SegmentCIter cend() const;
 
-private:
-	void StartSegment();
-	void EndSegment();
-	void CancelSegment();
-	void AppendSilentFrames();
-	void ClearSilentFrames();
+protected:
+	virtual void StartSegment();
+	virtual void EndSegment();
+	virtual void CancelSegment();
+	virtual void AppendSilentFrames();
+	virtual void ClearSilentFrames();
 
-private:
+	inline virtual void AddFrame(BYTE *pData, UINT32 nFrameCount, float amp);
+	inline virtual void AddSilentFrame(BYTE *pData, UINT32 nFrameCount, float amp);
+	inline virtual void PopSilentFrame(BYTE *pData, UINT32 nFrameCount, float amp);
+
+	inline virtual UINT GetCurFrameCount();
+
+protected:
 	CRITICAL_SECTION m_segmentSection; // lock
 	std::list<AudioFrameStorage*> m_segmentList;
 	AudioFrameStorage *m_pCurSegment;

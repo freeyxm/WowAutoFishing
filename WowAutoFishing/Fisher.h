@@ -4,7 +4,7 @@
 #include "Win32Util/MouseUtil.h"
 #include "Win32Util/KeyboardUtil.h"
 #include "Win32Util/ImageUtil.h"
-#include "AudioListener.h"
+#include "FishingSoundListener.h"
 
 enum class FishingState
 {
@@ -71,6 +71,6 @@ private:
 	
 	MouseUtil m_mouse;
 	KeyboardUtil m_keyboard;
-	AudioListener m_sound;
+	FishingSoundListener m_sound;
 };
 
