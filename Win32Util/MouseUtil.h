@@ -5,15 +5,22 @@
 class MouseUtil
 {
 public:
-	MouseUtil();
+	MouseUtil(HWND hwnd);
 	~MouseUtil();
 
-	static void SetCursorPos(int x, int y);
-	static bool GetCursorPos(POINT *pPoint);
+	void SetCursorPos(int x, int y);
+	bool GetCursorPos(POINT *pPoint);
 
-	static void ClickLeftButton(int interval = 0);
-	static void ClickRightButton(int interval = 0);
+	void ClickLeftButton(int interval = 0);
+	void ClickRightButton(int interval = 0);
 
-	static bool MoveCursor(POINT pos, int interval = 0);
+	bool MoveCursor(POINT pos, int interval = 0);
+
+private:
+	inline void _Sleep(int interval);
+	inline void MoveCursor(int x, int y);
+
+private:
+	HWND m_hwnd;
 };
 

@@ -4,7 +4,8 @@
 #include <ctime>
 
 Fisher::Fisher(HWND hwnd, int x, int y, int w, int h)
-	: m_hwnd(hwnd), m_posX(x), m_posY(y), m_width(w), m_height(h), m_sound(this), m_keyboard(hwnd)
+	: m_hwnd(hwnd), m_keyboard(hwnd), m_mouse(hwnd)
+	, m_posX(x), m_posY(y), m_width(w), m_height(h), m_sound(this)
 {
 	Init();
 }
@@ -143,13 +144,6 @@ bool Fisher::DoFindFloat()
 	wprintf(L"—∞’“”„∆Ø...\n");
 	ActiveWindow();
 
-	RECT rect;
-	if (!::GetWindowRect(m_hwnd, &rect))
-	{
-		printf("GetWindowRect has failed.");
-		return false;
-	}
-
 	BITMAPINFOHEADER bi;
 	if (ImageUtil::GetWindowSnapshot(m_hwnd, m_posX, m_posY, m_width, m_height, m_lpBits, &bi))
 	{
@@ -174,8 +168,7 @@ bool Fisher::DoFindFloat()
 			wprintf(L"’“µΩ”„∆Ø: %d, %d\n", p.x, p.y);
 
 			m_floatPoint = p;
-			m_mouse.SetCursorPos(p.x + rect.left, p.y + rect.top);
-			//mouse.MoveCursor(p, 10);
+			m_mouse.SetCursorPos(p.x, p.y);
 			return true;
 		}
 	}

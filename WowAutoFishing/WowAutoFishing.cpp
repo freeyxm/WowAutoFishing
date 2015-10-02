@@ -20,8 +20,6 @@ void test(char ch);
 int _tmain(int argc, _TCHAR* argv[])
 {
 	HWND hwnd = NULL;
-	KeyboardUtil *pKeyboard = NULL;
-	MouseUtil mouse;
 
 	::srand((unsigned int)::time(NULL));
 
@@ -135,8 +133,28 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 		else if (ch == 'm')
 		{
+			::SetForegroundWindow(hwnd);
+			::SetActiveWindow(hwnd);
+			Sleep(100);
+
+			MouseUtil mouse(hwnd);
 			POINT tp = { 100, 200 };
-			mouse.MoveCursor(tp, 10);
+			//mouse.MoveCursor(tp, 10);
+
+			mouse.GetCursorPos(&tp);
+			printf("x = %d, y = %d\n", tp.x, tp.y);
+
+			mouse.SetCursorPos(865, 197);
+			//Sleep(10);
+			//mouse.GetCursorPos(&tp);
+			//printf("x = %d, y = %d\n", tp.x, tp.y);
+
+			mouse.ClickLeftButton();
+		}
+		else if (ch == 'k')
+		{
+			KeyboardUtil keyboard(hwnd);
+			keyboard.PressKey(0x31);
 		}
 		else if (ch == 's')
 		{
