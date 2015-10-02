@@ -7,15 +7,15 @@ class FishingSoundListener :
 	public AudioExtractor
 {
 public:
-	typedef bool (Fisher::*Fun_CheckTimeout)(void);
-	typedef void (Fisher::*Fun_NotifyBite)(void);
+	typedef bool (Fisher::*CheckTimeoutProc)(void);
+	typedef void (Fisher::*NotifyBiteProc)(void);
 
 public:
 	FishingSoundListener(Fisher *pFisher);
 	virtual ~FishingSoundListener();
 
-	void SetCheckTimeout(Fun_CheckTimeout callback);
-	void SetNotifyBite(Fun_NotifyBite callback);
+	void SetCheckTimeoutProc(CheckTimeoutProc callback);
+	void SetNotifyBiteProc(NotifyBiteProc callback);
 
 	virtual HRESULT Init();
 
@@ -38,8 +38,8 @@ protected:
 private:
 	Fisher *m_pFisher;
 	FILE *m_pSampleFile;
-	Fun_CheckTimeout m_funCheckTimeout;
-	Fun_NotifyBite m_funNotifyBite;
+	CheckTimeoutProc m_procCheckTimeout;
+	NotifyBiteProc m_procNotifyBite;
 
 	uint32_t m_nFrameCount;
 	uint32_t m_nSlientFrameCount;

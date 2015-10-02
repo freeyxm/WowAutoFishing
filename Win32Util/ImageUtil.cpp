@@ -1,4 +1,4 @@
-#pragma execution_character_set("utf-8")
+﻿#pragma execution_character_set("utf-8")
 #include "stdafx.h"
 #include "ImageUtil.h"
 #include <list>
@@ -281,6 +281,28 @@ void ImageUtil::FindColor(char *lpBits, int w, int h, int color, int range, std:
 	}
 }
 
+void ImageUtil::FindColor(char *lpBits, int w, int h, MatchColorProc match, std::list<POINT> &points)
+{
+	POINT p;
+	for (int i = 0; i < h; ++i)
+	{
+		int basei = i * w * 4;
+		for (int j = 0; j < w; ++j)
+		{
+			int index = basei + j * 4;
+			char r = lpBits[index + 2];
+			char g = lpBits[index + 1];
+			char b = lpBits[index + 0];
+			if (match(r, g, b))
+			{
+				p.x = j;
+				p.y = i;
+				points.push_back(p);
+			}
+		}
+	}
+}
+
 /*
 寻找图像中的指定灰度值的像素点。
 gray: 目标灰度值。
@@ -307,7 +329,7 @@ void ImageUtil::FindGray(char *lpBits, int w, int h, int gray, int range, std::l
 				p.x = j;
 				p.y = i;
 				points.push_back(p);
-				if(maxCount > 0 && maxCount <= points.size())
+				if (maxCount > 0 && maxCount <= points.size())
 				{
 					return;
 				}
@@ -346,8 +368,8 @@ bool ImageUtil::SelectBestPoint(std::list<POINT> points, int radius, POINT &p)
 			int s = dx * dx + dy * dy;
 			if (s <= radius)
 			{
-				it2->center.x = (it2->center.x + it->x)/2;
-				it2->center.y = (it2->center.y + it->y)/2;
+				it2->center.x = (it2->center.x + it->x) / 2;
+				it2->center.y = (it2->center.y + it->y) / 2;
 				it2->points.push_back(*it);
 				find = true;
 			}

@@ -1,4 +1,4 @@
-#pragma execution_character_set("utf-8")
+ï»¿#pragma execution_character_set("utf-8")
 #include "stdafx.h"
 #include "Fisher.h"
 #include <ctime>
@@ -22,8 +22,8 @@ bool Fisher::Init()
 		return false;
 	}
 
-	m_sound.SetNotifyBite(&Fisher::NotifyBite);
-	m_sound.SetCheckTimeout(&Fisher::CheckTimeout);
+	m_sound.SetNotifyBiteProc(&Fisher::NotifyBite);
+	m_sound.SetCheckTimeoutProc(&Fisher::CheckTimeout);
 
 	if (FAILED(m_sound.Init()))
 	{
@@ -98,12 +98,12 @@ void Fisher::StartFishing()
 			break;
 		}
 
-		m_waitTime += 20 + ::rand() % 30; // ¹«¹²ÑÓ³ÙÊ±¼ä¡£
+		m_waitTime += 20 + ::rand() % 30; // å…¬å…±å»¶è¿Ÿæ—¶é—´ã€‚
 		::Sleep((DWORD)m_waitTime);
 	}
 }
 
-// ¼ì²éÓã¶üÊÇ·ñ³¬Ê±
+// æ£€æŸ¥é±¼é¥µæ˜¯å¦è¶…æ—¶
 bool Fisher::CheckBaitTime()
 {
 	if (m_baitTime == 0)
@@ -113,35 +113,52 @@ bool Fisher::CheckBaitTime()
 	return (now - m_baitTime) > (MAX_BAIT_TIME - MAX_WAIT_TIME);
 }
 
-// ÉÏ¶ü
+// ä¸Šé¥µ
 bool Fisher::DoBait()
 {
-	wprintf(L"ÉÏ¶ü...\n");
+	wprintf(L"ä¸Šé¥µ...\n");
 	ActiveWindow();
-	m_keyboard.PressKey(0x34); // KEY_4, ÌØÊâÓã¶ü
+	m_keyboard.PressKey(0x34); // KEY_4, ç‰¹æ®Šé±¼é¥µ
 	Sleep(10);
 	m_keyboard.PressKey(0x33); // KEY_3
-	m_waitTime += 2000; // ÉÏ¶üÊ©·¨2Ãë
+	m_waitTime += 2000; // ä¸Šé¥µæ–½æ³•2ç§’
 	m_baitTime = time(NULL);
 	return true;
 }
 
-// Ë¦¸Í
+// ç”©ç«¿
 bool Fisher::DoThrowPole()
 {
-	wprintf(L"Ë¦¸Í...\n");
+	wprintf(L"ç”©ç«¿...\n");
 	++m_throwCount;
 	ActiveWindow();
 	m_keyboard.PressKey(0x31); // KEY_1
-	m_waitTime += 1500; // Ë¦¸ÍÍêÑÓ³Ù1.5ÃëÔÙÑ°ÕÒÓãÆ¯
+	m_waitTime += 1500; // ç”©ç«¿å®Œå»¶è¿Ÿ1.5ç§’å†å¯»æ‰¾é±¼æ¼‚
 	m_throwTime = time(NULL);
 	return true;
 }
 
-// Ñ°ÕÒÓãÆ¯
+static bool MatchFloatColor(char _r, char _g, char _b)
+{
+	unsigned r = (unsigned) _r;
+	unsigned g = (unsigned) _g;
+	unsigned b = (unsigned) _b;
+	if (r > g && r > b)
+	{
+		float r_g = (float)r / g;
+		float r_b = (float)r / b;
+		if (r_g > 1.7f && r_b > 1.7f)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+// å¯»æ‰¾é±¼æ¼‚
 bool Fisher::DoFindFloat()
 {
-	wprintf(L"Ñ°ÕÒÓãÆ¯...\n");
+	wprintf(L"å¯»æ‰¾é±¼æ¼‚...\n");
 	ActiveWindow();
 
 	BITMAPINFOHEADER bi;
@@ -149,15 +166,16 @@ bool Fisher::DoFindFloat()
 	{
 		m_points.clear();
 		unsigned int maxCount = 10000;
-		//ImageUtil::FindGray((char*)m_lpBits, m_width, m_height, 20, 3, m_points, maxCount); // ÓÃ»Ò¶ÈÍ¼Ñ°ÕÒÓãÆ¯
-		//ImageUtil::FindColor((char*)m_lpBits, m_width, m_height, RGB(180, 55, 40), RGB(20, 15, 10), m_points); // ³eÔíËÂ
-		ImageUtil::FindColor((char*)m_lpBits, m_width, m_height, RGB(60, 10, 10), RGB(10, 10, 10), m_points); // AG
+		//ImageUtil::FindGray((char*)m_lpBits, m_width, m_height, 20, 3, m_points, maxCount); // ç”¨ç°åº¦å›¾å¯»æ‰¾é±¼æ¼‚
+		//ImageUtil::FindColor((char*)m_lpBits, m_width, m_height, RGB(180, 55, 40), RGB(20, 15, 10), m_points); // ç ®çš‚å¯º
+		//ImageUtil::FindColor((char*)m_lpBits, m_width, m_height, RGB(60, 10, 10), RGB(10, 10, 10), m_points); // AG
+		ImageUtil::FindColor((char*)m_lpBits, m_width, m_height, MatchFloatColor, m_points);
 
-		if(m_points.size() >= maxCount) // ÕÒ¶àÌ«¶àµã£¬¿ÉÄÜÊÇUI¿ª×Å»òË®Óò²»ºÏÊÊ£¬ÎŞ·¨¶¨Î»ÓãÆ¯
+		if(m_points.size() >= maxCount) // æ‰¾å¤šå¤ªå¤šç‚¹ï¼Œå¯èƒ½æ˜¯UIå¼€ç€æˆ–æ°´åŸŸä¸åˆé€‚ï¼Œæ— æ³•å®šä½é±¼æ¼‚
 			m_points.clear();
 
 		POINT p;
-		if (ImageUtil::SelectBestPoint(m_points, 30, p)) // ¸ù¾İÓãÆ¯µÄ´ó¸Å°ë¾¶Ñ¡Ôñ×îÓÅµÄµã
+		if (ImageUtil::SelectBestPoint(m_points, 30, p)) // æ ¹æ®é±¼æ¼‚çš„å¤§æ¦‚åŠå¾„é€‰æ‹©æœ€ä¼˜çš„ç‚¹
 		{
 			p.x += m_posX;
 			p.y = m_height - p.y + m_posY;
@@ -165,22 +183,22 @@ bool Fisher::DoFindFloat()
 			p.x += FLOAT_OFFSET.x;
 			p.y += FLOAT_OFFSET.y;
 
-			wprintf(L"ÕÒµ½ÓãÆ¯: %d, %d\n", p.x, p.y);
+			wprintf(L"æ‰¾åˆ°é±¼æ¼‚: %d, %d\n", p.x, p.y);
 
 			m_floatPoint = p;
 			m_mouse.SetCursorPos(p.x, p.y);
 			return true;
 		}
 	}
-	m_waitTime += 1500; // Ñ°ÕÒÓãÆ¯Ê§°Ü£¬µÈÏÖÓãÆ¯ÏûÊ§ÔÙÖØĞÂÅ×¸Í¡£
+	m_waitTime += 1500; // å¯»æ‰¾é±¼æ¼‚å¤±è´¥ï¼Œç­‰ç°é±¼æ¼‚æ¶ˆå¤±å†é‡æ–°æŠ›ç«¿ã€‚
 	++m_findFloatFailCount;
 	return false;
 }
 
-// µÈ´ıÉÏ¹³
+// ç­‰å¾…ä¸Šé’©
 bool Fisher::DoWaitBite()
 {
-	wprintf(L"µÈ´ıÉÏ¹³...\n");
+	wprintf(L"ç­‰å¾…ä¸Šé’©...\n");
 	m_hasBite = false;
 
 	m_sound.SetDone(false);
@@ -190,16 +208,16 @@ bool Fisher::DoWaitBite()
 
 	if (m_hasBite)
 	{
-		m_waitTime += 100 + rand() % 100; // Ò§¹³ºó£¬ÑÓ³Ù100-200ºÁÃëÌá¸Í
+		m_waitTime += 100 + rand() % 100; // å’¬é’©åï¼Œå»¶è¿Ÿ100-200æ¯«ç§’æç«¿
 	}
 
 	return m_hasBite;
 }
 
-// Ìá¸Í
+// æç«¿
 bool Fisher::DoShaduf()
 {
-	wprintf(L"Ìá¸Í...\n");
+	wprintf(L"æç«¿...\n");
 	ActiveWindow();
 
 	RECT rect;
@@ -209,16 +227,16 @@ bool Fisher::DoShaduf()
 		return false;
 	}
 
-	m_mouse.SetCursorPos(m_floatPoint.x + rect.left, m_floatPoint.y + rect.top); // ÖØĞÂÉè¶¨Êó±ê£¬·ÀÖ¹ÖĞ¼äÒÆ¶¯¶øÔÚ´íÎóµÄÎ»ÖÃ¡£
+	m_mouse.SetCursorPos(m_floatPoint.x + rect.left, m_floatPoint.y + rect.top); // é‡æ–°è®¾å®šé¼ æ ‡ï¼Œé˜²æ­¢ä¸­é—´ç§»åŠ¨è€Œåœ¨é”™è¯¯çš„ä½ç½®ã€‚
 	Sleep(10);
 	m_mouse.ClickRightButton();
-	m_waitTime += 2500; // µÈ´ıÎïÆ·½ø°ü¼°¾ÉÓãÆ¯ÏûÊ§
+	m_waitTime += 2500; // ç­‰å¾…ç‰©å“è¿›åŒ…åŠæ—§é±¼æ¼‚æ¶ˆå¤±
 	return true;
 }
 
 void Fisher::NotifyBite()
 {
-	wprintf(L"Ò§¹³ÁË£¡\n");
+	wprintf(L"å’¬é’©äº†ï¼\n");
 	m_hasBite = true;
 }
 
@@ -228,9 +246,9 @@ bool Fisher::CheckTimeout()
 	bool timeout = now - m_throwTime >= MAX_WAIT_TIME;
 	if (timeout)
 	{
-		wprintf(L"Ã»ÓĞÓã¶ùÉÏ¹³£¡\n");
+		wprintf(L"æ²¡æœ‰é±¼å„¿ä¸Šé’©ï¼\n");
 		++m_timeoutCount;
-		m_waitTime += 2500; // µÈ´ı¾ÉÓãÆ¯ÏûÊ§
+		m_waitTime += 2500; // ç­‰å¾…æ—§é±¼æ¼‚æ¶ˆå¤±
 	}
 	return timeout;
 }

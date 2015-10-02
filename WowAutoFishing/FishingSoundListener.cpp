@@ -9,7 +9,7 @@
 
 
 FishingSoundListener::FishingSoundListener(Fisher *pFisher)
-	: m_pFisher(pFisher), m_funCheckTimeout(NULL), m_funNotifyBite(NULL)
+	: m_pFisher(pFisher), m_procCheckTimeout(NULL), m_procNotifyBite(NULL)
 	, m_pSampleFile(NULL)
 {
 }
@@ -44,14 +44,14 @@ HRESULT FishingSoundListener::Init()
 	return AudioExtractor::Init();
 }
 
-void FishingSoundListener::SetCheckTimeout(Fun_CheckTimeout callback)
+void FishingSoundListener::SetCheckTimeoutProc(CheckTimeoutProc callback)
 {
-	m_funCheckTimeout = callback;
+	m_procCheckTimeout = callback;
 }
 
-void FishingSoundListener::SetNotifyBite(Fun_NotifyBite callback)
+void FishingSoundListener::SetNotifyBiteProc(NotifyBiteProc callback)
 {
-	m_funNotifyBite = callback;
+	m_procNotifyBite = callback;
 }
 
 HRESULT FishingSoundListener::SetFormat(WAVEFORMATEX *pwfx)
@@ -87,9 +87,9 @@ void FishingSoundListener::EndSegment()
 
 	if (m_nFrameCount > 140)
 	{
-		if (m_funNotifyBite != NULL)
+		if (m_procNotifyBite != NULL)
 		{
-			(m_pFisher->*m_funNotifyBite)();
+			(m_pFisher->*m_procNotifyBite)();
 		}
 	}
 }
@@ -127,9 +127,9 @@ inline UINT FishingSoundListener::GetCurFrameCount()
 
 bool FishingSoundListener::IsDone() const
 {
-	if (!m_bDone && m_pFisher != NULL && m_funCheckTimeout != NULL)
+	if (!m_bDone && m_pFisher != NULL && m_procCheckTimeout != NULL)
 	{
-		return (m_pFisher->*m_funCheckTimeout)();
+		return (m_pFisher->*m_procCheckTimeout)();
 	}
 	return m_bDone;
 }
