@@ -45,7 +45,7 @@ bool NpcScanAlertor::Init()
 	if (!m_lpBits)
 		return false;
 
-	Utility::printf_t("pid = %d, Init success.\n", m_pid);
+	Utility::printf_t("Alerter[%d] \"%s\": Init success.\n", m_pid, m_name.c_str());
 	return true;
 }
 
@@ -54,10 +54,14 @@ void NpcScanAlertor::Start(int colorType, bool bRare)
 	m_colorType = colorType;
 	m_bRare = bRare;
 
+	Start();
+}
+
+void NpcScanAlertor::Start()
+{
 	m_searchTargetTime = 0;
 	m_moveTime = 0;
 	m_moveLeft = true;
-
 	m_bRunning = true;
 }
 
@@ -66,9 +70,24 @@ void NpcScanAlertor::Stop()
 	m_bRunning = false;
 }
 
-bool NpcScanAlertor::IsRunning()
+bool NpcScanAlertor::IsRunning() const
 {
 	return m_bRunning;
+}
+
+long NpcScanAlertor::GetPid() const
+{
+	return m_pid;
+}
+
+void NpcScanAlertor::SetName(const char* name)
+{
+	m_name = name;
+}
+
+const char* NpcScanAlertor::GetName() const
+{
+	return m_name.c_str();
 }
 
 void NpcScanAlertor::Update(int deltaTime)
@@ -120,7 +139,8 @@ bool NpcScanAlertor::CheckNpcHeadIcon()
 
 	if (!ImageUtil::GetWindowSnapshot(m_hwnd, x, y, w, h, m_lpBits))
 	{
-		Utility::printf_t("GetWindowSnapshot failed!\n");
+		Utility::printf_t("Alerter[%d] \"%s\" : GetWindowSnapshot failed!\n", m_pid, m_name.c_str());
+		Stop();
 		return false;
 	}
 
@@ -196,11 +216,12 @@ bool NpcScanAlertor::CheckNpcHeadIcon()
 		}
 		if (rare_count <= total_count / 2)
 		{
-			Utility::printf_t("isRare failed.\n");
+			//Utility::printf_t("isRare failed.\n");
 			return false;
 		}
 	}
 
-	Utility::printf_t("pid = %d, Find target, rare = %d, color = %s\n", m_pid, m_bRare, isRed ? "red" : "yellow");
+	Utility::printf_t("Alerter[%d] \"%s\" : Find target, rare = %d, color = %s\n",
+		               m_pid, m_name.c_str(), m_bRare, isRed ? "red" : "yellow");
 	return true;
 }

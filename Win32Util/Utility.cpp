@@ -26,3 +26,28 @@ void Utility::printf_t(const char *fmt, ...)
 	::vprintf(fmt, arg_ptr);
 	va_end(arg_ptr);
 }
+
+int Utility::Split(string str, std::list<string> &result)
+{
+	result.clear();
+	size_t sp = 0, ep = 0;
+	do
+	{
+		size_t pos = str.find_first_not_of(' ', sp);
+		if (pos != string::npos)
+		{
+			sp = pos;
+		}
+		ep = str.find_first_of(' ', sp + 1);
+		if (ep == string::npos)
+		{
+			result.push_back(str.substr(sp));
+			break;
+		}
+
+		result.push_back(str.substr(sp, ep - sp));
+		sp = ep + 1;
+	} while (true);
+
+	return result.size();
+}

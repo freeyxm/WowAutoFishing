@@ -2,6 +2,9 @@
 #include "NpcScanAlertorMgr.h"
 #include "Win32Util/Utility.h"
 #include "AudioUtil/WaveCreator.h"
+#include <conio.h>
+#include <iostream>
+#include <string>
 
 NpcScanAlertorMgr::NpcScanAlertorMgr()
 {
@@ -76,9 +79,15 @@ void NpcScanAlertorMgr::Run()
 {
 	Utility::printf_t("Start ...\n");
 
+	m_bRunning = true;
+
 	int delta = 100;
-	while (true)
+	while (m_bRunning)
 	{
+		if (_kbhit())
+		{
+			ReadCmd();
+		}
 		for (std::list<NpcScanAlertor*>::iterator it = m_alertors.begin(); it != m_alertors.end(); ++it)
 		{
 			NpcScanAlertor *p = *it;
@@ -107,4 +116,136 @@ void NpcScanAlertorMgr::BindWindow(HWND hwnd)
 	pAlertor->Start(colorType, false);
 
 	RegistAlertor(pAlertor);
+}
+
+void NpcScanAlertorMgr::ReadCmd()
+{
+	m_cmdLine.clear();
+	if (!getline(std::cin, m_cmdLine))
+		return;
+
+	int count = Utility::Split(m_cmdLine, m_cmdElems);
+	if (count == 0)
+		return;
+
+	std::list<string>::const_iterator it = m_cmdElems.cbegin();
+	if (strcmp("start", it->c_str()) == 0)
+	{
+		if (count > 1)
+		{
+			++it;
+			int pid = ::atoi(it->c_str());
+			StartAlertor(pid);
+		}
+	}
+	else if (strcmp("stop", it->c_str()) == 0)
+	{
+		if (count > 1)
+		{
+			++it;
+			int pid = ::atoi(it->c_str());
+			StopAlertor(pid);
+		}
+	}
+	else if (strcmp("remove", it->c_str()) == 0)
+	{
+		if (count > 1)
+		{
+			++it;
+			int pid = ::atoi(it->c_str());
+			RemoveAlertor(pid);
+		}
+	}
+	else if (strcmp("setname", it->c_str()) == 0)
+	{
+		if (count > 2)
+		{
+			++it;
+			int pid = ::atoi(it->c_str());
+			++it;
+			const char* name = it->c_str();
+			SetAlertorName(pid, name);
+		}
+	}
+	else if (strcmp("list", it->c_str()) == 0)
+	{
+		PrintAlertors();
+	}
+	else if (strcmp("exit", it->c_str()) == 0)
+	{
+		m_bRunning = false;
+	}
+	else
+	{
+		printf("Unexpected CMD: %s\n", m_cmdLine.c_str());
+	}
+}
+
+void NpcScanAlertorMgr::RemoveAlertor(int pid)
+{
+	std::list<NpcScanAlertor*>::iterator it = FindAlertorByPid(pid);
+	if (it != m_alertors.end())
+	{
+		NpcScanAlertor *pAlertor = *it;
+		printf("Alerter[%d] \"%s\" : removed.\n", pid, (*it)->GetName());
+		delete pAlertor;
+		m_alertors.erase(it);
+	}
+}
+
+std::list<NpcScanAlertor*>::iterator NpcScanAlertorMgr::FindAlertorByPid(int pid)
+{
+	std::list<NpcScanAlertor*>::iterator it = m_alertors.begin();
+	while (it != m_alertors.end())
+	{
+		if ((*it)->GetPid() == pid)
+			break;
+		++it;
+	}
+	if (it == m_alertors.end())
+	{
+		printf("Can't find alerter [%d].\n", pid);
+	}
+	return it;
+}
+
+void NpcScanAlertorMgr::StartAlertor(int pid)
+{
+	std::list<NpcScanAlertor*>::iterator it = FindAlertorByPid(pid);
+	if (it != m_alertors.end())
+	{
+		(*it)->Start();
+		printf("Alerter[%d] \"%s\" : started.\n", pid, (*it)->GetName());
+	}
+}
+
+void NpcScanAlertorMgr::StopAlertor(int pid)
+{
+	std::list<NpcScanAlertor*>::iterator it = FindAlertorByPid(pid);
+	if (it != m_alertors.end())
+	{
+		(*it)->Stop();
+		printf("Alerter[%d] \"%s\" : stopped.\n", pid, (*it)->GetName());
+	}
+}
+
+void NpcScanAlertorMgr::SetAlertorName(int pid, const char* name)
+{
+	std::list<NpcScanAlertor*>::iterator it = FindAlertorByPid(pid);
+	if (it != m_alertors.end())
+	{
+		(*it)->SetName(name);
+		printf("Alerter[%d] set name to \"%s\".\n", pid, name);
+	}
+}
+
+void NpcScanAlertorMgr::PrintAlertors()
+{
+	int index = 0;
+	for (std::list<NpcScanAlertor*>::iterator it = m_alertors.begin(); it != m_alertors.end(); ++it)
+	{
+		++index;
+		NpcScanAlertor *pAlertor = *it;
+		printf("%d. pid: %d, name: \"%s\", status: %d\n", index, pAlertor->GetPid(), pAlertor->GetName(), pAlertor->IsRunning());
+	}
 }

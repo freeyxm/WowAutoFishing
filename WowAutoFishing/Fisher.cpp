@@ -134,7 +134,7 @@ bool Fisher::Bait()
 	wprintf(L"上饵...\n");
 	ActiveWindow();
 	m_keyboard.PressKey(0x34); // KEY_4, 特殊鱼饵
-	Sleep(10);
+	Sleep(2100);
 	m_keyboard.PressKey(0x33); // KEY_3
 	m_waitTime += 2000; // 上饵施法2秒
 	m_baitTime = time(NULL);

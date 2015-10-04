@@ -2,6 +2,7 @@
 #pragma execution_character_set("utf-8")
 #include "AudioUtil/AudioRenderer.h"
 #include "Win32Util/KeyboardUtil.h"
+#include <string>
 
 class NpcScanAlertor
 {
@@ -18,10 +19,16 @@ public:
 
 	bool Init();
 	void Start(int colorType, bool bRare);
+	void Start();
 	void Stop();
 	void Update(int deltaTime);
 
-	bool IsRunning();
+	bool IsRunning() const;
+
+	long GetPid() const;
+
+	void SetName(const char* name);
+	const char* GetName() const;
 
 private:
 	void PlayAlarm();
@@ -43,5 +50,7 @@ private:
 	long m_searchTargetTime;
 	long m_moveTime;
 	bool m_moveLeft;
+
+	std::string m_name;
 };
 
