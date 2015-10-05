@@ -18,10 +18,12 @@ private:
 	void ClearAlertor();
 
 	std::list<NpcScanAlertor*>::iterator FindAlertorByPid(int pid);
+	NpcScanAlertor* FindAlertor(int pid);
 	void RemoveAlertor(int pid);
 	void StartAlertor(int pid);
 	void StopAlertor(int pid);
-	void SetAlertorName(int pid, const char* name);
+	void StartAllAlertor();
+	void StopAllAlertor(bool printMsg);
 	void PrintAlertors();
 
 	bool InitAudioPlayer();

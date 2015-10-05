@@ -30,6 +30,12 @@ public:
 	void SetName(const char* name);
 	const char* GetName() const;
 
+	void SetColorType(int colorType);
+	int GetColorType();
+
+	void SetRare(bool bRare);
+	bool IsRare();
+
 private:
 	void PlayAlarm();
 	bool CheckNpcHeadIcon();

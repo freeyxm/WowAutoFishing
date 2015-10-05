@@ -90,6 +90,26 @@ const char* NpcScanAlertor::GetName() const
 	return m_name.c_str();
 }
 
+void NpcScanAlertor::SetColorType(int colorType)
+{
+	m_colorType = colorType;
+}
+
+int NpcScanAlertor::GetColorType()
+{
+	return m_colorType;
+}
+
+void NpcScanAlertor::SetRare(bool bRare)
+{
+	m_bRare = bRare;
+}
+
+bool NpcScanAlertor::IsRare()
+{
+	return m_bRare;
+}
+
 void NpcScanAlertor::Update(int deltaTime)
 {
 	if (!m_bRunning)

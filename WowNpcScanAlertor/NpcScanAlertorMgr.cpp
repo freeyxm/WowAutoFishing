@@ -72,12 +72,14 @@ bool NpcScanAlertorMgr::Init()
 
 	Utility::printf_t("Find %d window.\n", m_alertors.size());
 
+	StopAllAlertor(false);
+
 	return m_alertors.size() > 0;
 }
 
 void NpcScanAlertorMgr::Run()
 {
-	Utility::printf_t("Start ...\n");
+	Utility::printf_t("Ready ...\n");
 
 	m_bRunning = true;
 
@@ -134,8 +136,15 @@ void NpcScanAlertorMgr::ReadCmd()
 		if (count > 1)
 		{
 			++it;
-			int pid = ::atoi(it->c_str());
-			StartAlertor(pid);
+			if (strcmp("all", it->c_str()) == 0)
+			{
+				StartAllAlertor();
+			}
+			else
+			{
+				int pid = ::atoi(it->c_str());
+				StartAlertor(pid);
+			}
 		}
 	}
 	else if (strcmp("stop", it->c_str()) == 0)
@@ -143,8 +152,15 @@ void NpcScanAlertorMgr::ReadCmd()
 		if (count > 1)
 		{
 			++it;
-			int pid = ::atoi(it->c_str());
-			StopAlertor(pid);
+			if (strcmp("all", it->c_str()) == 0)
+			{
+				StopAllAlertor(true);
+			}
+			else
+			{
+				int pid = ::atoi(it->c_str());
+				StopAlertor(pid);
+			}
 		}
 	}
 	else if (strcmp("remove", it->c_str()) == 0)
@@ -164,7 +180,47 @@ void NpcScanAlertorMgr::ReadCmd()
 			int pid = ::atoi(it->c_str());
 			++it;
 			const char* name = it->c_str();
-			SetAlertorName(pid, name);
+
+			NpcScanAlertor* pAlertor = FindAlertor(pid);
+			if (pAlertor != NULL)
+			{
+				pAlertor->SetName(name);
+				printf("Alerter[%d] set name to \"%s\".\n", pid, name);
+			}
+		}
+	}
+	else if (strcmp("setrare", it->c_str()) == 0)
+	{
+		if (count > 2)
+		{
+			++it;
+			int pid = ::atoi(it->c_str());
+			++it;
+			int rare = ::atoi(it->c_str());
+
+			NpcScanAlertor* pAlertor = FindAlertor(pid);
+			if (pAlertor != NULL)
+			{
+				pAlertor->SetRare(rare ? true : false);
+				printf("Alerter[%d] set rare to %d.\n", pid, rare);
+			}
+		}
+	}
+	else if (strcmp("setcolor", it->c_str()) == 0)
+	{
+		if (count > 2)
+		{
+			++it;
+			int pid = ::atoi(it->c_str());
+			++it;
+			int color = ::atoi(it->c_str());
+
+			NpcScanAlertor* pAlertor = FindAlertor(pid);
+			if (pAlertor != NULL)
+			{
+				pAlertor->SetColorType(color);
+				printf("Alerter[%d] set color type to %d.\n", pid, color);
+			}
 		}
 	}
 	else if (strcmp("list", it->c_str()) == 0)
@@ -209,33 +265,53 @@ std::list<NpcScanAlertor*>::iterator NpcScanAlertorMgr::FindAlertorByPid(int pid
 	return it;
 }
 
-void NpcScanAlertorMgr::StartAlertor(int pid)
+NpcScanAlertor* NpcScanAlertorMgr::FindAlertor(int pid)
 {
 	std::list<NpcScanAlertor*>::iterator it = FindAlertorByPid(pid);
 	if (it != m_alertors.end())
+		return *it;
+	else
+		return NULL;
+}
+
+void NpcScanAlertorMgr::StartAlertor(int pid)
+{
+	NpcScanAlertor* pAlertor = FindAlertor(pid);
+	if (pAlertor != NULL)
 	{
-		(*it)->Start();
-		printf("Alerter[%d] \"%s\" : started.\n", pid, (*it)->GetName());
+		pAlertor->Start();
+		printf("Alerter[%d] \"%s\" : started.\n", pid, pAlertor->GetName());
 	}
 }
 
 void NpcScanAlertorMgr::StopAlertor(int pid)
 {
-	std::list<NpcScanAlertor*>::iterator it = FindAlertorByPid(pid);
-	if (it != m_alertors.end())
+	NpcScanAlertor* pAlertor = FindAlertor(pid);
+	if (pAlertor != NULL)
 	{
-		(*it)->Stop();
-		printf("Alerter[%d] \"%s\" : stopped.\n", pid, (*it)->GetName());
+		pAlertor->Stop();
+		printf("Alerter[%d] \"%s\" : stopped.\n", pid, pAlertor->GetName());
 	}
 }
 
-void NpcScanAlertorMgr::SetAlertorName(int pid, const char* name)
+void NpcScanAlertorMgr::StartAllAlertor()
 {
-	std::list<NpcScanAlertor*>::iterator it = FindAlertorByPid(pid);
-	if (it != m_alertors.end())
+	for (std::list<NpcScanAlertor*>::iterator it = m_alertors.begin(); it != m_alertors.end(); ++it)
 	{
-		(*it)->SetName(name);
-		printf("Alerter[%d] set name to \"%s\".\n", pid, name);
+		(*it)->Start();
+		printf("Alerter[%d] \"%s\" : started.\n", (*it)->GetPid(), (*it)->GetName());
+	}
+}
+
+void NpcScanAlertorMgr::StopAllAlertor(bool printMsg)
+{
+	for (std::list<NpcScanAlertor*>::iterator it = m_alertors.begin(); it != m_alertors.end(); ++it)
+	{
+		(*it)->Stop();
+		if (printMsg)
+		{
+			printf("Alerter[%d] \"%s\" : stopped.\n", (*it)->GetPid(), (*it)->GetName());
+		}
 	}
 }
 
@@ -246,6 +322,7 @@ void NpcScanAlertorMgr::PrintAlertors()
 	{
 		++index;
 		NpcScanAlertor *pAlertor = *it;
-		printf("%d. pid: %d, name: \"%s\", status: %d\n", index, pAlertor->GetPid(), pAlertor->GetName(), pAlertor->IsRunning());
+		printf("%d. pid: %d, name: \"%s\", rare: %d, color: %d, status: %d\n", index
+			, pAlertor->GetPid(), pAlertor->GetName(), pAlertor->IsRare(), pAlertor->GetColorType(), pAlertor->IsRunning());
 	}
 }
