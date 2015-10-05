@@ -14,7 +14,7 @@ class AudioRecorder :
 	public AudioCapture
 {
 public:
-	AudioRecorder(void);
+	AudioRecorder(bool bLoopback = true, bool bDefaultDevice = true);
 	~AudioRecorder(void);
 
 	bool Start();

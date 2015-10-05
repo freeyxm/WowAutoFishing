@@ -3,10 +3,13 @@
 #include "AudioCapture.h"
 #include <functiondiscoverykeys.h>
 #include <cstdio>
+#include <iostream>
+#include <string>
 
-AudioCapture::AudioCapture(bool bLoopback)
-	: m_pEnumerator(NULL), m_pDevice(NULL), m_pAudioClient(NULL), m_pCaptureClient(NULL), m_pwfx(NULL)
-	, m_bInited(false), m_bLoopback(bLoopback), m_bDone(true), m_bFloatFormat(false)
+AudioCapture::AudioCapture(bool bLoopback, bool bDefaultDevice)
+	: m_pDevice(NULL), m_pAudioClient(NULL), m_pCaptureClient(NULL), m_pwfx(NULL)
+	, m_bInited(false), m_bDone(true), m_bFloatFormat(false)
+	, m_bLoopback(bLoopback), m_bDefaultDevice(bDefaultDevice)
 {
 }
 
@@ -36,6 +39,7 @@ AudioCapture::~AudioCapture()
 bool AudioCapture::Init()
 {
 	HRESULT hr = S_FALSE;
+	IMMDeviceEnumerator *pEnumerator = NULL;
 	REFERENCE_TIME hnsRequestedDuration = REFTIMES_PER_SEC;
 	UINT32 bufferFrameCount;
 	m_bInited = false;
@@ -50,16 +54,11 @@ bool AudioCapture::Init()
 		//hr = ::CoInitialize(NULL);
 		//BREAK_ON_ERROR(hr);
 
-		hr = ::CoCreateInstance(CLSID_MMDeviceEnumerator, NULL, CLSCTX_ALL, IID_IMMDeviceEnumerator, (void**)&m_pEnumerator);
+		hr = ::CoCreateInstance(CLSID_MMDeviceEnumerator, NULL, CLSCTX_ALL, IID_IMMDeviceEnumerator, (void**)&pEnumerator);
 		BREAK_ON_ERROR(hr);
 
-		//PrintDevices(m_pEnumerator);
-
-		if (m_bLoopback)
-			hr = m_pEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &m_pDevice);
-		else
-			hr = m_pEnumerator->GetDefaultAudioEndpoint(eCapture, eConsole, &m_pDevice);
-		BREAK_ON_ERROR(hr);
+		if (!SelectDevice(pEnumerator))
+			break;
 
 		hr = m_pDevice->Activate(IID_IAudioClient, CLSCTX_ALL, NULL, (void**)&m_pAudioClient);
 		BREAK_ON_ERROR(hr);
@@ -91,6 +90,7 @@ bool AudioCapture::Init()
 
 	} while (false);
 
+	SAFE_RELEASE(pEnumerator);
 
 	if (FAILED(hr))
 	{
@@ -112,7 +112,6 @@ void AudioCapture::Release()
 		CoTaskMemFree(m_pwfx);
 		m_pwfx = NULL;
 	}
-	SAFE_RELEASE(m_pEnumerator);
 	SAFE_RELEASE(m_pDevice);
 	SAFE_RELEASE(m_pAudioClient);
 	SAFE_RELEASE(m_pCaptureClient);
@@ -120,35 +119,95 @@ void AudioCapture::Release()
 	m_bDone = true;
 }
 
-void AudioCapture::PrintDevices(IMMDeviceEnumerator *pEnumerator)
+bool AudioCapture::SelectDevice(IMMDeviceEnumerator *pEnumerator)
+{
+	return SelectDevice(pEnumerator, m_bLoopback ? eRender : eCapture, m_bDefaultDevice, &m_pDevice);
+}
+
+bool AudioCapture::SelectDevice(IMMDeviceEnumerator *pEnumerator, EDataFlow eDataFlow, bool bDefault, IMMDevice **ppDevice)
+{
+	HRESULT hr;
+	if (bDefault)
+	{
+		hr = pEnumerator->GetDefaultAudioEndpoint(eDataFlow, eConsole, ppDevice);
+		return SUCCEEDED(hr) ? true : false;
+	}
+	else
+	{
+		std::list<DeviceInfo> devices;
+		int count = GetDevices(eDataFlow, pEnumerator, devices);
+
+		// Print device name list
+		printf("---------------------------------------\n");
+		printf("Current Available Devices:\n");
+		int index = 1;
+		for (std::list<DeviceInfo>::const_iterator it = devices.cbegin(); it != devices.cend(); ++it)
+		{
+			wprintf_s(L"%d. %ls\n", index, it->sName);
+			++index;
+		}
+		printf("---------------------------------------\n");
+
+		// Select device by index
+		index = GetSelectIndex(1, count);
+		if (index >= 1 && index <= count)
+		{
+			std::list<DeviceInfo>::const_iterator it = devices.begin();
+			for (int i = 1; i < index; ++i)
+			{
+				++it;
+			}
+			*ppDevice = it->pDevice;
+		}
+
+		// Release unselected devices
+		for (std::list<DeviceInfo>::const_iterator it = devices.cbegin(); it != devices.cend(); ++it)
+		{
+			if (*ppDevice != it->pDevice)
+			{
+				IMMDevice *pDevice = it->pDevice;
+				SAFE_RELEASE(pDevice);
+			}
+		}
+		devices.clear();
+
+		return count > 0 && *ppDevice != NULL;
+	}
+}
+
+UINT AudioCapture::GetDevices(EDataFlow eDataFlow, IMMDeviceEnumerator *pEnumerator, std::list<DeviceInfo> &devices)
 {
 	HRESULT hr;
 	IMMDeviceCollection *pCollection = NULL;
-	IMMDevice *pEndpoint = NULL;
+	IMMDevice *pDevice = NULL;
 	IPropertyStore *pProps = NULL;
-	LPWSTR pwszID = NULL;
+	//LPWSTR pwszID = NULL;
+	UINT count = 0;
 
 	do
 	{
-		hr = pEnumerator->EnumAudioEndpoints(eCapture, DEVICE_STATE_ACTIVE, &pCollection);
+		hr = pEnumerator->EnumAudioEndpoints(eDataFlow, DEVICE_STATE_ACTIVE, &pCollection);
 		BREAK_ON_ERROR(hr);
 
-		UINT count = 0;
 		hr = pCollection->GetCount(&count);
 		BREAK_ON_ERROR(hr);
 
+		if (count == 0)
+			break;
+
 		for (UINT i = 0; i < count; ++i)
 		{
+			DeviceInfo devInfo = { 0 };
 			do
 			{
-				hr = pCollection->Item(i, &pEndpoint);
+				hr = pCollection->Item(i, &pDevice);
 				BREAK_ON_ERROR(hr);
 
 				// Get the endpoint ID string.
-				hr = pEndpoint->GetId(&pwszID);
-				BREAK_ON_ERROR(hr);
+				//hr = pDevice->GetId(&pwszID);
+				//BREAK_ON_ERROR(hr);
 
-				hr = pEndpoint->OpenPropertyStore(STGM_READ, &pProps);
+				hr = pDevice->OpenPropertyStore(STGM_READ, &pProps);
 				BREAK_ON_ERROR(hr);
 
 				PROPVARIANT varName;
@@ -157,21 +216,72 @@ void AudioCapture::PrintDevices(IMMDeviceEnumerator *pEnumerator)
 				hr = pProps->GetValue(PKEY_Device_FriendlyName, &varName);
 				if (SUCCEEDED(hr))
 				{
-					wprintf(L"Endpoint %d: \"%ls\" (%ls)\n", i, varName.pwszVal, pwszID);
+					wsprintf(devInfo.sName, L"%ls", varName.pwszVal);
+				}
+				else
+				{
+					wsprintf(devInfo.sName, L"Unknown name");
 				}
 
 				::PropVariantClear(&varName);
+
+				devInfo.pDevice = pDevice;
 			} while (false);
 
-			if (pwszID)
-			{
-				CoTaskMemFree(pwszID);
-				pwszID = NULL;
-			}
+			//if (pwszID)
+			//{
+			//	CoTaskMemFree(pwszID);
+			//	pwszID = NULL;
+			//}
 			SAFE_RELEASE(pProps);
-			SAFE_RELEASE(pEndpoint);
+
+			if (devInfo.pDevice != 0)
+			{
+				devices.push_back(devInfo);
+			}
 		}
 	} while (false);
+
+	SAFE_RELEASE(pCollection);
+
+	return count;
+}
+
+int AudioCapture::GetSelectIndex(int min, int max)
+{
+	if (min == max)
+		return min;
+
+	int selectIndex = 0;
+	bool printTip = true;
+	std::string line;
+	do
+	{
+		if (printTip)
+			printf("Please select a device (index): ");
+
+		if (!getline(std::cin, line))
+			break;
+
+		if (line.empty())
+		{
+			printTip = false;
+			continue;
+		}
+
+		selectIndex = ::atoi(line.c_str());
+		if (selectIndex >= min && selectIndex <= max)
+		{
+			break;
+		}
+		else
+		{
+			printf("Device index between %d and %d, please re-choose.\n", min, max);
+			printTip = true;
+		}
+	} while (true);
+
+	return selectIndex;
 }
 
 bool AudioCapture::StartCapture()

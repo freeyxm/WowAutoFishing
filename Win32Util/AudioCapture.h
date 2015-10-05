@@ -1,15 +1,22 @@
 ﻿#pragma once
 #pragma execution_character_set("utf-8")
 #pragma comment(lib, "winmm.lib")
-
 #include <Windows.h>
 #include <mmdeviceapi.h>
 #include <Audioclient.h>
+#include <list>
 
 class AudioCapture
 {
 public:
-	AudioCapture(bool bLoopback = true);
+	struct DeviceInfo
+	{
+		IMMDevice *pDevice;
+		wchar_t sName[128];
+	};
+
+public:
+	AudioCapture(bool bLoopback = true, bool bDefaultDevice = true);
 	virtual ~AudioCapture();
 
 	virtual bool Init();
@@ -26,19 +33,24 @@ public:
 
 	float ParseValue(BYTE *pData, UINT index) const;
 
-	static void PrintDevices(IMMDeviceEnumerator *pEnumerator);
-
 	static bool IsFloatFormat(const WAVEFORMATEX *pfwx);
+
+	static bool SelectDevice(IMMDeviceEnumerator *pEnumerator, EDataFlow eDataFlow, bool bDefault, IMMDevice **ppDevice);
 
 protected:
 	virtual void Release();
 	virtual bool StartCapture();
 	virtual bool StopCapture();
+	virtual bool SelectDevice(IMMDeviceEnumerator *pEnumerator);
+
+	static UINT GetDevices(EDataFlow eDataFlow, IMMDeviceEnumerator *pEnumerator, std::list<DeviceInfo> &devices);
+	static int GetSelectIndex(int min, int max);
 	
 protected:
 	WAVEFORMATEX *m_pwfx;
 	bool m_bInited;
 	bool m_bLoopback;
+	bool m_bDefaultDevice;
 	bool m_bDone;
 
 	bool m_bFloatFormat;
@@ -48,7 +60,6 @@ protected:
 	int m_midValue;
 
 private:
-	IMMDeviceEnumerator *m_pEnumerator;
 	IMMDevice *m_pDevice;
 	IAudioClient *m_pAudioClient;
 	IAudioCaptureClient *m_pCaptureClient;

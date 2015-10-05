@@ -1,10 +1,12 @@
 ﻿#include "stdafx.h"
 #include "AudioRender.h"
+#include "AudioCapture.h"
 #include <cstdio>
 
-AudioRender::AudioRender()
-	: m_pEnumerator(NULL), m_pDevice(NULL), m_pAudioClient(NULL), m_pRenderClient(NULL), m_pwfx(NULL)
+AudioRender::AudioRender(bool bDefaultDevice)
+	: m_pDevice(NULL), m_pAudioClient(NULL), m_pRenderClient(NULL), m_pwfx(NULL)
 	, m_bInited(false), m_bDone(true)
+	, m_bDefaultDevice(bDefaultDevice)
 {
 	::memset(&m_srcWfx, 0, sizeof(m_srcWfx));
 }
@@ -36,6 +38,7 @@ AudioRender::~AudioRender()
 bool AudioRender::Init()
 {
 	HRESULT hr = S_FALSE;
+	IMMDeviceEnumerator *pEnumerator = NULL;
 	REFERENCE_TIME hnsRequestedDuration = REFTIMES_PER_SEC;
 	m_bInited = false;
 
@@ -46,11 +49,11 @@ bool AudioRender::Init()
 		const IID IID_IAudioClient = __uuidof(IAudioClient);
 		const IID IID_IAudioRenderClient = __uuidof(IAudioRenderClient);
 
-		hr = ::CoCreateInstance(CLSID_MMDeviceEnumerator, NULL, CLSCTX_ALL, IID_IMMDeviceEnumerator, (void**)&m_pEnumerator);
+		hr = ::CoCreateInstance(CLSID_MMDeviceEnumerator, NULL, CLSCTX_ALL, IID_IMMDeviceEnumerator, (void**)&pEnumerator);
 		BREAK_ON_ERROR(hr);
 
-		hr = m_pEnumerator->GetDefaultAudioEndpoint(eRender, eConsole, &m_pDevice);
-		BREAK_ON_ERROR(hr);
+		if (!SelectDevice(pEnumerator))
+			break;
 
 		hr = m_pDevice->Activate(IID_IAudioClient, CLSCTX_ALL, NULL, (void**)&m_pAudioClient);
 		BREAK_ON_ERROR(hr);
@@ -97,6 +100,8 @@ bool AudioRender::Init()
 
 	} while (false);
 
+	SAFE_RELEASE(pEnumerator);
+
 	if (FAILED(hr))
 	{
 		Release();
@@ -117,12 +122,16 @@ void AudioRender::Release()
 		CoTaskMemFree(m_pwfx);
 		m_pwfx = NULL;
 	}
-	SAFE_RELEASE(m_pEnumerator);
 	SAFE_RELEASE(m_pDevice);
 	SAFE_RELEASE(m_pAudioClient);
 	SAFE_RELEASE(m_pRenderClient);
 	m_bInited = false;
 	m_bDone = true;
+}
+
+bool AudioRender::SelectDevice(IMMDeviceEnumerator *pEnumerator)
+{
+	return AudioCapture::SelectDevice(pEnumerator, eRender, m_bDefaultDevice, &m_pDevice);
 }
 
 HRESULT AudioRender::StartRender()

@@ -6,7 +6,7 @@ class AudioRenderer :
 	public AudioRender
 {
 public:
-	AudioRenderer();
+	AudioRenderer(bool bDefaultDevice = true);
 	virtual ~AudioRenderer();
 
 	void SetSource(const AudioFrameStorage *pStorage);

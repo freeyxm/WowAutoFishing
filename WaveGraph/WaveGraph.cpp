@@ -103,6 +103,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	if (::AllocConsole())
 	{
 		::freopen("CONOUT$", "w", stdout);
+		::freopen("CONIN$", "r", stdin);
 	}
 	printf("Start ...\n");
 
@@ -113,14 +114,14 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		return FALSE;
 	g_pAudioPainter->SetEnable(false);
 
-	g_pAudioRecorder = new AudioRecorder();
+	g_pAudioRecorder = new AudioRecorder(true, false);
 	if (!g_pAudioRecorder || !g_pAudioRecorder->Init())
 	{
 		printf("Init AudioRecorder failed!\n");
 		return FALSE;
 	}
 
-	g_pAudioRenderer = new AudioRenderer();
+	g_pAudioRenderer = new AudioRenderer(false);
 	if (!g_pAudioRenderer || !g_pAudioRenderer->Init())
 	{
 		printf("Init AudioRenderer failed!\n");

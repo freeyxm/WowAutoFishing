@@ -11,8 +11,8 @@ public:
 	typedef std::list<AudioFrameStorage*>::const_iterator SegmentCIter;
 
 public:
-	AudioExtractor();
-	~AudioExtractor();
+	AudioExtractor(bool bLoopback = true, bool bDefaultDevice = true);
+	virtual ~AudioExtractor();
 
 	bool Start();
 	void Stop();

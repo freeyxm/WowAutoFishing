@@ -7,7 +7,7 @@
 class AudioRender
 {
 public:
-	AudioRender();
+	AudioRender(bool bDefaultDevice = true);
 	virtual ~AudioRender();
 
 	virtual bool Init();
@@ -29,9 +29,12 @@ protected:
 	virtual HRESULT StopRender();
 	inline HRESULT LoadData(DWORD *pFlags);
 
+	virtual bool SelectDevice(IMMDeviceEnumerator *pEnumerator);
+
 protected:
 	WAVEFORMATEX *m_pwfx;
 	WAVEFORMATEX m_srcWfx;
+	bool m_bDefaultDevice;
 	bool m_bInited;
 	bool m_bDone;
 
@@ -39,7 +42,6 @@ protected:
 	UINT m_nBytesPerFrame;
 
 private:
-	IMMDeviceEnumerator *m_pEnumerator;
 	IMMDevice *m_pDevice;
 	IAudioClient *m_pAudioClient;
 	IAudioRenderClient *m_pRenderClient;
