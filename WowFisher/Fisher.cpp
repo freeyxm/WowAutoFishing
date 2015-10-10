@@ -264,7 +264,12 @@ bool Fisher::FindFloat()
 			wprintf(L"找到鱼漂: %d, %d\n", p.x, p.y);
 
 			m_floatPoint = p;
-			m_mouse.SetCursorPos(p.x, p.y);
+
+			RECT rect;
+			if (::GetWindowRect(m_hWndWOW, &rect))
+			{
+				m_mouse.SetCursorPos(p.x + rect.left, p.y + rect.top);
+			}
 			return true;
 		}
 	}
