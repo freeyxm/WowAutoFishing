@@ -8,6 +8,8 @@
 #include "afxdialogex.h"
 #include "Resource.h"
 #include <exception>
+#include <cstdio>
+#include <locale.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -249,6 +251,21 @@ bool CWowFisherDlg::InitComponents()
 bool CWowFisherDlg::Init()
 {
 	::CoInitialize(NULL);
+
+	//::setlocale(LC_CTYPE, "");
+	//if (::AllocConsole())
+	//{
+	//	FILE *file;
+	//	if (::freopen_s(&file, "CONOUT$", "w", stdout) == 0)
+	//	{
+	//		*stdout = *file;
+	//	}
+	//	if (::freopen_s(&file, "CONIN$", "r", stdin) == 0)
+	//	{
+	//		*stdin = *file;
+	//	}
+	//}
+	//printf("Start ...\n");
 
 	LoadConfig();
 	InitComponents();

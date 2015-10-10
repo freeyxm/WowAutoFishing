@@ -9,7 +9,7 @@
 
 
 FishingSoundListener::FishingSoundListener(Fisher *pFisher)
-	: AudioExtractor(true, false)
+	: AudioExtractor(true, true)
 	, m_pFisher(pFisher), m_procCheckTimeout(NULL), m_procNotifyBite(NULL)
 	, m_pSampleFile(NULL)
 {
