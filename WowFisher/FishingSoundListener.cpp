@@ -26,7 +26,7 @@ FishingSoundListener::~FishingSoundListener()
 
 bool FishingSoundListener::Init()
 {
-	if (m_pSampleFile == NULL)
+	if (false && m_pSampleFile == NULL)
 	{
 		char buf[128];
 		time_t t = ::time(NULL);
