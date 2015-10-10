@@ -13,6 +13,7 @@ AudioExtractor::AudioExtractor(bool bLoopback, bool bDefaultDevice)
 
 AudioExtractor::~AudioExtractor()
 {
+	Stop();
 	Clear();
 	DeleteCriticalSection(&m_segmentSection);
 }

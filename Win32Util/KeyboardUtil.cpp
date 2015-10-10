@@ -2,6 +2,7 @@
 #include "stdafx.h"
 #include "KeyboardUtil.h"
 #include <cstdlib>
+#include <CommCtrl.h>
 
 KeyboardUtil::KeyboardUtil(HWND hwnd)
 	: m_hwnd(hwnd)
@@ -30,16 +31,36 @@ void KeyboardUtil::PressKey(int key, int interval)
 	}
 }
 
+void KeyboardUtil::PressKey(int key, int modifiers, int interval)
+{
+	if (modifiers & HOTKEYF_CONTROL)
+		_KeyDown(VK_CONTROL, interval); // Ctrl
+	if (modifiers & HOTKEYF_ALT)
+		_KeyDown(VK_MENU, interval); // Alt
+	if (modifiers & HOTKEYF_SHIFT)
+		_KeyDown(VK_SHIFT, interval); // Shift
+
+	_KeyDown(key, interval);
+	_KeyUp(key, interval);
+
+	if (modifiers & HOTKEYF_SHIFT)
+		_KeyUp(VK_SHIFT, interval); // Shift
+	if (modifiers & HOTKEYF_ALT)
+		_KeyUp(VK_MENU, interval); // Alt
+	if (modifiers & HOTKEYF_CONTROL)
+		_KeyUp(VK_CONTROL, interval); // Ctrl
+}
+
 /*
 pCtl: C is "Ctrl", A is "Alt", S is "Shift".
 e.g. "C+A" is Ctrl + Alt.
 */
-void KeyboardUtil::PressKey(int key, const char *pCtl, int interval)
+void KeyboardUtil::PressKey(int key, const char *modifiers, int interval)
 {
-	const size_t len = pCtl != NULL ? ::strlen(pCtl) : 0;
+	const size_t len = modifiers != NULL ? ::strlen(modifiers) : 0;
 	for (size_t i = 0; i < len; ++i)
 	{
-		switch (pCtl[i])
+		switch (modifiers[i])
 		{
 		case 'C':
 			_KeyDown(VK_CONTROL, interval); // Ctrl
@@ -60,7 +81,7 @@ void KeyboardUtil::PressKey(int key, const char *pCtl, int interval)
 
 	for (size_t i = 1; i <= len; ++i)
 	{
-		switch (pCtl[len - i])
+		switch (modifiers[len - i])
 		{
 		case 'C':
 			_KeyUp(VK_CONTROL, interval); // Ctrl

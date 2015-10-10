@@ -134,3 +134,13 @@ bool FishingSoundListener::IsDone() const
 	}
 	return m_bDone;
 }
+
+void FishingSoundListener::SetAmpL(float ampL)
+{
+	m_sAmpZcr.ampL = ampL;
+}
+
+void FishingSoundListener::SetAmpH(float ampH)
+{
+	m_sAmpZcr.ampH = ampH;
+}

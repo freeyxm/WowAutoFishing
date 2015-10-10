@@ -1,8 +1,10 @@
 ﻿#pragma execution_character_set("utf-8")
 #include "stdafx.h"
 #include "Fisher.h"
+#include "WowFisherDlg.h"
 #include <ctime>
 
+static UINT __stdcall FishingTheadProc(LPVOID param);
 
 const int SEC_PER_MINUTE = 60;
 const int MAX_BAIT_TIME = 10 * SEC_PER_MINUTE; // 鱼饵持续时间，单位秒
@@ -12,18 +14,29 @@ const POINT FLOAT_OFFSET = { 10, 25 }; // 鱼漂偏移，以便鼠标居中（10
 
 
 Fisher::Fisher(HWND hwnd, int x, int y, int w, int h)
-	: m_hwnd(hwnd), m_keyboard(hwnd), m_mouse(hwnd)
+	: m_hWndWOW(hwnd), m_keyboard(hwnd), m_mouse(hwnd), m_hWndMain(0)
 	, m_posX(x), m_posY(y), m_width(w), m_height(h), m_sound(this)
+	, m_bInited(false), m_hThreadFishing(NULL)
 {
-	Init();
+	ResetStatistics();
 }
 
 Fisher::~Fisher()
 {
+	Stop();
+
+	if (m_lpBits != NULL)
+	{
+		::free(m_lpBits);
+		m_lpBits = NULL;
+	}
 }
 
 bool Fisher::Init()
 {
+	if (m_bInited)
+		return true;
+
 	m_lpBits = (char*)malloc(m_width * m_height * 4);
 	if (!m_lpBits)
 	{
@@ -38,27 +51,65 @@ bool Fisher::Init()
 		return false;
 	}
 
+	m_bInited = true;
 	return true;
+}
+
+void Fisher::SetWowHWnd(HWND hwnd)
+{
+	m_hWndWOW = hwnd;
+}
+
+void Fisher::SetMainHWnd(HWND hwnd)
+{
+	m_hWndMain = hwnd;
 }
 
 void Fisher::ActiveWindow()
 {
-	::SetForegroundWindow(m_hwnd);
-	::SetActiveWindow(m_hwnd);
+	::SetForegroundWindow(m_hWndWOW);
+	::SetActiveWindow(m_hWndWOW);
 }
 
+bool Fisher::Start()
+{
+	m_hThreadFishing = (HANDLE)::_beginthreadex(NULL, 0, &FishingTheadProc, this, 0, NULL);
+	if (m_hThreadFishing == NULL)
+		return false;
+
+	m_bFishing = true;
+	return true;
+}
+
+void Fisher::Stop()
+{
+	m_bFishing = false;
+
+	if (m_hThreadFishing != NULL)
+	{
+		CloseHandle(m_hThreadFishing);
+		m_hThreadFishing = NULL;
+	}
+}
+
+static UINT __stdcall FishingTheadProc(LPVOID param)
+{
+	Fisher* pFisher = (Fisher*)param;
+	if (pFisher)
+	{
+		pFisher->StartFishing();
+	}
+	return 0;
+}
 
 void Fisher::StartFishing()
 {
 	m_state = FishingState::State_CheckState;
-
-	m_throwCount = 0;
-	m_timeoutCount = 0;
-	m_findFloatFailCount = 0;
+	m_bFishing = true;
 
 	wprintf(L"---------------------------------------\n");
 
-	while (true)
+	while (m_bFishing)
 	{
 		m_waitTime = 0;
 
@@ -131,12 +182,23 @@ bool Fisher::CheckBaitTime()
 // 上饵
 bool Fisher::Bait()
 {
-	wprintf(L"上饵...\n");
+	PrintStatus(L"上饵...\n");
 	ActiveWindow();
-	m_keyboard.PressKey(0x34); // KEY_4, 特殊鱼饵
-	Sleep(2100);
-	m_keyboard.PressKey(0x33); // KEY_3
-	m_waitTime += 2000; // 上饵施法2秒
+	if (m_hotkeyBite3 != 0)
+	{
+		m_keyboard.PressKey(m_hotkeyBite3 & 0xff, (m_hotkeyBite3 >> 8) & 0xff, 0);
+		Sleep(2100);
+	}
+	if (m_hotkeyBite2 != 0)
+	{
+		m_keyboard.PressKey(m_hotkeyBite2 & 0xff, (m_hotkeyBite2 >> 8) & 0xff, 0);
+		Sleep(2100);
+	}
+	if (m_hotkeyBite1 != 0)
+	{
+		m_keyboard.PressKey(m_hotkeyBite1 & 0xff, (m_hotkeyBite1 >> 8) & 0xff, 0);
+		m_waitTime += 2000; // 上饵施法2秒
+	}
 	m_baitTime = time(NULL);
 	return true;
 }
@@ -144,12 +206,13 @@ bool Fisher::Bait()
 // 甩竿
 bool Fisher::ThrowPole()
 {
-	wprintf(L"甩竿...\n");
+	PrintStatus(L"甩竿...\n");
 	++m_throwCount;
 	ActiveWindow();
-	m_keyboard.PressKey(0x31); // KEY_1
+	m_keyboard.PressKey(m_hotkeyThrow & 0xff, (m_hotkeyThrow >> 8) & 0xff, 0);
 	m_waitTime += 1500; // 甩竿完延迟1.5秒再寻找鱼漂
 	m_throwTime = time(NULL);
+	::SendMessage(m_hWndMain, WMU_UPDATE_STATISTICS, 0, 0);
 	return true;
 }
 
@@ -173,11 +236,11 @@ static bool MatchFloatColor(char _r, char _g, char _b)
 // 寻找鱼漂
 bool Fisher::FindFloat()
 {
-	wprintf(L"寻找鱼漂...\n");
+	PrintStatus(L"寻找鱼漂...\n");
 	ActiveWindow();
 
 	BITMAPINFOHEADER bi;
-	if (ImageUtil::GetWindowSnapshot(m_hwnd, m_posX, m_posY, m_width, m_height, m_lpBits, &bi))
+	if (ImageUtil::GetWindowSnapshot(m_hWndWOW, m_posX, m_posY, m_width, m_height, m_lpBits, &bi))
 	{
 		m_points.clear();
 		unsigned int maxCount = 10000;
@@ -207,13 +270,14 @@ bool Fisher::FindFloat()
 	}
 	m_waitTime += 1500; // 寻找鱼漂失败，等现鱼漂消失再重新抛竿。
 	++m_findFloatFailCount;
+	::SendMessage(m_hWndMain, WMU_UPDATE_STATISTICS, 0, 0);
 	return false;
 }
 
 // 等待上钩
 bool Fisher::WaitBiteStart()
 {
-	wprintf(L"等待上钩...\n");
+	PrintStatus(L"等待上钩...\n");
 	m_bHasBite = false;
 	m_bTimeout = false;
 	
@@ -238,20 +302,21 @@ void Fisher::WaitBiteEnd()
 	}
 	else
 	{
-		wprintf(L"没有鱼儿上钩！\n");
+		PrintStatus(L"没有鱼儿上钩！\n");
 		++m_timeoutCount;
 		m_state = FishingState::State_WaitFloatHide;
+		::SendMessage(m_hWndMain, WMU_UPDATE_STATISTICS, 0, 0);
 	}
 }
 
 // 提竿
 bool Fisher::Shaduf()
 {
-	wprintf(L"提竿...\n");
+	PrintStatus(L"提竿...\n");
 	ActiveWindow();
 
 	RECT rect;
-	if (!::GetWindowRect(m_hwnd, &rect))
+	if (!::GetWindowRect(m_hWndWOW, &rect))
 	{
 		printf("GetWindowRect has failed.");
 		return false;
@@ -276,7 +341,7 @@ void Fisher::StateEnd()
 
 void Fisher::NotifyBite()
 {
-	wprintf(L"咬钩了！\n");
+	PrintStatus(L"咬钩了！\n");
 	m_bHasBite = true;
 }
 
@@ -289,4 +354,59 @@ bool Fisher::CheckTimeout()
 		m_bTimeout = true;
 	}
 	return isTimeout;
+}
+
+void Fisher::PrintStatus(LPCWSTR msg)
+{
+	wprintf(L"%ls", msg);
+	::SendMessage(m_hWndMain, WMU_UPDATE_STATUS, (WPARAM)msg, 0);
+}
+
+void Fisher::SetAmpL(float ampL)
+{
+	m_sound.SetAmpL(ampL);
+}
+
+void Fisher::SetAmpH(float ampH)
+{
+	m_sound.SetAmpH(ampH);
+}
+
+void Fisher::SetHotkeyThrow(DWORD hotkey)
+{
+	m_hotkeyThrow = hotkey;
+}
+
+void Fisher::SetHotkeyBite1(DWORD hotkey)
+{
+	m_hotkeyBite1 = hotkey;
+}
+void Fisher::SetHotkeyBite2(DWORD hotkey)
+{
+	m_hotkeyBite2 = hotkey;
+}
+
+void Fisher::SetHotkeyBite3(DWORD hotkey)
+{
+	m_hotkeyBite3 = hotkey;
+}
+
+void Fisher::ResetStatistics()
+{
+	m_throwCount = m_timeoutCount = m_findFloatFailCount = 0;
+}
+
+int Fisher::GetThrowCount()
+{
+	return m_throwCount;
+}
+
+int Fisher::GetFindFloatFailCount()
+{
+	return m_findFloatFailCount;
+}
+
+int Fisher::GetTimeoutCount()
+{
+	return m_timeoutCount;
 }

@@ -9,7 +9,8 @@ public:
 	~KeyboardUtil();
 
 	void PressKey(int key, int interval = 0);
-	void PressKey(int key, const char *pCtl, int interval = 0);
+	void PressKey(int key, int modifiers, int interval = 0);
+	void PressKey(int key, const char *modifiers, int interval = 0);
 
 private:
 	void _KeyDown(int key, int interval = 0);

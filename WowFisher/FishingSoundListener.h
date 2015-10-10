@@ -22,6 +22,9 @@ public:
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
 	virtual bool IsDone() const;
 
+	void SetAmpL(float ampL);
+	void SetAmpH(float ampH);
+
 protected:
 	bool MatchSound(BYTE *pData, UINT32 nFrameCount);
 

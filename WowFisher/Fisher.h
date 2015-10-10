@@ -7,20 +7,38 @@
 
 class Fisher
 {
+	friend static UINT __stdcall FishingTheadProc(LPVOID param);
 public:
 	Fisher(HWND hwnd, int x, int y, int w, int h);
 	~Fisher();
 
 	bool Init();
+	void SetWowHWnd(HWND hwnd);
+	void SetMainHWnd(HWND hwnd);
 
-	void StartFishing();
+	bool Start();
+	void Stop();
 
 	void NotifyBite(); // used by FishingSoundListener.
 	bool CheckTimeout(); // used by FishingSoundListener.
 
+	void SetAmpL(float ampL);
+	void SetAmpH(float ampH);
+
+	void SetHotkeyThrow(DWORD hotkey);
+	void SetHotkeyBite1(DWORD hotkey);
+	void SetHotkeyBite2(DWORD hotkey);
+	void SetHotkeyBite3(DWORD hotkey);
+
+	void ResetStatistics();
+	int GetThrowCount();
+	int GetFindFloatFailCount();
+	int GetTimeoutCount();
+
 private:
 	void ActiveWindow();
 
+	void StartFishing();
 	bool CheckBaitTime();
 	bool Bait();
 	bool ThrowPole();
@@ -31,6 +49,8 @@ private:
 	bool Shaduf();
 	void WaitFloatHide();
 	void StateEnd();
+
+	void PrintStatus(LPCWSTR msg);
 
 private:
 	enum class FishingState
@@ -50,7 +70,8 @@ private:
 	};
 
 private:
-	HWND m_hwnd; // 魔兽世界窗口句柄
+	HWND m_hWndWOW; // 魔兽世界窗口句柄
+	HWND m_hWndMain;
 	int m_posX, m_posY;
 	int m_width, m_height;
 	FishingState m_state;
@@ -60,6 +81,11 @@ private:
 	bool m_bHasBite; // 是否已咬钩
 	bool m_bTimeout;
 	POINT m_floatPoint;
+
+	DWORD m_hotkeyThrow;
+	DWORD m_hotkeyBite1;
+	DWORD m_hotkeyBite2;
+	DWORD m_hotkeyBite3;
 
 	int m_throwCount;
 	int m_findFloatFailCount;
@@ -71,5 +97,10 @@ private:
 	MouseUtil m_mouse;
 	KeyboardUtil m_keyboard;
 	FishingSoundListener m_sound;
+	
+	HANDLE m_hThreadFishing;
+
+	bool m_bInited;
+	BOOL m_bFishing;
 };
 
