@@ -377,6 +377,16 @@ void Fisher::SetAmpH(float ampH)
 	m_sound.SetAmpH(ampH);
 }
 
+void Fisher::SetSilentMax(int count)
+{
+	m_sound.SetSilentMaxCount(count);
+}
+
+void Fisher::SetSoundMin(int count)
+{
+	m_sound.SetSoundMinCount(count);
+}
+
 void Fisher::SetHotkeyThrow(DWORD hotkey)
 {
 	m_hotkeyThrow = hotkey;

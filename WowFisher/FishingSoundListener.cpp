@@ -59,9 +59,9 @@ HRESULT FishingSoundListener::SetFormat(WAVEFORMATEX *pwfx)
 {
 	AudioCapture::SetFormat(pwfx);
 
-	SetSilentMaxCount(10); // need to repair!!!
-	SetSoundMinCount(20); // need to repair!!!
-	SetAmpZcr(480, 0.05f, 2.0f, 0.3f, 0.5f);
+	SetSilentMaxCount(10);
+	SetSoundMinCount(20);
+	SetAmpZcr(480, 0.05f, 2.0f, 1.0f, 1.0f); // disable zcr
 
 	return S_OK;
 }

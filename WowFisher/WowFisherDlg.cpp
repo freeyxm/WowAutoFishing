@@ -184,6 +184,9 @@ bool CWowFisherDlg::LoadConfig()
 	m_hotkeyBite1 = GetPrivateProfileInt(CONFIG_APP, L"HotkeyBite1", 0x33, CONFIG_FILE);
 	m_hotkeyBite2 = GetPrivateProfileInt(CONFIG_APP, L"HotkeyBite2", 0x34, CONFIG_FILE);
 	m_hotkeyBite3 = GetPrivateProfileInt(CONFIG_APP, L"HotkeyBite3", 0x35, CONFIG_FILE);
+
+	m_silentMaxCount = GetPrivateProfileInt(CONFIG_APP, L"SilentMaxCount", 10, CONFIG_FILE);
+	m_soundMinCount = GetPrivateProfileInt(CONFIG_APP, L"SoundMinCount", 20, CONFIG_FILE);
 	
 	return true;
 }
@@ -203,6 +206,15 @@ void CWowFisherDlg::SaveConfig()
 	WritePrivateProfileInt(L"HotkeyBite1", m_hotkeyBite1);
 	WritePrivateProfileInt(L"HotkeyBite2", m_hotkeyBite2);
 	WritePrivateProfileInt(L"HotkeyBite3", m_hotkeyBite3);
+
+	CString str;
+	m_pEditSilentMax->GetWindowTextW(str);
+	m_silentMaxCount = _ttoi(str);
+	m_pEditSoundMin->GetWindowTextW(str);
+	m_soundMinCount = _ttoi(str);
+
+	WritePrivateProfileInt(L"SilentMaxCount", m_silentMaxCount);
+	WritePrivateProfileInt(L"SoundMinCount", m_soundMinCount);
 }
 
 void CWowFisherDlg::ApplyConfig()
@@ -214,10 +226,18 @@ void CWowFisherDlg::ApplyConfig()
 	m_pHotKeyBite2->SetHotKey(m_hotkeyBite2 & 0xff, (m_hotkeyBite2 >> 8) & 0xff);
 	m_pHotKeyBite3->SetHotKey(m_hotkeyBite3 & 0xff, (m_hotkeyBite3 >> 8) & 0xff);
 
+	CString str;
+	str.Format(L"%d", m_silentMaxCount);
+	m_pEditSilentMax->SetWindowTextW(str);
+	str.Format(L"%d", m_soundMinCount);
+	m_pEditSoundMin->SetWindowTextW(str);
+
 	if (m_pFisher != NULL)
 	{
 		m_pFisher->SetAmpL(m_nAmpL / 100.0f);
 		m_pFisher->SetAmpH(m_nAmpH / 100.0f);
+		m_pFisher->SetSilentMax(m_silentMaxCount);
+		m_pFisher->SetSoundMin(m_soundMinCount);
 		m_pFisher->SetHotkeyThrow(m_hotkeyThrow);
 		m_pFisher->SetHotkeyBite1(m_hotkeyBite1);
 		m_pFisher->SetHotkeyBite2(m_hotkeyBite2);
@@ -242,6 +262,8 @@ bool CWowFisherDlg::InitComponents()
 	m_pHotKeyBite1 = (CHotKeyCtrl*)GetDlgItem(IDC_HOTKEY_BAIT_1);
 	m_pHotKeyBite2 = (CHotKeyCtrl*)GetDlgItem(IDC_HOTKEY_BAIT_2);
 	m_pHotKeyBite3 = (CHotKeyCtrl*)GetDlgItem(IDC_HOTKEY_BAIT_3);
+	m_pEditSilentMax = (CEdit*)GetDlgItem(IDC_EDIT_SILENT_MIN);
+	m_pEditSoundMin = (CEdit*)GetDlgItem(IDC_EDIT_SOUND_MAX);
 
 	m_pBtnStart->EnableWindow(FALSE);
 

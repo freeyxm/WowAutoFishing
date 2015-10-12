@@ -24,6 +24,8 @@ public:
 
 	void SetAmpL(float ampL);
 	void SetAmpH(float ampH);
+	void SetSilentMax(int count);
+	void SetSoundMin(int count);
 
 	void SetHotkeyThrow(DWORD hotkey);
 	void SetHotkeyBite1(DWORD hotkey);

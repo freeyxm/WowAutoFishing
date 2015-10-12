@@ -66,6 +66,8 @@ protected:
 	CHotKeyCtrl* m_pHotKeyBite1;
 	CHotKeyCtrl* m_pHotKeyBite2;
 	CHotKeyCtrl* m_pHotKeyBite3;
+	CEdit* m_pEditSilentMax;
+	CEdit* m_pEditSoundMin;
 
 	bool m_bStart;
 	Fisher* m_pFisher;
@@ -73,6 +75,8 @@ protected:
 	int m_nAmpMax;
 	int m_nAmpL;
 	int m_nAmpH;
+	int m_silentMaxCount;
+	int m_soundMinCount;
 
 	DWORD m_hotkeyThrow;
 	DWORD m_hotkeyBite1;
