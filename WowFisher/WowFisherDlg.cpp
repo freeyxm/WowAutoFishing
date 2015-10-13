@@ -78,6 +78,7 @@ BEGIN_MESSAGE_MAP(CWowFisherDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON_START, &CWowFisherDlg::OnBnClickedButtonStart)
 	ON_BN_CLICKED(IDOK, &CWowFisherDlg::OnBnClickedOk)
 	ON_BN_CLICKED(IDC_BUTTON_RESET, &CWowFisherDlg::OnBnClickedButtonReset)
+	ON_BN_CLICKED(IDC_CHECK_CONSOLE, &CWowFisherDlg::OnBnClickedCheckConsole)
 END_MESSAGE_MAP()
 
 
@@ -187,6 +188,8 @@ bool CWowFisherDlg::LoadConfig()
 
 	m_silentMaxCount = GetPrivateProfileInt(CONFIG_APP, L"SilentMaxCount", 10, CONFIG_FILE);
 	m_soundMinCount = GetPrivateProfileInt(CONFIG_APP, L"SoundMinCount", 20, CONFIG_FILE);
+
+	m_bShowConsole = GetPrivateProfileInt(CONFIG_APP, L"ShowConsole", 0, CONFIG_FILE);
 	
 	return true;
 }
@@ -215,6 +218,9 @@ void CWowFisherDlg::SaveConfig()
 
 	WritePrivateProfileInt(L"SilentMaxCount", m_silentMaxCount);
 	WritePrivateProfileInt(L"SoundMinCount", m_soundMinCount);
+
+	m_bShowConsole = m_pCbConsole->GetCheck();
+	WritePrivateProfileInt(L"ShowConsole", m_bShowConsole);
 }
 
 void CWowFisherDlg::ApplyConfig()
@@ -231,6 +237,8 @@ void CWowFisherDlg::ApplyConfig()
 	m_pEditSilentMax->SetWindowTextW(str);
 	str.Format(L"%d", m_soundMinCount);
 	m_pEditSoundMin->SetWindowTextW(str);
+
+	m_pCbConsole->SetCheck(m_bShowConsole);
 
 	if (m_pFisher != NULL)
 	{
@@ -264,6 +272,7 @@ bool CWowFisherDlg::InitComponents()
 	m_pHotKeyBite3 = (CHotKeyCtrl*)GetDlgItem(IDC_HOTKEY_BAIT_3);
 	m_pEditSilentMax = (CEdit*)GetDlgItem(IDC_EDIT_SILENT_MIN);
 	m_pEditSoundMin = (CEdit*)GetDlgItem(IDC_EDIT_SOUND_MAX);
+	m_pCbConsole = (CButton*)GetDlgItem(IDC_CHECK_CONSOLE);
 
 	m_pBtnStart->EnableWindow(FALSE);
 
@@ -273,21 +282,6 @@ bool CWowFisherDlg::InitComponents()
 bool CWowFisherDlg::Init()
 {
 	::CoInitialize(NULL);
-
-	//::setlocale(LC_CTYPE, "");
-	//if (::AllocConsole())
-	//{
-	//	FILE *file;
-	//	if (::freopen_s(&file, "CONOUT$", "w", stdout) == 0)
-	//	{
-	//		*stdout = *file;
-	//	}
-	//	if (::freopen_s(&file, "CONIN$", "r", stdin) == 0)
-	//	{
-	//		*stdin = *file;
-	//	}
-	//}
-	//printf("Start ...\n");
 
 	LoadConfig();
 	InitComponents();
@@ -305,6 +299,11 @@ bool CWowFisherDlg::Init()
 	{
 		MessageBox(L"Fisher init failed");
 		return false;
+	}
+
+	if (m_bShowConsole != 0)
+	{
+		OpenConsole();
 	}
 
 	ApplyConfig();
@@ -370,6 +369,28 @@ void CWowFisherDlg::UpdateAmpText(CStatic *pStatic, int value, int max)
 	CString str;
 	str.Format(L"%.2lf/%.2lf", (double)value * m_nAmpMax / max, (double)m_nAmpMax);
 	pStatic->SetWindowTextW(str);
+}
+
+void CWowFisherDlg::OpenConsole()
+{
+	::setlocale(LC_CTYPE, "");
+	if (::AllocConsole())
+	{
+		FILE *file;
+		if (::freopen_s(&file, "CONOUT$", "w", stdout) == 0)
+		{
+			*stdout = *file;
+		}
+		if (::freopen_s(&file, "CONIN$", "r", stdin) == 0)
+		{
+			*stdin = *file;
+		}
+	}
+}
+
+void CWowFisherDlg::CloseConsole()
+{
+	::FreeConsole();
 }
 
 LRESULT CWowFisherDlg::OnUpdateStatistics(WPARAM wParam, LPARAM lParam)
@@ -528,4 +549,18 @@ void CWowFisherDlg::OnBnClickedButtonReset()
 		m_pFisher->ResetStatistics();
 	}
 	OnUpdateStatistics(0, 0);
+}
+
+
+void CWowFisherDlg::OnBnClickedCheckConsole()
+{
+	m_bShowConsole = m_pCbConsole->GetCheck();
+	if (m_bShowConsole == 0)
+	{
+		CloseConsole();
+	}
+	else if (m_bShowConsole == 1)
+	{
+		OpenConsole();
+	}
 }

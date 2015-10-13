@@ -50,6 +50,9 @@ protected:
 	LRESULT OnUpdateStatistics(WPARAM wParam, LPARAM lParam);
 	LRESULT OnUpdateStatus(WPARAM wParam, LPARAM lParam);
 
+	void OpenConsole();
+	void CloseConsole();
+
 protected:
 	CComboBox* m_pComboBox;
 	CButton* m_pBtnRefresh;
@@ -68,6 +71,7 @@ protected:
 	CHotKeyCtrl* m_pHotKeyBite3;
 	CEdit* m_pEditSilentMax;
 	CEdit* m_pEditSoundMin;
+	CButton* m_pCbConsole;
 
 	bool m_bStart;
 	Fisher* m_pFisher;
@@ -82,6 +86,8 @@ protected:
 	DWORD m_hotkeyBite1;
 	DWORD m_hotkeyBite2;
 	DWORD m_hotkeyBite3;
+
+	int m_bShowConsole;
 
 	struct WndInfo
 	{
@@ -98,4 +104,5 @@ public:
 	afx_msg void OnBnClickedButtonStart();
 	afx_msg void OnBnClickedOk();
 	afx_msg void OnBnClickedButtonReset();
+	afx_msg void OnBnClickedCheckConsole();
 };
