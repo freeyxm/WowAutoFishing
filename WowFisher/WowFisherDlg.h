@@ -33,6 +33,7 @@ protected:
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
+	afx_msg void OnDestroy();
 	DECLARE_MESSAGE_MAP()
 
 	bool LoadConfig();
@@ -62,9 +63,9 @@ protected:
 	CStatic* m_pTxtAmpL;
 	CStatic* m_pTxtAmpH;
 	CStatic* m_pTxtStatus;
-	CStatic* m_pTxtThrow;
-	CStatic* m_pTxtTimeout;
-	CStatic* m_pTxtFloat;
+	CStatic* m_pTxtThrowCount;
+	CStatic* m_pTxtTimeoutCount;
+	CStatic* m_pTxtFloatCount;
 	CHotKeyCtrl* m_pHotKeyFishing;
 	CHotKeyCtrl* m_pHotKeyBite1;
 	CHotKeyCtrl* m_pHotKeyBite2;
@@ -79,8 +80,12 @@ protected:
 	int m_nAmpMax;
 	int m_nAmpL;
 	int m_nAmpH;
-	int m_silentMaxCount;
-	int m_soundMinCount;
+	int m_nSilentMaxCount;
+	int m_nSoundMinCount;
+
+	int m_nThrowCount;
+	int m_nTimeoutCount;
+	int m_nFloatCount;
 
 	DWORD m_hotkeyThrow;
 	DWORD m_hotkeyBite1;

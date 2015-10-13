@@ -69,6 +69,7 @@ BEGIN_MESSAGE_MAP(CWowFisherDlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_WM_DESTROY()
 	ON_MESSAGE(WMU_UPDATE_STATISTICS, &CWowFisherDlg::OnUpdateStatistics)
 	ON_MESSAGE(WMU_UPDATE_STATUS, &CWowFisherDlg::OnUpdateStatus)
 	ON_CBN_SELCHANGE(IDC_COMBO1, &CWowFisherDlg::OnCbnSelchangeCombo1)
@@ -168,6 +169,11 @@ HCURSOR CWowFisherDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+afx_msg void CWowFisherDlg::OnDestroy()
+{
+	SaveConfig();
+}
+
 static void WritePrivateProfileInt(LPCWSTR key, int value)
 {
 	WCHAR buf[20];
@@ -186,11 +192,15 @@ bool CWowFisherDlg::LoadConfig()
 	m_hotkeyBite2 = GetPrivateProfileInt(CONFIG_APP, L"HotkeyBite2", 0x34, CONFIG_FILE);
 	m_hotkeyBite3 = GetPrivateProfileInt(CONFIG_APP, L"HotkeyBite3", 0x35, CONFIG_FILE);
 
-	m_silentMaxCount = GetPrivateProfileInt(CONFIG_APP, L"SilentMaxCount", 10, CONFIG_FILE);
-	m_soundMinCount = GetPrivateProfileInt(CONFIG_APP, L"SoundMinCount", 20, CONFIG_FILE);
+	m_nSilentMaxCount = GetPrivateProfileInt(CONFIG_APP, L"SilentMaxCount", 10, CONFIG_FILE);
+	m_nSoundMinCount = GetPrivateProfileInt(CONFIG_APP, L"SoundMinCount", 20, CONFIG_FILE);
 
 	m_bShowConsole = GetPrivateProfileInt(CONFIG_APP, L"ShowConsole", 0, CONFIG_FILE);
-	
+
+	m_nThrowCount = GetPrivateProfileInt(CONFIG_APP, L"ThrowCount", 0, CONFIG_FILE);
+	m_nTimeoutCount = GetPrivateProfileInt(CONFIG_APP, L"TimeoutCount", 0, CONFIG_FILE);
+	m_nFloatCount = GetPrivateProfileInt(CONFIG_APP, L"FloatCount", 0, CONFIG_FILE);
+
 	return true;
 }
 
@@ -212,15 +222,19 @@ void CWowFisherDlg::SaveConfig()
 
 	CString str;
 	m_pEditSilentMax->GetWindowTextW(str);
-	m_silentMaxCount = _ttoi(str);
+	m_nSilentMaxCount = _ttoi(str);
 	m_pEditSoundMin->GetWindowTextW(str);
-	m_soundMinCount = _ttoi(str);
+	m_nSoundMinCount = _ttoi(str);
 
-	WritePrivateProfileInt(L"SilentMaxCount", m_silentMaxCount);
-	WritePrivateProfileInt(L"SoundMinCount", m_soundMinCount);
+	WritePrivateProfileInt(L"SilentMaxCount", m_nSilentMaxCount);
+	WritePrivateProfileInt(L"SoundMinCount", m_nSoundMinCount);
 
 	m_bShowConsole = m_pCbConsole->GetCheck();
 	WritePrivateProfileInt(L"ShowConsole", m_bShowConsole);
+
+	WritePrivateProfileInt(L"ThrowCount", m_nThrowCount);
+	WritePrivateProfileInt(L"TimeoutCount", m_nTimeoutCount);
+	WritePrivateProfileInt(L"FloatCount", m_nFloatCount);
 }
 
 void CWowFisherDlg::ApplyConfig()
@@ -233,9 +247,9 @@ void CWowFisherDlg::ApplyConfig()
 	m_pHotKeyBite3->SetHotKey(m_hotkeyBite3 & 0xff, (m_hotkeyBite3 >> 8) & 0xff);
 
 	CString str;
-	str.Format(L"%d", m_silentMaxCount);
+	str.Format(L"%d", m_nSilentMaxCount);
 	m_pEditSilentMax->SetWindowTextW(str);
-	str.Format(L"%d", m_soundMinCount);
+	str.Format(L"%d", m_nSoundMinCount);
 	m_pEditSoundMin->SetWindowTextW(str);
 
 	m_pCbConsole->SetCheck(m_bShowConsole);
@@ -244,12 +258,15 @@ void CWowFisherDlg::ApplyConfig()
 	{
 		m_pFisher->SetAmpL(m_nAmpL / 100.0f);
 		m_pFisher->SetAmpH(m_nAmpH / 100.0f);
-		m_pFisher->SetSilentMax(m_silentMaxCount);
-		m_pFisher->SetSoundMin(m_soundMinCount);
+		m_pFisher->SetSilentMax(m_nSilentMaxCount);
+		m_pFisher->SetSoundMin(m_nSoundMinCount);
 		m_pFisher->SetHotkeyThrow(m_hotkeyThrow);
 		m_pFisher->SetHotkeyBite1(m_hotkeyBite1);
 		m_pFisher->SetHotkeyBite2(m_hotkeyBite2);
 		m_pFisher->SetHotkeyBite3(m_hotkeyBite3);
+		m_pFisher->SetThrowCount(m_nThrowCount);
+		m_pFisher->SetTimeoutCount(m_nTimeoutCount);
+		m_pFisher->SetFindFloatFailCount(m_nFloatCount);
 	}
 }
 
@@ -263,9 +280,9 @@ bool CWowFisherDlg::InitComponents()
 	m_pTxtAmpL = (CStatic*)GetDlgItem(IDC_TXT_AMP_L);
 	m_pTxtAmpH = (CStatic*)GetDlgItem(IDC_TXT_AMP_H);
 	m_pTxtStatus = (CStatic*)GetDlgItem(IDC_STATIC_STATUS);
-	m_pTxtThrow = (CStatic*)GetDlgItem(IDC_STATIC_THROW);
-	m_pTxtTimeout = (CStatic*)GetDlgItem(IDC_STATIC_TIMEOUT);
-	m_pTxtFloat = (CStatic*)GetDlgItem(IDC_STATIC_FLOAT);
+	m_pTxtThrowCount = (CStatic*)GetDlgItem(IDC_STATIC_THROW);
+	m_pTxtTimeoutCount = (CStatic*)GetDlgItem(IDC_STATIC_TIMEOUT);
+	m_pTxtFloatCount = (CStatic*)GetDlgItem(IDC_STATIC_FLOAT);
 	m_pHotKeyFishing = (CHotKeyCtrl*)GetDlgItem(IDC_HOTKEY_FISHING);
 	m_pHotKeyBite1 = (CHotKeyCtrl*)GetDlgItem(IDC_HOTKEY_BAIT_1);
 	m_pHotKeyBite2 = (CHotKeyCtrl*)GetDlgItem(IDC_HOTKEY_BAIT_2);
@@ -395,26 +412,22 @@ void CWowFisherDlg::CloseConsole()
 
 LRESULT CWowFisherDlg::OnUpdateStatistics(WPARAM wParam, LPARAM lParam)
 {
-	int throwCount = 0;
-	int timeoutCount = 0;
-	int floatCount = 0;
-
 	if (m_pFisher != NULL)
 	{
-		throwCount = m_pFisher->GetThrowCount();
-		timeoutCount = m_pFisher->GetTimeoutCount();
-		floatCount = m_pFisher->GetFindFloatFailCount();
+		m_nThrowCount = m_pFisher->GetThrowCount();
+		m_nTimeoutCount = m_pFisher->GetTimeoutCount();
+		m_nFloatCount = m_pFisher->GetFindFloatFailCount();
 	}
 
 	CString str;
-	str.Format(L"%d", throwCount);
-	m_pTxtThrow->SetWindowTextW(str);
+	str.Format(L"%d", m_nThrowCount);
+	m_pTxtThrowCount->SetWindowTextW(str);
 
-	str.Format(L"%d", timeoutCount);
-	m_pTxtTimeout->SetWindowTextW(str);
+	str.Format(L"%d", m_nTimeoutCount);
+	m_pTxtTimeoutCount->SetWindowTextW(str);
 
-	str.Format(L"%d", floatCount);
-	m_pTxtFloat->SetWindowTextW(str);
+	str.Format(L"%d", m_nFloatCount);
+	m_pTxtFloatCount->SetWindowTextW(str);
 
 	return 0;
 }
@@ -546,7 +559,10 @@ void CWowFisherDlg::OnBnClickedButtonReset()
 {
 	if (m_pFisher != NULL)
 	{
-		m_pFisher->ResetStatistics();
+		m_nThrowCount = m_nFloatCount = m_nTimeoutCount = 0;
+		m_pFisher->SetThrowCount(m_nThrowCount);
+		m_pFisher->SetFindFloatFailCount(m_nFloatCount);
+		m_pFisher->SetTimeoutCount(m_nTimeoutCount);
 	}
 	OnUpdateStatistics(0, 0);
 }

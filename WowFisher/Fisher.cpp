@@ -18,7 +18,7 @@ Fisher::Fisher(HWND hwnd, int x, int y, int w, int h)
 	, m_posX(x), m_posY(y), m_width(w), m_height(h), m_sound(this)
 	, m_bInited(false), m_hThreadFishing(NULL)
 {
-	ResetStatistics();
+	m_throwCount = m_timeoutCount = m_findFloatFailCount = 0;
 }
 
 Fisher::~Fisher()
@@ -406,11 +406,6 @@ void Fisher::SetHotkeyBite3(DWORD hotkey)
 	m_hotkeyBite3 = hotkey;
 }
 
-void Fisher::ResetStatistics()
-{
-	m_throwCount = m_timeoutCount = m_findFloatFailCount = 0;
-}
-
 int Fisher::GetThrowCount()
 {
 	return m_throwCount;
@@ -424,4 +419,19 @@ int Fisher::GetFindFloatFailCount()
 int Fisher::GetTimeoutCount()
 {
 	return m_timeoutCount;
+}
+
+void Fisher::SetThrowCount(int count)
+{
+	m_throwCount = count;
+}
+
+void Fisher::SetFindFloatFailCount(int count)
+{
+	m_findFloatFailCount = count;
+}
+
+void Fisher::SetTimeoutCount(int count)
+{
+	m_timeoutCount = count;
 }

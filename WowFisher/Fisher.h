@@ -32,10 +32,12 @@ public:
 	void SetHotkeyBite2(DWORD hotkey);
 	void SetHotkeyBite3(DWORD hotkey);
 
-	void ResetStatistics();
 	int GetThrowCount();
 	int GetFindFloatFailCount();
 	int GetTimeoutCount();
+	void SetThrowCount(int count);
+	void SetFindFloatFailCount(int count);
+	void SetTimeoutCount(int count);
 
 private:
 	void ActiveWindow();
