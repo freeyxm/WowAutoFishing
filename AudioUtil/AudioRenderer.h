@@ -26,7 +26,7 @@ private:
 	AudioFrameStorage::AudioFrameCIter m_dataIter;
 	UINT m_dataIndex;
 
-	HANDLE m_hThreadCapture;
+	HANDLE m_hThreadRenderer;
 	bool m_bPlaying;
 };
 

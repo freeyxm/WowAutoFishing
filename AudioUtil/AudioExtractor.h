@@ -22,6 +22,7 @@ public:
 
 	void SetSilentMaxCount(UINT count);
 	void SetSoundMinCount(UINT count);
+	void SetSoundMaxCount(UINT count);
 	void SetAmpZcr(UINT frameCount, float ampL, float ampH, float zcrL, float zcrH);
 
 	void Clear();
@@ -54,6 +55,7 @@ protected:
 	UINT m_silentCount;
 	UINT m_silentMaxCount;
 	UINT m_soundMinCount;
+	UINT m_soundMaxCount;
 
 	enum class SoundState
 	{

@@ -28,8 +28,8 @@ bool AudioRenderer::Start()
 	m_dataIndex = 0;
 
 	m_bPlaying = true;
-	m_hThreadCapture = (HANDLE)::_beginthreadex(NULL, 0, &RenderTheadProc, this, 0, NULL);
-	if (m_hThreadCapture == NULL)
+	m_hThreadRenderer = (HANDLE)::_beginthreadex(NULL, 0, &RenderTheadProc, this, 0, NULL);
+	if (m_hThreadRenderer == NULL)
 	{
 		m_bPlaying = false;
 		return false;

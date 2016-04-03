@@ -38,7 +38,7 @@ AudioFrameData* AudioFrameStorage::PopFront()
 bool AudioFrameStorage::PushBack(uint8_t *pData, uint32_t nDataLen)
 {
 	AudioFrameData *pFrame = NULL;
-	if(m_cache.size() > 0)
+	if(!m_cache.empty())
 	{
 		pFrame = m_cache.front();
 		if(pFrame->nDataLen < nDataLen)
@@ -140,13 +140,13 @@ void AudioFrameStorage::Clear()
 
 void AudioFrameStorage::ClearCache()
 {
-	for (AudioFrameCIter it = m_cache.begin(); it != m_cache.end();)
+	for (AudioFrameCIter it = m_cache.begin(); it != m_cache.end(); ++it)
 	{
 		AudioFrameData *pFrame = *it;
 		::free(pFrame->pData);
 		delete pFrame;
-		it = m_cache.erase(it);
 	}
+	m_cache.clear();
 }
 
 void AudioFrameStorage::SetCacheSize(uint32_t size)

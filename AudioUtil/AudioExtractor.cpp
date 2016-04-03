@@ -47,9 +47,10 @@ HRESULT AudioExtractor::SetFormat(WAVEFORMATEX *pwfx)
 {
 	AudioCapture::SetFormat(pwfx);
 
-	SetSilentMaxCount(5); // need to repair!!!
-	SetSoundMinCount(20); // need to repair!!!
-	SetAmpZcr(480, 0.001f, 0.01f, 0.3f, 0.5f);
+	SetSilentMaxCount(5); // empirical data.
+	SetSoundMinCount(20); // empirical data.
+	SetSoundMaxCount(pwfx->nSamplesPerSec / 100 / pwfx->nChannels); // about 1 second.
+	SetAmpZcr(480, 0.001f, 0.01f, 0.3f, 0.5f); // empirical data.
 
 	return S_OK;
 }
@@ -137,6 +138,11 @@ HRESULT AudioExtractor::OnCaptureData(BYTE *pData, UINT32 nFrameCount)
 					AppendSilentFrames();
 				}
 				AddFrame(pData, nFrameCount, amp);
+				if (GetCurFrameCount() >= m_soundMaxCount)
+				{
+					EndSegment();
+					m_eSoundState = SoundState::Silent;
+				}
 			}
 			else
 			{
@@ -179,6 +185,11 @@ void AudioExtractor::SetSilentMaxCount(UINT count)
 void AudioExtractor::SetSoundMinCount(UINT count)
 {
 	m_soundMinCount = count;
+}
+
+void AudioExtractor::SetSoundMaxCount(UINT count)
+{
+	m_soundMaxCount = count;
 }
 
 void AudioExtractor::SetAmpZcr(UINT frameCount, float ampL, float ampH, float zcrL, float zcrH)
