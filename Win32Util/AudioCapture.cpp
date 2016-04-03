@@ -372,7 +372,6 @@ HRESULT AudioCapture::SetFormat(WAVEFORMATEX *pwfx)
 	//printf("  cbSize: %d\n", pwfx->cbSize);
 
 	m_bFloatFormat = IsFloatFormat(pwfx);
-
 	m_nBytesPerSample = pwfx->wBitsPerSample / 8;
 	m_nBytesPerFrame = m_nBytesPerSample * m_pwfx->nChannels;
 	m_maxValue = (1L << (pwfx->wBitsPerSample - 1)) - 1;

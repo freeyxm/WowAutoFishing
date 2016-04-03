@@ -1,11 +1,19 @@
 ﻿#pragma once
 #include "AudioUtil/AudioExtractor.h"
+#include <vector>
+#include <list>
 
 class Fisher;
 
 class FishingSoundListener :
 	public AudioExtractor
 {
+	struct SampleInfo
+	{
+		std::vector<float> sample;
+		int hit;
+	};
+
 public:
 	typedef bool (Fisher::*CheckTimeoutProc)(void);
 	typedef void (Fisher::*NotifyBiteProc)(void);
@@ -26,27 +34,24 @@ public:
 	void SetAmpH(float ampH);
 
 protected:
-	bool MatchSound(BYTE *pData, UINT32 nFrameCount);
-
-	virtual void StartSegment();
 	virtual void EndSegment();
-	virtual void AppendSilentFrames();
-	virtual void ClearSilentFrames();
 
-	inline virtual void AddFrame(BYTE *pData, UINT32 nFrameCount, float amp);
-	inline virtual void AddSilentFrame(BYTE *pData, UINT32 nFrameCount, float amp);
-
-	inline virtual UINT GetCurFrameCount();
+	void AddSample(const char *str, int hit = 0);
+	void SaveSample(const std::vector<float> &sample, int hit, std::ofstream &file);
+	void SaveSample(const std::vector<float> &sample, int hit, FILE *file);
+	void LoadSamples();
+	void SaveSamples();
+	void SortSamples();
+	bool IsSampleMatch(const std::vector<float> &data);
 
 private:
+	const WAVEFORMATEX *m_pwfx;
 	Fisher *m_pFisher;
 	FILE *m_pSampleFile;
 	CheckTimeoutProc m_procCheckTimeout;
 	NotifyBiteProc m_procNotifyBite;
 
-	uint32_t m_nFrameCount;
-	uint32_t m_nSlientFrameCount;
-	float m_totalAmp;
-	float m_slientAmp;
+	std::list<SampleInfo> m_samples;
+	int m_sampleCount;
 };
 

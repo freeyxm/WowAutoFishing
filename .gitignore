@@ -1,6 +1,7 @@
 Debug
 WowAutoFishing/Debug
 ipch
+Test
 *.sdf
 *.suo
 *.opensdf

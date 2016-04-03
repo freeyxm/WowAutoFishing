@@ -170,7 +170,7 @@ HRESULT AudioRender::Render()
 		hr = this->StartRender();
 		BREAK_ON_ERROR(hr);
 
-		while (flags != AUDCLNT_BUFFERFLAGS_SILENT)
+		while (!IsDone() && flags != AUDCLNT_BUFFERFLAGS_SILENT)
 		{
 			// Sleep for half the buffer duration.
 			Sleep((DWORD)(m_hnsActualDuration / REFTIMES_PER_MILLISEC / 2));
@@ -255,5 +255,9 @@ bool AudioRender::IsDone() const
 
 void AudioRender::SetDone(bool bDone)
 {
+	if (!m_bDone)
+	{
+		StopRender();
+	}
 	m_bDone = bDone;
 }
