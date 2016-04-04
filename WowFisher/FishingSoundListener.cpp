@@ -96,8 +96,8 @@ void FishingSoundListener::EndSegment()
 	{
 		SaveSample(sample, 0, m_pSampleFile);
 	}
-		
-	if(isMatch)
+
+	if (isMatch)
 	{
 		if (m_procNotifyBite != NULL)
 		{
@@ -220,10 +220,15 @@ void FishingSoundListener::SaveSample(const std::vector<float> &sample, int hit,
 	file << "#size = " << sample.size() << endl;
 	file << CFG_HIT << hit << endl;
 	file.precision(3);
+	bool isFirst = true;
 	auto it = sample.cbegin();
 	while (it != sample.cend())
 	{
-		file << *it++ << ", ";
+		if (!isFirst)
+			file << ",";
+		else
+			isFirst = false;
+		file << *it++;
 	}
 	file << endl << endl;
 }
@@ -234,7 +239,7 @@ void FishingSoundListener::SaveSample(const std::vector<float> &sample, int hit,
 	for (size_t i = 0; i < sample.size(); ++i)
 	{
 		if (i > 0)
-			fprintf(file, ", %.3f", sample[i]);
+			fprintf(file, ",%.3f", sample[i]);
 		else
 			fprintf(file, "%.3f", sample[i]);
 	}
