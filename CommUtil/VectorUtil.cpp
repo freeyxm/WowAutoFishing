@@ -2,6 +2,9 @@
 #include <cmath>
 #include <cfloat>
 
+namespace comm_util
+{
+
 VectorUtil::VectorUtil()
 {
 }
@@ -51,7 +54,7 @@ float VectorUtil::getCosA(const float *v1, int len1, const float *v2, int len2)
 	for (int i = 0; i <= count; ++i)
 	{
 		float value = getCosA(p1 + i, p2, len2);
-		if (max_value < value)
+		if (max_value < value) // cos is in [-1, 1].
 		{
 			max_value = value;
 		}
@@ -109,7 +112,7 @@ float VectorUtil::getCosA_Pad(const float *v1, int len1, const float *v2, int le
 		}
 
 		float value = ::sqrtf((dot* dot) / (sum1 * sum2));
-		if (max_value < value)
+		if (max_value < value) // cos is in [-1, 1].
 		{
 			max_value = value;
 		}
@@ -117,3 +120,5 @@ float VectorUtil::getCosA_Pad(const float *v1, int len1, const float *v2, int le
 
 	return max_value;
 }
+
+} // namespace comm_util

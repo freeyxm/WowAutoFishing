@@ -8,3 +8,5 @@ Test
 *.o
 *.exe
 *.bmp
+*.VC.db
+*.VC.opendb

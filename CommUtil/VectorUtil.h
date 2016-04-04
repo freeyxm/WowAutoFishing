@@ -1,5 +1,8 @@
 #pragma once
 
+namespace comm_util
+{
+
 class VectorUtil
 {
 public:
@@ -19,3 +22,4 @@ public:
 	}
 };
 
+} //namespace comm_util

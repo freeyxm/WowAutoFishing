@@ -13,6 +13,7 @@
 #include <fstream>
 
 using namespace std;
+using namespace comm_util;
 
 #define CFG_HIT "#hit = "
 #define SAMPLE_FILE "fishing sample.txt"
@@ -126,7 +127,7 @@ void FishingSoundListener::SetAmpH(float ampH)
 
 void FishingSoundListener::AddSample(const char *str, int hit)
 {
-	auto data = StringUtil::ParseNumbers<float>(str, ",", StringUtil::atof);
+	auto data = StringUtil::parseValues<float>(str, ",", StringUtil::atof);
 	if (!data.empty())
 	{
 		auto it = m_samples.begin();

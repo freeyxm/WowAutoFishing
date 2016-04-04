@@ -2,6 +2,9 @@
 #include <cstring>
 #include <vector>
 
+namespace comm_util
+{
+
 class StringUtil
 {
 public:
@@ -11,11 +14,11 @@ public:
 	static float atof(const char *str);
 
 	template<typename T>
-	static std::vector<T> ParseNumbers(const char *str, const char *delimiter, T(*convert)(const char*));
+	static std::vector<T> parseValues(const char *str, const char *delimiter, T(*convert)(const char*));
 };
 
 template<typename T>
-static std::vector<T> StringUtil::ParseNumbers(const char *str, const char *delimiter, T(*convert)(const char*))
+static std::vector<T> StringUtil::parseValues(const char *str, const char *delimiter, T(*convert)(const char*))
 {
 	std::vector<T> data;
 	char buf[10240] = { 0 };
@@ -29,3 +32,5 @@ static std::vector<T> StringUtil::ParseNumbers(const char *str, const char *deli
 
 	return data;
 }
+
+} // namespace comm_util

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.23107.0
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Win32Util", "Win32Util\Win32Util.vcxproj", "{82597547-3A6D-4E82-9979-32D4CDAD7AB1}"
 EndProject
@@ -35,6 +35,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CommUtil", "CommUtil\CommUtil.vcxproj", "{413A4356-BD98-4A7D-A427-BAA93936627F}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test\Test.vcxproj", "{32869807-85A6-4B0A-8503-CBBAFF1DFB77}"
+	ProjectSection(ProjectDependencies) = postProject
+		{413A4356-BD98-4A7D-A427-BAA93936627F} = {413A4356-BD98-4A7D-A427-BAA93936627F}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
