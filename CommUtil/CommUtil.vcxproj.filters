@@ -21,12 +21,18 @@
     <ClInclude Include="StringUtil.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="CommUtil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="VectorUtil.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="StringUtil.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="CommUtil.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

@@ -118,10 +118,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CommUtil.h" />
     <ClInclude Include="StringUtil.h" />
     <ClInclude Include="VectorUtil.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CommUtil.cpp" />
     <ClCompile Include="StringUtil.cpp" />
     <ClCompile Include="VectorUtil.cpp" />
   </ItemGroup>

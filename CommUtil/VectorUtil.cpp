@@ -1,4 +1,5 @@
 #include "VectorUtil.h"
+#include "CommUtil.h"
 #include <cmath>
 #include <cfloat>
 
