@@ -20,9 +20,7 @@ Calculate the cosine of two n-vector's angle.
 */
 float VectorUtil::getCosA(const float *v1, const float *v2, const int length)
 {
-	float dot = 0;
-	float sum1 = 0;
-	float sum2 = 0;
+	float dot = 0, sum1 = 0, sum2 = 0;
 	for (int i = 0; i < length; ++i)
 	{
 		dot += v1[i] * v2[i];
@@ -86,32 +84,32 @@ float VectorUtil::getCosA_Pad(const float *v1, int len1, const float *v2, int le
 	int count = len1 - len2;
 	for (int k = 0; k <= count; ++k)
 	{
-		float dot = 0;
-		float sum1 = 0;
-		float sum2 = 0;
-
+		float dot, sum1, sum2;
+		float tmp = 0;
+		// left padding
 		for (int i = 0; i < k; ++i)
 		{
-			float tmp = p1[i] * p1[i];
-			dot += tmp;
-			sum1 += tmp;
-			sum2 += tmp;
+			tmp += p1[i] * p1[i];
 		}
+		dot = sum1 = sum2 = tmp;
+		// middle
 		for (int i = 0; i < len2; ++i)
 		{
-			float _v1 = p1[i + k];
-			dot += _v1 * p2[i];
-			sum1 += _v1 * _v1;
+			tmp = p1[i + k];
+			dot += tmp * p2[i];
+			sum1 += tmp * tmp;
 			sum2 += p2[i] * p2[i];
 		}
+		// right padding
+		tmp = 0;
 		for (int i = len2 + k; i < len1; ++i)
 		{
-			float tmp = p1[i] * p1[i];
-			dot += tmp;
-			sum1 += tmp;
-			sum2 += tmp;
+			tmp += p1[i] * p1[i];
 		}
-
+		dot += tmp;
+		sum1 += tmp;
+		sum2 += tmp;
+		// final calculate
 		float value = ::sqrtf((dot* dot) / (sum1 * sum2));
 		if (max_value < value) // cos is in [-1, 1].
 		{

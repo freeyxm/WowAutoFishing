@@ -24,6 +24,9 @@
     <ClInclude Include="CommUtil.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="ImageUtil.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="VectorUtil.cpp">
@@ -33,6 +36,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CommUtil.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageUtil.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
