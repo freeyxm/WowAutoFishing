@@ -8,6 +8,7 @@
 #include "AudioUtil/AudioExtractor.h"
 #include "AudioUtil/AudioPainter.h"
 #include "AudioUtil/WaveCreator.h"
+#include "Win32Util/DcBuffer.h"
 #include <cstdio>
 
 #define MAX_LOADSTRING 100
@@ -28,7 +29,7 @@
 #define SUB_SCALE_ID        311
 
 #define TIMER_ID_SOUND      999
-UINT g_soundTimer = 0;
+UINT_PTR g_soundTimer = 0;
 
 
 enum Mode
@@ -41,10 +42,13 @@ enum Mode
 static Mode g_mode = Mode_None;
 
 // 全局变量:
-HINSTANCE hInst;								// 当前实例
-HWND g_hWndMain;
-TCHAR szTitle[MAX_LOADSTRING];					// 标题栏文本
-TCHAR szWindowClass[MAX_LOADSTRING];			// 主窗口类名
+static HINSTANCE hInst;								// 当前实例
+static HWND g_hWndMain;
+static TCHAR szTitle[MAX_LOADSTRING];					// 标题栏文本
+static TCHAR szWindowClass[MAX_LOADSTRING];			// 主窗口类名
+
+static RECT g_waveRect = { 0, 0, 500, 200 };
+static DcBuffer *g_pDcBuffer;
 
 static AudioRecorder *g_pAudioRecorder = NULL;
 static AudioRenderer *g_pAudioRenderer = NULL;
@@ -69,8 +73,12 @@ VOID StopExtract();
 
 VOID AddScale();
 VOID SubScale();
-VOID PaintRecorder();
-VOID PaintExtractor();
+VOID ClickRecorder();
+VOID ClickExtractor();
+
+static void Paint(HWND hWnd, HDC hdc);
+static void PaintExtractor();
+static void PaintRecorder();
 
 
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
@@ -107,7 +115,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	}
 	printf("Start ...\n");
 
-	g_soundTimer = ::SetTimer(g_hWndMain, TIMER_ID_SOUND, 100, NULL);
+	g_soundTimer = ::SetTimer(g_hWndMain, TIMER_ID_SOUND, 20, NULL);
 
 	g_pAudioPainter = new AudioPainter();
 	if (!g_pAudioPainter)
@@ -134,6 +142,9 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		printf("Init AudioExtractor failed!\n");
 		return FALSE;
 	}
+	g_pAudioExtractor->SetSegmentMaxCount(100);
+	g_pAudioExtractor->SetSoundMaxCount(1);
+	g_pAudioExtractor->SetAmpZcr(480, 0.1f, 0.2f, 0.3f, 0.5f);
 
 	// 主消息循环:
 	while (GetMessage(&msg, NULL, 0, 0))
@@ -171,7 +182,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.hInstance		= hInstance;
 	wcex.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_WAVEGRAPH));
 	wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground	= (HBRUSH)(COLOR_WINDOW+1);
+	wcex.hbrBackground	= NULL; // (HBRUSH)(COLOR_WINDOW + 1);
 	wcex.lpszMenuName	= MAKEINTRESOURCE(IDC_WAVEGRAPH);
 	wcex.lpszClassName	= szWindowClass;
 	wcex.hIconSm		= LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
@@ -205,6 +216,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	{
 		return FALSE;
 	}
+
+	g_pDcBuffer = new DcBuffer(hWnd, g_waveRect.right, g_waveRect.bottom);
 
 	ShowWindow(hWnd, nCmdShow);
 	//UpdateWindow(hWnd);
@@ -341,10 +354,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			SubScale();
 			break;
 		case PAINT_RECORD_ID:
-			PaintRecorder();
+			ClickRecorder();
 			break;
 		case PAINT_EXTRACT_ID:
-			PaintExtractor();
+			ClickExtractor();
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
@@ -354,22 +367,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		hdc = BeginPaint(hWnd, &ps);
 		// TODO: 在此添加任意绘图代码...
 
-		if (g_pAudioPainter->IsEnable())
-		{
-			RECT rect;
-			::GetWindowRect(hWnd, &rect);
-
-			rect.right = rect.right - rect.left - 20;
-			rect.left = 10;
-			rect.bottom = (rect.bottom - rect.top) / 2;
-			rect.top = 200;
-
-			g_pAudioPainter->Paint(hWnd, hdc, rect, 10.0f);
-		}
-
-		wchar_t buf[20];
-		wsprintf(buf, L"Scale: %d%%", (int)(g_pAudioPainter->GetScale() * 100));
-		::TextOut(hdc, 0, 0, buf, ::wcslen(buf));
+		Paint(hWnd, hdc);
 
 		EndPaint(hWnd, &ps);
 		break;
@@ -379,7 +377,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_TIMER:
 		if (g_pAudioPainter->IsEnable())
 		{
-			RECT rect = { 0, 0,  WINDOW_WIDTH, WINDOW_HEIGHT };
+			if (g_mode == Mode::Mode_Extract)
+			{
+				PaintExtractor();
+			}
+			else if (g_mode == Mode::Mode_Record)
+			{
+				PaintRecorder();
+			}
+			RECT rect = { 0, 100,  WINDOW_WIDTH, WINDOW_HEIGHT };
 			::InvalidateRect(hWnd, &rect, true);
 		}
 		break;
@@ -475,32 +481,68 @@ VOID SubScale()
 	::InvalidateRect(g_hWndMain, &rect, true);
 }
 
-VOID PaintRecorder()
+VOID ClickRecorder()
 {
 	static bool enable = false;
 	enable = !enable;
 	if (enable)
 	{
-		g_pAudioPainter->Clear();
-		g_pAudioPainter->SetFormat(g_pAudioRecorder->GetFormat());
-		g_pAudioPainter->AddSource(g_pAudioRecorder->GetStorage());
+		g_pAudioPainter->SetFormat(g_pAudioExtractor->GetFormat());
 	}
 	g_pAudioPainter->SetEnable(enable);
 }
 
-VOID PaintExtractor()
+VOID ClickExtractor()
 {
 	static bool enable = false;
 	enable = !enable;
 	if (enable)
 	{
-		g_pAudioPainter->Clear();
-		g_pAudioPainter->SetFormat(g_pAudioExtractor->GetFormat());
-		for(AudioExtractor::SegmentCIter iter = g_pAudioExtractor->cbegin(); iter != g_pAudioExtractor->cend(); ++iter)
-		{
-			g_pAudioPainter->AddSource(*iter);
-		}
+		g_pAudioPainter->SetFormat(g_pAudioRecorder->GetFormat());
 	}
 	g_pAudioPainter->SetEnable(enable);
+}
+
+void Paint(HWND hWnd, HDC hdc)
+{
+	if (g_pAudioPainter->IsEnable())
+	{
+		int w = g_waveRect.right;
+		int h = g_waveRect.bottom;
+		::StretchBlt(hdc, 10, 100, w, h, g_pDcBuffer->GetDC(), 0, 0, w, h, SRCCOPY);
+	}
+
+	wchar_t buf[20];
+	wsprintf(buf, L"Scale: %d%%", (int)(g_pAudioPainter->GetScale() * 100));
+	::TextOut(hdc, 0, 0, buf, (int)::wcslen(buf));
+}
+
+void PaintRecorder()
+{
+	g_pDcBuffer->Clear();
+	g_pAudioPainter->Clear();
+
+	g_pAudioRecorder->Lock();
+	g_pAudioPainter->AddSource(g_pAudioRecorder->GetStorage());
+	g_pAudioPainter->Paint(g_pDcBuffer->GetDC(), g_waveRect, 10.0f);
+	g_pAudioRecorder->Unlock();
+
+	g_pAudioPainter->Clear();
+}
+
+void PaintExtractor()
+{
+	g_pDcBuffer->Clear();
+	g_pAudioPainter->Clear();
+
+	g_pAudioExtractor->Lock();
+	for (AudioExtractor::SegmentCIter iter = g_pAudioExtractor->cbegin(); iter != g_pAudioExtractor->cend(); ++iter)
+	{
+		g_pAudioPainter->AddSource(*iter);
+	}
+	g_pAudioPainter->Paint(g_pDcBuffer->GetDC(), g_waveRect, 10.0f);
+	g_pAudioExtractor->Unlock();
+
+	g_pAudioPainter->Clear();
 }
 
