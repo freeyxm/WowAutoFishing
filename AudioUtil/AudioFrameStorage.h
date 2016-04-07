@@ -29,8 +29,8 @@ public:
 
 	void SetCacheSize(uint32_t size);
 
-	inline uint32_t GetSize() const;
-	inline uint32_t GetTotalBytes() const;
+	inline size_t GetSize() const;
+	inline size_t GetTotalBytes() const;
 
 	inline AudioFrameCIter cbegin() const;
 	inline AudioFrameCIter cend() const;
@@ -46,12 +46,12 @@ private:
 	uint32_t m_nCacheSize;
 };
 
-inline uint32_t AudioFrameStorage::GetSize() const
+inline size_t AudioFrameStorage::GetSize() const
 {
 	return m_datas.size();
 }
 
-inline uint32_t AudioFrameStorage::GetTotalBytes() const
+inline size_t AudioFrameStorage::GetTotalBytes() const
 {
 	return m_totalBytes;
 }

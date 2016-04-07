@@ -9,9 +9,9 @@ public:
 	VectorUtil();
 	~VectorUtil();
 
-	static float getCosA(const float *v1, const float *v2, const int length);
-	static float getCosA(const float *v1, int len1, const float *v2, int len2);
-	static float getCosA_Pad(const float *v1, int len1, const float *v2, int len2);
+	static float getCosA(const float *v1, const float *v2, const size_t length);
+	static float getCosA(const float *v1, size_t len1, const float *v2, size_t len2);
+	static float getCosA_Pad(const float *v1, size_t len1, const float *v2, size_t len2);
 };
 
 } //namespace comm_util

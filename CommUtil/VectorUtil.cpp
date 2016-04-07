@@ -1,4 +1,4 @@
-#include "VectorUtil.h"
+ï»¿#include "VectorUtil.h"
 #include "CommUtil.h"
 #include <cmath>
 #include <cfloat>
@@ -18,10 +18,10 @@ VectorUtil::~VectorUtil()
 /*
 Calculate the cosine of two n-vector's angle.
 */
-float VectorUtil::getCosA(const float *v1, const float *v2, const int length)
+float VectorUtil::getCosA(const float *v1, const float *v2, const size_t length)
 {
 	float dot = 0, sum1 = 0, sum2 = 0;
-	for (int i = 0; i < length; ++i)
+	for (size_t i = 0; i < length; ++i)
 	{
 		dot += v1[i] * v2[i];
 		sum1 += v1[i] * v1[i];
@@ -31,9 +31,9 @@ float VectorUtil::getCosA(const float *v1, const float *v2, const int length)
 }
 
 /*
-¼ÆËãÏòÁ¿¼Ð½ÇµÄÓàÏÒÖµ£¨×îÓÅ£©¡£ÏòÁ¿³¤¶ÈÈ¡Ð¡Öµ¡£
+è®¡ç®—å‘é‡å¤¹è§’çš„ä½™å¼¦å€¼ï¼ˆæœ€ä¼˜ï¼‰ã€‚å‘é‡é•¿åº¦å–å°å€¼ã€‚
 */
-float VectorUtil::getCosA(const float *v1, int len1, const float *v2, int len2)
+float VectorUtil::getCosA(const float *v1, size_t len1, const float *v2, size_t len2)
 {
 	const float *p1, *p2;
 	if (len1 >= len2)
@@ -49,8 +49,8 @@ float VectorUtil::getCosA(const float *v1, int len1, const float *v2, int len2)
 	}
 
 	float max_value = FLT_MIN;
-	int count = len1 - len2;
-	for (int i = 0; i <= count; ++i)
+	size_t count = len1 - len2;
+	for (size_t i = 0; i <= count; ++i)
 	{
 		float value = getCosA(p1 + i, p2, len2);
 		if (max_value < value) // cos is in [-1, 1].
@@ -63,9 +63,9 @@ float VectorUtil::getCosA(const float *v1, int len1, const float *v2, int len2)
 }
 
 /*
-¼ÆËãÏòÁ¿¼Ð½ÇµÄÓàÏÒÖµ£¨×îÓÅ£©¡£ÏòÁ¿³¤¶ÈÈ¡´óÖµ£¬²¢ÒÔ½Ï³¤ÏòÁ¿µÄÊ£Óà²¿·ÖÌî³ä½Ï¶ÌÏòÁ¿¡£
+è®¡ç®—å‘é‡å¤¹è§’çš„ä½™å¼¦å€¼ï¼ˆæœ€ä¼˜ï¼‰ã€‚å‘é‡é•¿åº¦å–å¤§å€¼ï¼Œå¹¶ä»¥è¾ƒé•¿å‘é‡çš„å‰©ä½™éƒ¨åˆ†å¡«å……è¾ƒçŸ­å‘é‡ã€‚
 */
-float VectorUtil::getCosA_Pad(const float *v1, int len1, const float *v2, int len2)
+float VectorUtil::getCosA_Pad(const float *v1, size_t len1, const float *v2, size_t len2)
 {
 	const float *p1, *p2;
 	if (len1 >= len2)
@@ -81,19 +81,19 @@ float VectorUtil::getCosA_Pad(const float *v1, int len1, const float *v2, int le
 	}
 
 	float max_value = FLT_MIN;
-	int count = len1 - len2;
-	for (int k = 0; k <= count; ++k)
+	size_t count = len1 - len2;
+	for (size_t k = 0; k <= count; ++k)
 	{
 		float dot, sum1, sum2;
 		float tmp = 0;
 		// left padding
-		for (int i = 0; i < k; ++i)
+		for (size_t i = 0; i < k; ++i)
 		{
 			tmp += p1[i] * p1[i];
 		}
 		dot = sum1 = sum2 = tmp;
 		// middle
-		for (int i = 0; i < len2; ++i)
+		for (size_t i = 0; i < len2; ++i)
 		{
 			tmp = p1[i + k];
 			dot += tmp * p2[i];
@@ -102,7 +102,7 @@ float VectorUtil::getCosA_Pad(const float *v1, int len1, const float *v2, int le
 		}
 		// right padding
 		tmp = 0;
-		for (int i = len2 + k; i < len1; ++i)
+		for (size_t i = len2 + k; i < len1; ++i)
 		{
 			tmp += p1[i] * p1[i];
 		}

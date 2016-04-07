@@ -23,8 +23,8 @@ public:
 
 private:
 	void ResetIter(const AudioFrameStorage *pStorage);
-	UINT GetNext(UINT range, float *pMin, float *pMax);
-	float ParseValue(BYTE *pData, UINT index);
+	size_t GetNext(size_t range, float *pMin, float *pMax);
+	float ParseValue(BYTE *pData, size_t index);
 
 private:
 	std::list<const AudioFrameStorage*> m_dataList;
@@ -38,7 +38,7 @@ private:
 
 	const AudioFrameStorage *m_pCurStorage;
 	AudioFrameStorage::AudioFrameCIter m_dataIter;
-	UINT m_dataIndex;
+	size_t m_dataIndex;
 
 	float m_scaleY;
 	bool m_bEnable;

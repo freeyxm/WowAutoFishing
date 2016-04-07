@@ -27,7 +27,7 @@ public:
 
 	void Clear();
 
-	UINT GetSegmentCount() const;
+	size_t GetSegmentCount() const;
 	void SetSegmentMaxCount(UINT count);
 	AudioFrameStorage* PopSegment();
 
@@ -48,7 +48,7 @@ protected:
 	inline virtual void AddSilentFrame(BYTE *pData, UINT32 nFrameCount, float amp);
 	inline virtual void PopSilentFrame(BYTE *pData, UINT32 nFrameCount, float amp);
 
-	inline virtual UINT GetCurFrameCount();
+	inline virtual size_t GetCurFrameCount();
 
 protected:
 	CRITICAL_SECTION m_segmentSection; // lock

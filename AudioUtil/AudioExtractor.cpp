@@ -271,7 +271,7 @@ inline void AudioExtractor::PopSilentFrame(BYTE *pData, UINT32 nFrameCount, floa
 	m_silentFrames.ReplaceFront(pData, nFrameCount * m_nBytesPerFrame);
 }
 
-inline UINT AudioExtractor::GetCurFrameCount()
+inline size_t AudioExtractor::GetCurFrameCount()
 {
 	return m_pCurSegment->GetSize();
 }
@@ -309,7 +309,7 @@ static UINT __stdcall CaptureTheadProc(LPVOID param)
 	return pAudio->Capture();
 }
 
-UINT AudioExtractor::GetSegmentCount() const
+size_t AudioExtractor::GetSegmentCount() const
 {
 	return m_segmentList.size();
 }

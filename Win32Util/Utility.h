@@ -12,6 +12,6 @@ public:
 
 	static void printf_t(const char *fmt, ...);
 
-	static int Split(string str, std::list<string> &result);
+	static size_t Split(string str, std::list<string> &result);
 };
 

@@ -1,4 +1,4 @@
-#include "ImageUtil.h"
+ï»¿#include "ImageUtil.h"
 #include "VectorUtil.h"
 
 namespace comm_util
@@ -14,7 +14,7 @@ ImageUtil::~ImageUtil()
 }
 
 /*
-¼ÆËãÍ¼ÏñÖ¸ÎÆ¡£Í¼ÏñÊı¾İ¸ñÊ½ÎªARGB¡£
+è®¡ç®—å›¾åƒæŒ‡çº¹ã€‚å›¾åƒæ•°æ®æ ¼å¼ä¸ºARGBã€‚
 */
 vector<float> ImageUtil::getFingerprint(const ImageData &image, Rect rect)
 {
@@ -26,7 +26,7 @@ vector<float> ImageUtil::getFingerprint(const ImageData &image, Rect rect)
 }
 
 /*
-¼ÆËãÍ¼ÏñÖ¸ÎÆ¡£Í¼ÏñÊı¾İ¸ñÊ½ÎªARGB¡£
+è®¡ç®—å›¾åƒæŒ‡çº¹ã€‚å›¾åƒæ•°æ®æ ¼å¼ä¸ºARGBã€‚
 */
 void ImageUtil::getFingerprint(const ImageData &image, Rect rect, vector<float> &result)
 {
@@ -50,7 +50,7 @@ void ImageUtil::getFingerprint(const ImageData &image, Rect rect, vector<float> 
 }
 
 /*
-´ÓÍ¼ÏñÖĞÑ°ÕÒĞ¡Í¼¡£
+ä»å›¾åƒä¸­å¯»æ‰¾å°å›¾ã€‚
 */
 float ImageUtil::findImage(const ImageData &image, Size size, const vector<float> &sample, Point &point)
 {

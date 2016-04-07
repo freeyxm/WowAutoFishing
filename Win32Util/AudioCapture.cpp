@@ -417,12 +417,12 @@ bool AudioCapture::IsFloatFormat(const WAVEFORMATEX *pwfx)
 	return false;
 }
 
-float AudioCapture::ParseValue(BYTE *pData, UINT index) const
+float AudioCapture::ParseValue(BYTE *pData, size_t index) const
 {
 	return ParseValue(m_pwfx, pData, index, m_midValue);
 }
 
-float AudioCapture::ParseValue(const WAVEFORMATEX *pwfx, const void *pData, UINT index, int midValue)
+float AudioCapture::ParseValue(const WAVEFORMATEX *pwfx, const void *pData, size_t index, int midValue)
 {
 	switch (pwfx->wBitsPerSample)
 	{

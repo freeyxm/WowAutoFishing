@@ -103,7 +103,7 @@ int CFastFourierTransform::BitRev(int j, int nu) {
 float* CFastFourierTransform::Calculate(float* pSample, size_t pSampleSize) {
 	int n2 = ss2;
 	int nu1 = nu - 1;
-	int wAps = pSampleSize / ss;
+	size_t wAps = pSampleSize / ss;
 	size_t a = 0;
 
 	for (size_t b = 0; a < pSampleSize; b++) {

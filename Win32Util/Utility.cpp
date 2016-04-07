@@ -27,7 +27,7 @@ void Utility::printf_t(const char *fmt, ...)
 	va_end(arg_ptr);
 }
 
-int Utility::Split(string str, std::list<string> &result)
+size_t Utility::Split(string str, std::list<string> &result)
 {
 	result.clear();
 	size_t sp = 0, ep = 0;

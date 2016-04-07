@@ -41,10 +41,10 @@ void AudioPainter::Paint(HDC hdc, RECT rect, float maxTime)
 	if (!m_bEnable || m_pwfx == NULL || m_dataList.empty())
 		return;
 
-	UINT maxBytes = 0;
+	size_t maxBytes = 0;
 	if (maxTime > 0.01f)
 	{
-		maxBytes = (UINT)(m_pwfx->nAvgBytesPerSec * maxTime);
+		maxBytes = (size_t)(m_pwfx->nAvgBytesPerSec * maxTime);
 	}
 	else
 	{
@@ -72,7 +72,7 @@ void AudioPainter::Paint(HDC hdc, RECT rect, float maxTime)
 	::MoveToEx(hdc, x, m + h2, NULL);
 	::LineTo(hdc, x + w, m + h2);
 
-	UINT step = (maxBytes / w);
+	size_t step = (maxBytes / w);
 	if (step < m_nBytesPerFrame)
 		step = m_nBytesPerFrame;
 
@@ -103,16 +103,16 @@ void AudioPainter::ResetIter(const AudioFrameStorage *pStorage)
 	m_dataIndex = 0;
 }
 
-UINT AudioPainter::GetNext(UINT range, float *pMin, float *pMax)
+size_t AudioPainter::GetNext(size_t range, float *pMin, float *pMax)
 {
-	UINT count = 0;
+	size_t count = 0;
 	range /= m_nBytesPerFrame;
 
 	float value = 0, min = 0, max = 0;
 	while (count < range && m_dataIter != m_pCurStorage->cend())
 	{
 		BYTE *pData = (*m_dataIter)->pData;
-		UINT maxIndex = (*m_dataIter)->nDataLen / m_nBytesPerSample;
+		size_t maxIndex = (*m_dataIter)->nDataLen / m_nBytesPerSample;
 
 		for (; m_dataIndex < maxIndex; m_dataIndex += m_pwfx->nChannels) // 只处理1个声道
 		{
@@ -145,26 +145,9 @@ UINT AudioPainter::GetNext(UINT range, float *pMin, float *pMax)
 	return count;
 }
 
-float AudioPainter::ParseValue(BYTE *pData, UINT index)
+float AudioPainter::ParseValue(BYTE *pData, size_t index)
 {
-	switch (m_pwfx->wBitsPerSample)
-	{
-	case 8:
-		return (float)*(pData + index) / m_midValue;
-		break;
-	case 16:
-		return (float)*((INT16*)pData + index) / m_midValue;
-		break;
-	case 32:
-		if (m_bFloatFormat)
-			return (float)*((float*)pData + index);
-		else
-			return (float)*((int*)pData + index) / m_midValue;
-		break;
-	default:
-		break;
-	}
-	return 0;
+	return AudioCapture::ParseValue(m_pwfx, pData, index, m_midValue);
 }
 
 void AudioPainter::AddScale(float scale)

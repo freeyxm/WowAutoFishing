@@ -126,7 +126,7 @@ void NpcScanAlertorMgr::ReadCmd()
 	if (!getline(std::cin, m_cmdLine))
 		return;
 
-	int count = Utility::Split(m_cmdLine, m_cmdElems);
+	size_t count = Utility::Split(m_cmdLine, m_cmdElems);
 	if (count == 0)
 		return;
 

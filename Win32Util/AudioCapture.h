@@ -31,8 +31,8 @@ public:
 	virtual bool IsDone() const;
 	virtual void SetDone(bool bDone);
 
-	float ParseValue(BYTE *pData, UINT index) const;
-	static float ParseValue(const WAVEFORMATEX *pwfx, const void *pData, UINT index, int midValue);
+	float ParseValue(BYTE *pData, size_t index) const;
+	static float ParseValue(const WAVEFORMATEX *pwfx, const void *pData, size_t index, int midValue);
 
 	static int GetMidValue(const WAVEFORMATEX *pwfx);
 
