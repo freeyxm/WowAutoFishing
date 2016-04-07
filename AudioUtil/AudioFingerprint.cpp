@@ -3,6 +3,8 @@
 #include "Win32Util/AudioCapture.h"
 #include "CommUtil/VectorUtil.h"
 
+using comm_util::VectorUtil;
+
 AudioFingerprint::AudioFingerprint()
 {
 }
@@ -42,7 +44,58 @@ vector<float> AudioFingerprint::getFingerprint(const AudioFrameStorage *source, 
 		finger[index++] = max - min;
 		++it;
 	}
-	
+
 	return finger;
 }
 
+vector<float> AudioFingerprint::getFingerprint_diff(const AudioFrameStorage *source, const WAVEFORMATEX *pwfx)
+{
+	vector<float> finger = getFingerprint(source, pwfx);
+	processDiff(finger);
+	return finger;
+}
+
+vector<float> AudioFingerprint::getFingerprint_cutAvg(const AudioFrameStorage *source, const WAVEFORMATEX *pwfx)
+{
+	vector<float> finger = getFingerprint(source, pwfx);
+	processCutAvg(finger);
+	return finger;
+}
+
+vector<float> AudioFingerprint::getFingerprint_ratioAvg(const AudioFrameStorage *source, const WAVEFORMATEX *pwfx)
+{
+	vector<float> finger = getFingerprint(source, pwfx);
+	processRatioAvg(finger);
+	return finger;
+}
+
+void AudioFingerprint::processDiff(vector<float> &data)
+{
+	size_t count = data.size();
+	for (size_t i = 1; i < count; ++i)
+	{
+		data[i - 1] -= data[i];
+	}
+	if (count > 1)
+	{
+		data[count - 1] = 0;
+	}
+}
+
+void AudioFingerprint::processCutAvg(vector<float> &data)
+{
+	float avg = VectorUtil::getAvg(&data[0], data.size());
+	for (size_t i = 0, count = data.size(); i < count; ++i)
+	{
+		data[i] -= avg;
+	}
+}
+
+void AudioFingerprint::processRatioAvg(vector<float> &data)
+{
+	float avg = VectorUtil::getAvg(&data[0], data.size());
+	for (size_t i = 0, count = data.size(); i < count; ++i)
+	{
+		data[i] /= avg;
+	}
+}

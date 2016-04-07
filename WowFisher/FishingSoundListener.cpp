@@ -87,10 +87,11 @@ void FishingSoundListener::EndSegment()
 		return;
 	}
 
-	auto sample = AudioFingerprint::getFingerprint(m_pCurSegment, m_pwfx);
+	auto sample = AudioFingerprint::getFingerprint_cutAvg(m_pCurSegment, m_pwfx);
 	m_pCurSegment->Clear();
 
-	bool isMatch = IsSampleMatch(sample);
+	float cosa = 0;
+	bool isMatch = IsSampleMatch(sample, cosa);
 
 	if (m_pSampleFile != NULL && !isMatch)
 	{
@@ -146,8 +147,10 @@ void FishingSoundListener::AddSample(const char *str, int hit)
 	}
 }
 
-bool FishingSoundListener::IsSampleMatch(const std::vector<float> &data)
+bool FishingSoundListener::IsSampleMatch(const std::vector<float> &data, float &out_cosa)
 {
+	//printf("sound: %llu\n", data.size());
+	out_cosa = 0;
 	if (data.empty())
 		return false;
 
@@ -155,17 +158,26 @@ bool FishingSoundListener::IsSampleMatch(const std::vector<float> &data)
 	while (it != m_samples.end())
 	{
 		float cosa = VectorUtil::getCosA_Pad(&it->sample[0], it->sample.size(), &data[0], data.size());
+		//printf("cosa = %f\n", cosa);
 		if (cosa >= 0.9f)
 		{
 			it->hit++;
-			if (++m_sampleCount % 10 == 0)
+			if (++m_sampleCount % 2 == 0)
 			{
 				SaveSamples();
 			}
+			//printf("matched!\n");
+			out_cosa = cosa;
 			return true;
+		}
+		else
+		{
+			if (out_cosa < cosa)
+				out_cosa = cosa;
 		}
 		++it;
 	}
+	//printf("not matched!\n");
 	return false;
 }
 
@@ -235,7 +247,7 @@ void FishingSoundListener::SaveSample(const std::vector<float> &sample, int hit,
 
 void FishingSoundListener::SaveSample(const std::vector<float> &sample, int hit, FILE *file)
 {
-	fprintf(file, "#size = %d\n", sample.size());
+	fprintf(file, "#size = %llu\n", sample.size());
 	for (size_t i = 0; i < sample.size(); ++i)
 	{
 		if (i > 0)

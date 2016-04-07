@@ -120,4 +120,18 @@ float VectorUtil::getCosA_Pad(const float *v1, size_t len1, const float *v2, siz
 	return max_value;
 }
 
+float VectorUtil::getAvg(const float *data, const size_t length)
+{
+	double avg = 0;
+	for (size_t i = 0; i < length; ++i)
+	{
+		avg += data[i];
+	}
+	if (length > 0)
+	{
+		avg /= length;
+	}
+	return avg;
+}
+
 } // namespace comm_util
