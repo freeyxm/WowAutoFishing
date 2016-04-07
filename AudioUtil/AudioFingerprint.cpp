@@ -17,8 +17,7 @@ vector<float> AudioFingerprint::getFingerprint(const AudioFrameStorage *source, 
 	vector<float> finger(source->GetSize());
 
 	int nBytesPerSample = pwfx->wBitsPerSample / 8;
-	int midValue = ((1L << (pwfx->wBitsPerSample - 1)) - 1) >> 1;
-	bool isFloat = AudioCapture::IsFloatFormat(pwfx);
+	int midValue = AudioCapture::GetMidValue(pwfx);
 	float min, max, value;
 	AudioFrameData *pFrames;
 
@@ -33,24 +32,7 @@ vector<float> AudioFingerprint::getFingerprint(const AudioFrameStorage *source, 
 		size_t count = pFrames->nDataLen / nBytesPerSample;
 		for (size_t i = 0; i < count; i += pwfx->nChannels)
 		{
-			switch (pwfx->wBitsPerSample)
-			{
-			case 8:
-				value = (float)*(pFrames->pData + i) / midValue;
-				break;
-			case 16:
-				value = (float)*((INT16*)pFrames->pData + i) / midValue;
-				break;
-			case 32:
-				if (isFloat)
-					value = (float)*((float*)pFrames->pData + i);
-				else
-					value = (float)*((int*)pFrames->pData + i) / midValue;
-				break;
-			default:
-				value = 0;
-				break;
-			}
+			value = AudioCapture::ParseValue(pwfx, pFrames->pData, i, midValue);
 			if (min > value)
 				min = value;
 			if (max < value)

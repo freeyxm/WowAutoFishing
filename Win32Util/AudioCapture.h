@@ -32,8 +32,11 @@ public:
 	virtual void SetDone(bool bDone);
 
 	float ParseValue(BYTE *pData, UINT index) const;
+	static float ParseValue(const WAVEFORMATEX *pwfx, const void *pData, UINT index, int midValue);
 
-	static bool IsFloatFormat(const WAVEFORMATEX *pfwx);
+	static int GetMidValue(const WAVEFORMATEX *pwfx);
+
+	static bool IsFloatFormat(const WAVEFORMATEX *pwfx);
 
 	static bool SelectDevice(IMMDeviceEnumerator *pEnumerator, EDataFlow eDataFlow, bool bDefault, IMMDevice **ppDevice);
 
@@ -53,10 +56,8 @@ protected:
 	bool m_bDefaultDevice;
 	bool m_bDone;
 
-	bool m_bFloatFormat;
 	UINT m_nBytesPerSample;
 	UINT m_nBytesPerFrame;
-	int m_maxValue;
 	int m_midValue;
 
 private:

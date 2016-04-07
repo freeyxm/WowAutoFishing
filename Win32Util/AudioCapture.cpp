@@ -5,10 +5,11 @@
 #include <cstdio>
 #include <iostream>
 #include <string>
+#include <assert.h>
 
 AudioCapture::AudioCapture(bool bLoopback, bool bDefaultDevice)
 	: m_pDevice(NULL), m_pAudioClient(NULL), m_pCaptureClient(NULL), m_pwfx(NULL)
-	, m_bInited(false), m_bDone(true), m_bFloatFormat(false)
+	, m_bInited(false), m_bDone(true)
 	, m_bLoopback(bLoopback), m_bDefaultDevice(bDefaultDevice)
 {
 }
@@ -371,11 +372,9 @@ HRESULT AudioCapture::SetFormat(WAVEFORMATEX *pwfx)
 	//printf("  wBitsPerSample: %d\n", pwfx->wBitsPerSample);
 	//printf("  cbSize: %d\n", pwfx->cbSize);
 
-	m_bFloatFormat = IsFloatFormat(pwfx);
 	m_nBytesPerSample = pwfx->wBitsPerSample / 8;
 	m_nBytesPerFrame = m_nBytesPerSample * m_pwfx->nChannels;
-	m_maxValue = (1L << (pwfx->wBitsPerSample - 1)) - 1;
-	m_midValue = m_maxValue >> 1;
+	m_midValue = GetMidValue(m_pwfx);
 
 	return S_OK;
 }
@@ -394,6 +393,11 @@ bool AudioCapture::IsDone() const
 void AudioCapture::SetDone(bool bDone)
 {
 	m_bDone = bDone;
+}
+
+int AudioCapture::GetMidValue(const WAVEFORMATEX *pwfx)
+{
+	return ((1L << (pwfx->wBitsPerSample - 1)) - 1) >> 1;
 }
 
 bool AudioCapture::IsFloatFormat(const WAVEFORMATEX *pwfx)
@@ -415,24 +419,27 @@ bool AudioCapture::IsFloatFormat(const WAVEFORMATEX *pwfx)
 
 float AudioCapture::ParseValue(BYTE *pData, UINT index) const
 {
-	if (pData == NULL)
-		return 0;
+	return ParseValue(m_pwfx, pData, index, m_midValue);
+}
 
-	switch (m_pwfx->wBitsPerSample)
+float AudioCapture::ParseValue(const WAVEFORMATEX *pwfx, const void *pData, UINT index, int midValue)
+{
+	switch (pwfx->wBitsPerSample)
 	{
 	case 8:
-		return (float)*((INT8*)pData + index) / m_midValue;
+		return (float)*((INT8*)pData + index) / midValue;
 		break;
 	case 16:
-		return (float)*((INT16*)pData + index) / m_midValue;
+		return (float)*((INT16*)pData + index) / midValue;
 		break;
 	case 32:
-		if (m_bFloatFormat)
+		if (IsFloatFormat(pwfx))
 			return (float)*((float*)pData + index);
 		else
-			return (float)*((INT32*)pData + index) / m_midValue;
+			return (float)*((INT32*)pData + index) / midValue;
 		break;
 	default:
+		assert(false);
 		break;
 	}
 	return 0;
