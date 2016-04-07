@@ -36,7 +36,7 @@ void AudioPainter::Clear()
 	m_dataList.clear();
 }
 
-void AudioPainter::Paint(HWND hwnd, HDC hdc, RECT rect, float maxTime)
+void AudioPainter::Paint(HDC hdc, RECT rect, float maxTime)
 {
 	if (!m_bEnable || m_pwfx == NULL || m_dataList.empty())
 		return;
@@ -59,9 +59,9 @@ void AudioPainter::Paint(HWND hwnd, HDC hdc, RECT rect, float maxTime)
 	int y = 0;
 
 	int w = rect.right - rect.left;
-	int h = rect.top;
+	int h = rect.bottom - rect.top;
 	int h2 = h / 2;
-	int m = rect.bottom;
+	int m = (rect.bottom + rect.top) / 2;
 
 	::MoveToEx(hdc, x, m, NULL);
 	::LineTo(hdc, x + w, m);

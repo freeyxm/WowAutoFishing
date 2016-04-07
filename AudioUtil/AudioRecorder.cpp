@@ -28,7 +28,7 @@ HRESULT AudioRecorder::SetFormat(WAVEFORMATEX *pwfx)
 
 HRESULT AudioRecorder::OnCaptureData(BYTE *pData, UINT32 nFrameCount)
 {
-	::EnterCriticalSection(&m_dataSection);
+	Lock();
 
 	bool bSuccess = false;
 	do
@@ -53,7 +53,7 @@ HRESULT AudioRecorder::OnCaptureData(BYTE *pData, UINT32 nFrameCount)
 
 	//printf("OnCaptureData: %d, %d\n", nDataLen, m_dataList.size());
 
-	::LeaveCriticalSection(&m_dataSection);
+	Unlock();
 
 	return bSuccess ? S_OK : E_FAIL;
 }
@@ -97,7 +97,9 @@ void AudioRecorder::Stop()
 
 void AudioRecorder::Clear()
 {
+	Lock();
 	m_dataStorage.Clear();
+	Unlock();
 }
 
 static UINT __stdcall CaptureTheadProc(LPVOID param)
@@ -109,4 +111,14 @@ static UINT __stdcall CaptureTheadProc(LPVOID param)
 const AudioFrameStorage* AudioRecorder::GetStorage() const
 {
 	return &m_dataStorage;
+}
+
+void AudioRecorder::Lock()
+{
+	::EnterCriticalSection(&m_dataSection);
+}
+
+void AudioRecorder::Unlock()
+{
+	::LeaveCriticalSection(&m_dataSection);
 }

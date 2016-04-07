@@ -28,10 +28,14 @@ public:
 	void Clear();
 
 	UINT GetSegmentCount() const;
+	void SetSegmentMaxCount(UINT count);
 	AudioFrameStorage* PopSegment();
 
 	SegmentCIter cbegin() const;
 	SegmentCIter cend() const;
+
+	inline void Lock();
+	inline void Unlock();
 
 protected:
 	virtual void StartSegment();
@@ -56,6 +60,7 @@ protected:
 	UINT m_silentMaxCount;
 	UINT m_soundMinCount;
 	UINT m_soundMaxCount;
+	UINT m_segmentMaxCount;
 
 	enum class SoundState
 	{

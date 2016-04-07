@@ -49,8 +49,8 @@ HRESULT AudioExtractor::SetFormat(WAVEFORMATEX *pwfx)
 
 	SetSilentMaxCount(5); // empirical data.
 	SetSoundMinCount(20); // empirical data.
-	SetSoundMaxCount(pwfx->nSamplesPerSec / 100 / pwfx->nChannels); // about 1 second.
-	SetAmpZcr(480, 0.001f, 0.01f, 0.3f, 0.5f); // empirical data.
+	SetSoundMaxCount(pwfx->nSamplesPerSec / 100); // about 1 second.
+	SetAmpZcr(pwfx->nSamplesPerSec / 100, 0.001f, 0.01f, 0.3f, 0.5f); // empirical data.
 
 	return S_OK;
 }
@@ -214,10 +214,19 @@ void AudioExtractor::EndSegment()
 {
 	if(m_pCurSegment != NULL)
 	{
-		::EnterCriticalSection(&m_segmentSection);
+		Lock();
 		m_segmentList.push_back(m_pCurSegment);
-		::LeaveCriticalSection(&m_segmentSection);
-		m_pCurSegment = NULL;
+		if (m_segmentList.size() > m_segmentMaxCount)
+		{
+			m_pCurSegment = m_segmentList.front();
+			m_pCurSegment->Clear();
+			m_segmentList.pop_front();
+		}
+		else
+		{
+			m_pCurSegment = NULL;
+		}
+		Unlock();
 	}
 }
 
@@ -305,14 +314,19 @@ UINT AudioExtractor::GetSegmentCount() const
 	return m_segmentList.size();
 }
 
+void AudioExtractor::SetSegmentMaxCount(UINT count)
+{
+	m_segmentMaxCount = count;
+}
+
 AudioFrameStorage* AudioExtractor::PopSegment()
 {
 	if (m_segmentList.size() > 0)
 	{
-		::EnterCriticalSection(&m_segmentSection);
+		Lock();
 		AudioFrameStorage *pStorage = m_segmentList.front();
 		m_segmentList.pop_front();
-		::LeaveCriticalSection(&m_segmentSection);
+		Unlock();
 		return pStorage;
 	}
 	return NULL;
@@ -326,4 +340,14 @@ AudioExtractor::SegmentCIter AudioExtractor::cbegin() const
 AudioExtractor::SegmentCIter AudioExtractor::cend() const
 {
 	return m_segmentList.cend();
+}
+
+void AudioExtractor::Lock()
+{
+	::EnterCriticalSection(&m_segmentSection);
+}
+
+void AudioExtractor::Unlock()
+{
+	::LeaveCriticalSection(&m_segmentSection);
 }

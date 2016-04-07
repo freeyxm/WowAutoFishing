@@ -21,6 +21,9 @@ public:
 	void Stop();
 	void Clear();
 
+	inline void Lock();
+	inline void Unlock();
+
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
 	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nFrameCount);
 

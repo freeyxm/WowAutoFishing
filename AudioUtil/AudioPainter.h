@@ -13,7 +13,7 @@ public:
 	void AddSource(const AudioFrameStorage *pStorage);
 	void Clear();
 
-	void Paint(HWND hwnd, HDC hdc, RECT rect, float maxTime = 0.0f);
+	void Paint(HDC hdc, RECT rect, float maxTime = 0.0f);
 
 	void AddScale(float scale);
 	float GetScale();
