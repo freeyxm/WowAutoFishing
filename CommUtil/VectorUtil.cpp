@@ -146,18 +146,52 @@ float VectorUtil::getCosA_First(const float *v1, size_t len1, const float *v2, s
 		return getCosA_Long(v1, len1, v2, len2);
 }
 
-float VectorUtil::getAvg(const float *data, const size_t length)
+float VectorUtil::getLengthSqr(const float *vec, const size_t length)
+{
+	double sum = 0;
+	for (size_t i = 0; i < length; ++i)
+	{
+		sum += vec[i] * vec[i];
+	}
+	return sum;
+}
+
+float VectorUtil::getAvg(const float *vec, const size_t length)
 {
 	double avg = 0;
 	for (size_t i = 0; i < length; ++i)
 	{
-		avg += data[i];
+		avg += vec[i];
 	}
 	if (length > 0)
 	{
 		avg /= length;
 	}
 	return avg;
+}
+
+void VectorUtil::Add(float *v1, const size_t length, float num)
+{
+	for (size_t i = 0; i < length; ++i)
+	{
+		v1[i] += num;
+	}
+}
+
+void VectorUtil::Add(float *v1, const float *v2, const size_t length)
+{
+	for (size_t i = 0; i < length; ++i)
+	{
+		v1[i] += v2[i];
+	}
+}
+
+void VectorUtil::Sub(float *v1, const float *v2, const size_t length)
+{
+	for (size_t i = 0; i < length; ++i)
+	{
+		v1[i] -= v2[i];
+	}
 }
 
 } // namespace comm_util
