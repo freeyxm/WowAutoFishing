@@ -134,7 +134,7 @@ void FishingSoundListener::AddSample(const char *str, int hit)
 		auto it = m_samples.begin();
 		while (it != m_samples.end())
 		{
-			float cosa = VectorUtil::getCosA_Pad(&it->sample[0], it->sample.size(), &data[0], data.size());
+			float cosa = VectorUtil::getCosA_First(&it->sample[0], it->sample.size(), &data[0], data.size());
 			if (cosa >= 0.9f)
 			{
 				it->hit += hit;
@@ -149,7 +149,7 @@ void FishingSoundListener::AddSample(const char *str, int hit)
 
 bool FishingSoundListener::IsSampleMatch(const std::vector<float> &data, float &out_cosa)
 {
-	//printf("sound: %llu\n", data.size());
+	//printf("sound: %zu\n", data.size());
 	out_cosa = 0;
 	if (data.empty())
 		return false;
@@ -157,7 +157,7 @@ bool FishingSoundListener::IsSampleMatch(const std::vector<float> &data, float &
 	auto it = m_samples.begin();
 	while (it != m_samples.end())
 	{
-		float cosa = VectorUtil::getCosA_Pad(&it->sample[0], it->sample.size(), &data[0], data.size());
+		float cosa = VectorUtil::getCosA_First(&it->sample[0], it->sample.size(), &data[0], data.size());
 		//printf("cosa = %f\n", cosa);
 		if (cosa >= 0.9f)
 		{
@@ -247,7 +247,7 @@ void FishingSoundListener::SaveSample(const std::vector<float> &sample, int hit,
 
 void FishingSoundListener::SaveSample(const std::vector<float> &sample, int hit, FILE *file)
 {
-	fprintf(file, "#size = %llu\n", sample.size());
+	fprintf(file, "#size = %zu\n", sample.size());
 	for (size_t i = 0; i < sample.size(); ++i)
 	{
 		if (i > 0)

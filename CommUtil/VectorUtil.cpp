@@ -16,7 +16,7 @@ VectorUtil::~VectorUtil()
 }
 
 /*
-Calculate the cosine of two n-vector's angle.
+Calculate vectorial angle cosine.
 */
 float VectorUtil::getCosA(const float *v1, const float *v2, const size_t length)
 {
@@ -31,10 +31,16 @@ float VectorUtil::getCosA(const float *v1, const float *v2, const size_t length)
 }
 
 /*
-计算向量夹角的余弦值（最优）。向量长度取小值。
+Calculate vectorial angle cosine. (optimal)
+Length by the shorter one.
 */
-float VectorUtil::getCosA(const float *v1, size_t len1, const float *v2, size_t len2)
+float VectorUtil::getCosA_Short(const float *v1, size_t len1, const float *v2, size_t len2)
 {
+	if (len1 == len2)
+	{
+		return getCosA(v1, v2, len1);
+	}
+
 	const float *p1, *p2;
 	if (len1 >= len2)
 	{
@@ -63,10 +69,16 @@ float VectorUtil::getCosA(const float *v1, size_t len1, const float *v2, size_t 
 }
 
 /*
-计算向量夹角的余弦值（最优）。向量长度取大值，并以较长向量的剩余部分填充较短向量。
+Calculate vectorial angle cosine. (optimal)
+Length by the longer one, and padding the shorter with longer's spare part.
 */
-float VectorUtil::getCosA_Pad(const float *v1, size_t len1, const float *v2, size_t len2)
+float VectorUtil::getCosA_Long(const float *v1, size_t len1, const float *v2, size_t len2)
 {
+	if (len1 == len2)
+	{
+		return getCosA(v1, v2, len1);
+	}
+
 	const float *p1, *p2;
 	if (len1 >= len2)
 	{
@@ -118,6 +130,20 @@ float VectorUtil::getCosA_Pad(const float *v1, size_t len1, const float *v2, siz
 	}
 
 	return max_value;
+}
+
+/*
+Calculate vectorial angle cosine. (optimal)
+Length by the first one.
+*/
+float VectorUtil::getCosA_First(const float *v1, size_t len1, const float *v2, size_t len2)
+{
+	if (len1 == len2)
+		return getCosA(v1, v2, len1);
+	else if (len1 < len2)
+		return getCosA_Short(v2, len2, v1, len1);
+	else
+		return getCosA_Long(v1, len1, v2, len2);
 }
 
 float VectorUtil::getAvg(const float *data, const size_t length)
