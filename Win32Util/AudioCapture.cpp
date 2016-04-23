@@ -424,6 +424,9 @@ float AudioCapture::ParseValue(BYTE *pData, size_t index) const
 
 float AudioCapture::ParseValue(const WAVEFORMATEX *pwfx, const void *pData, size_t index, int midValue)
 {
+	if (pData == nullptr)
+		return 0;
+
 	switch (pwfx->wBitsPerSample)
 	{
 	case 8:
