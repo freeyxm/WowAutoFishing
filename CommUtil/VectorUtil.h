@@ -23,7 +23,7 @@ public:
 
 	static float getAvg(const float *vec, const size_t length);
 
-	static float dtw(const float *v1, const size_t len1, const float *v2, const size_t len2);
+	static float getDTW(const float *v1, const size_t len1, const float *v2, const size_t len2);
 
 	static void Add(float *v1, const size_t length, float num);
 	static void Add(float *v1, const float *v2, const size_t length);

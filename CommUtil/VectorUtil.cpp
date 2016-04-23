@@ -185,12 +185,10 @@ float VectorUtil::getAvg(const float *vec, const size_t length)
 	return avg;
 }
 
-float VectorUtil::dtw(const float *v1, const size_t len1, const float *v2, const size_t len2)
+float VectorUtil::getDTW(const float *v1, const size_t len1, const float *v2, const size_t len2)
 {
 	std::unique_ptr<float[]> dp(new float[len1*len2]);
-	std::unique_ptr<float[]> gp(new float[len1*len2]);
 	float *d = dp.get();
-	float *g = gp.get();
 
 	// 帧匹配距离矩阵
 	for (size_t i = 0; i < len1; i++)
@@ -203,16 +201,15 @@ float VectorUtil::dtw(const float *v1, const size_t len1, const float *v2, const
 	}
 
 	// 累积距离矩阵
-	g[0] = d[0];
 	for (size_t i = 1; i < len1; i++)
 	{
 		const size_t ii = i * len2;
 		const size_t ii_1 = (i - 1) * len2;
-		g[ii] = g[ii_1] + d[ii];
+		d[ii] += d[ii_1];
 	}
 	for (size_t j = 1; j < len2; j++)
 	{
-		g[j] = g[j - 1] + d[j];
+		d[j] += d[j - 1];
 	}
 	float d1, d2, d3;
 	for (size_t i = 1; i < len1; i++)
@@ -221,16 +218,15 @@ float VectorUtil::dtw(const float *v1, const size_t len1, const float *v2, const
 		const size_t ii_1 = (i - 1) * len2;
 		for (size_t j = 1; j < len2; j++)
 		{
-			const size_t i_j = ii + j;
-			d1 = g[ii_1 + j] + d[i_j];
-			d2 = g[ii_1 + j - 1] + d[i_j];
-			d3 = g[i_j - 1] + d[i_j];
-			g[i_j] = min(d1, d2, d3);
+			const size_t j_1 = j - 1;
+			d1 = d[ii_1 + j];
+			d2 = d[ii_1 + j_1];
+			d3 = d[ii + j_1];
+			d[ii + j] += min(d1, d2, d3);
 		}
 	}
 
-	float dtw = g[len1*len2 - 1];
-	return dtw;
+	return d[len1*len2 - 1];
 }
 
 void VectorUtil::Add(float *v1, const size_t length, float num)
