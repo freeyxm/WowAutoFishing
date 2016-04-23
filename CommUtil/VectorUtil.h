@@ -29,6 +29,8 @@ public:
 	static void Add(float *v1, const float *v2, const size_t length);
 	static void Sub(float *v1, const float *v2, const size_t length);
 	static void Sub(float *v1, size_t len1, const float *v2, size_t len2);
+
+	static vector<int> getRiseAndFall(float *v1, const size_t length);
 };
 
 } //namespace comm_util

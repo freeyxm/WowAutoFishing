@@ -225,7 +225,7 @@ float VectorUtil::dtw(const float *v1, const size_t len1, const float *v2, const
 			d1 = g[ii_1 + j] + d[i_j];
 			d2 = g[ii_1 + j - 1] + d[i_j];
 			d3 = g[i_j - 1] + d[i_j];
-			g[i_j] = std::fmin(std::fmin(d1, d2), d3);
+			g[i_j] = min(d1, d2, d3);
 		}
 	}
 
@@ -311,6 +311,23 @@ void VectorUtil::Sub(float *v1, size_t len1, const float *v2, size_t len2)
 	{
 		Sub(v1, v2, len1);
 	}
+}
+
+vector<int> VectorUtil::getRiseAndFall(float *v1, const size_t length)
+{
+	vector<int> result(length);
+	result[0] = 0;
+	for (size_t i = 1; i < length; ++i)
+	{
+		float diff = v1[i] - v1[i - 1];
+		if (diff > CommUtil::EPSINON)
+			result[i] = 1;
+		else if (diff < -CommUtil::EPSINON)
+			result[i] = -1;
+		else
+			result[i] = 0;
+	}
+	return result;
 }
 
 } // namespace comm_util

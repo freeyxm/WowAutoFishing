@@ -3,13 +3,16 @@
 namespace comm_util
 {
 
-CommUtil::CommUtil()
+const float CommUtil::EPSINON = 1e-6f;
+
+bool CommUtil::isEqual(float a, float b)
 {
+	return isEqualZero(a - b);
 }
 
-
-CommUtil::~CommUtil()
+bool CommUtil::isEqualZero(float a)
 {
+	return a < EPSINON && a > -EPSINON;
 }
 
 } // namespace comm_util
