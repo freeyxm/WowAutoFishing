@@ -2,6 +2,8 @@
 #include "CommUtil.h"
 #include <cmath>
 #include <cfloat>
+#include <vector>
+#include <memory>
 
 namespace comm_util
 {
@@ -146,6 +148,19 @@ float VectorUtil::getCosA_First(const float *v1, size_t len1, const float *v2, s
 		return getCosA_Long(v1, len1, v2, len2);
 }
 
+float VectorUtil::getCosA_MinSub(const float *v1, size_t len1, const float *v2, size_t len2)
+{
+	float base = 1.0f; // getAvg(v1, len1);
+	vector<float> samp(len1, base);
+	vector<float> temp(len1);
+	memcpy(&temp[0], v1, len1 * sizeof(v1[0]));
+	Sub(&temp[0], len1, v2, len2);
+	Add(&temp[0], len1, base);
+
+	float cosa = getCosA(&samp[0], &temp[0], len1);
+	return cosa;
+}
+
 float VectorUtil::getLengthSqr(const float *vec, const size_t length)
 {
 	double sum = 0;
@@ -170,6 +185,54 @@ float VectorUtil::getAvg(const float *vec, const size_t length)
 	return avg;
 }
 
+float VectorUtil::dtw(const float *v1, const size_t len1, const float *v2, const size_t len2)
+{
+	std::unique_ptr<float[]> dp(new float[len1*len2]);
+	std::unique_ptr<float[]> gp(new float[len1*len2]);
+	float *d = dp.get();
+	float *g = gp.get();
+
+	// 帧匹配距离矩阵
+	for (size_t i = 0; i < len1; i++)
+	{
+		const size_t ii = i * len2;
+		for (size_t j = 0; j < len2; j++)
+		{
+			d[ii + j] = ::abs(v1[i] - v2[j]);
+		}
+	}
+
+	// 累积距离矩阵
+	g[0] = d[0];
+	for (size_t i = 1; i < len1; i++)
+	{
+		const size_t ii = i * len2;
+		const size_t ii_1 = (i - 1) * len2;
+		g[ii] = g[ii_1] + d[ii];
+	}
+	for (size_t j = 1; j < len2; j++)
+	{
+		g[j] = g[j - 1] + d[j];
+	}
+	float d1, d2, d3;
+	for (size_t i = 1; i < len1; i++)
+	{
+		const size_t ii = i * len2;
+		const size_t ii_1 = (i - 1) * len2;
+		for (size_t j = 1; j < len2; j++)
+		{
+			const size_t i_j = ii + j;
+			d1 = g[ii_1 + j] + d[i_j];
+			d2 = g[ii_1 + j - 1] + d[i_j];
+			d3 = g[i_j - 1] + d[i_j];
+			g[i_j] = std::fmin(std::fmin(d1, d2), d3);
+		}
+	}
+
+	float dtw = g[len1*len2 - 1];
+	return dtw;
+}
+
 void VectorUtil::Add(float *v1, const size_t length, float num)
 {
 	for (size_t i = 0; i < length; ++i)
@@ -191,6 +254,62 @@ void VectorUtil::Sub(float *v1, const float *v2, const size_t length)
 	for (size_t i = 0; i < length; ++i)
 	{
 		v1[i] -= v2[i];
+	}
+}
+
+void VectorUtil::Sub(float *v1, size_t len1, const float *v2, size_t len2)
+{
+	if (len1 < len2)
+	{
+		float min = FLT_MAX, sum;
+		size_t min_offset = 0;
+		size_t count = len2 - len1;
+		for (size_t k = 0; k <= count; ++k)
+		{
+			sum = 0;
+			for (size_t i = 0; i < len1; ++i)
+			{
+				sum += abs(v1[i] - v2[i + k]);
+			}
+			if (min > sum)
+			{
+				min = sum;
+				min_offset = k;
+			}
+		}
+		Sub(v1, v2 + min_offset, len1);
+	}
+	else if (len1 > len2)
+	{
+		float min = FLT_MAX, sum;
+		size_t min_offset = 0;
+		size_t count = len1 - len2;
+		for (size_t k = 0; k <= count; ++k)
+		{
+			sum = 0;
+			for (size_t i = 0; i < k; ++i)
+			{
+				sum += (v1[i] >= 0) ? v1[i] : -v1[i];
+			}
+			for (size_t i = 0; i < len2; ++i)
+			{
+				sum += abs(v1[i + k] - v2[i]);
+			}
+			for (size_t i = k + len2; i < len1; ++i)
+			{
+				sum += (v1[i] >= 0) ? v1[i] : -v1[i];
+			}
+			if (min > sum)
+			{
+				min = sum;
+				min_offset = k;
+			}
+		}
+		Sub(v1 + min_offset, v2, len2);
+	}
+	else
+	{
+		Sub(v1, v2, len1);
 	}
 }
 
