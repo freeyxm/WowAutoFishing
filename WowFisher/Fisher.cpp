@@ -16,7 +16,7 @@ const POINT FLOAT_OFFSET = { 10, 25 }; // 鱼漂偏移，以便鼠标居中（10
 Fisher::Fisher(HWND hwnd, int x, int y, int w, int h)
 	: m_hWndWOW(hwnd), m_keyboard(hwnd), m_mouse(hwnd), m_hWndMain(0)
 	, m_posX(x), m_posY(y), m_width(w), m_height(h), m_sound(this)
-	, m_bInited(false), m_hThreadFishing(NULL)
+	, m_bInited(false), m_hThreadFishing(NULL), m_bDebugBite(true)
 {
 	m_throwCount = m_timeoutCount = m_findFloatFailCount = 0;
 }
@@ -104,7 +104,10 @@ static UINT __stdcall FishingTheadProc(LPVOID param)
 
 void Fisher::StartFishing()
 {
-	m_state = FishingState::State_CheckState;
+	if(m_bDebugBite)
+		m_state = FishingState::State_ThrowPole;
+	else
+		m_state = FishingState::State_CheckState;
 	m_bFishing = true;
 
 	wprintf(L"---------------------------------------\n");
@@ -128,7 +131,10 @@ void Fisher::StartFishing()
 			break;
 		case FishingState::State_ThrowPole:
 			ThrowPole();
-			m_state = FishingState::State_FindFloat;
+			if(m_bDebugBite)
+				m_state = FishingState::State_WaitBiteStart;
+			else
+				m_state = FishingState::State_FindFloat;
 			break;
 		case FishingState::State_FindFloat:
 			if (FindFloat())

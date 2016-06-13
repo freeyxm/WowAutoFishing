@@ -291,7 +291,7 @@ bool CWowFisherDlg::InitComponents()
 	m_pEditSoundMin = (CEdit*)GetDlgItem(IDC_EDIT_SOUND_MAX);
 	m_pCbConsole = (CButton*)GetDlgItem(IDC_CHECK_CONSOLE);
 
-	m_pBtnStart->EnableWindow(FALSE);
+	//m_pBtnStart->EnableWindow(FALSE);
 
 	return true;
 }
@@ -442,8 +442,8 @@ LRESULT CWowFisherDlg::OnUpdateStatus(WPARAM wParam, LPARAM lParam)
 
 void CWowFisherDlg::OnCbnSelchangeCombo1()
 {
-	int index = m_pComboBox->GetCurSel();
-	m_pBtnStart->EnableWindow(index != CB_ERR);
+	//int index = m_pComboBox->GetCurSel();
+	//m_pBtnStart->EnableWindow(index != CB_ERR);
 }
 
 void CWowFisherDlg::OnBnClickedButtonRefresh()
@@ -478,9 +478,9 @@ void CWowFisherDlg::OnBnClickedButtonStart()
 			{
 				m_pFisher->SetMainHWnd(GetSafeHwnd());
 				m_pFisher->SetWowHWnd(it->hwnd);
-				m_pFisher->Start();
 			}
 		}
+		m_pFisher->Start();
 	}
 	else
 	{

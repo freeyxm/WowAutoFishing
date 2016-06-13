@@ -2,15 +2,18 @@
 #include "AudioUtil/AudioExtractor.h"
 #include <vector>
 #include <list>
+#include "aquila/aquila.h"
 
 class Fisher;
 
 class FishingSoundListener :
 	public AudioExtractor
 {
+	typedef std::vector<double> SameData;
+
 	struct SampleInfo
 	{
-		std::vector<float> sample;
+		SameData sample;
 		int hit;
 	};
 
@@ -37,12 +40,12 @@ protected:
 	virtual void EndSegment();
 
 	void AddSample(const char *str, int hit = 0);
-	void SaveSample(const std::vector<float> &sample, int hit, std::ofstream &file);
-	void SaveSample(const std::vector<float> &sample, int hit, FILE *file);
+	void SaveSample(const SameData &sample, int hit, std::ofstream &file);
+	void SaveSample(const SameData &sample, int hit, FILE *file);
 	void LoadSamples();
 	void SaveSamples();
 	void SortSamples();
-	bool IsSampleMatch(const std::vector<float> &data, float &cosa);
+	bool IsSampleMatch(const SameData &data, double &cosa);
 
 private:
 	const WAVEFORMATEX *m_pwfx;
@@ -52,6 +55,9 @@ private:
 	NotifyBiteProc m_procNotifyBite;
 
 	std::list<SampleInfo> m_samples;
+	SameData m_sampleData;
 	int m_sampleCount;
+
+	Aquila::Dtw m_dtw;
 };
 

@@ -46,6 +46,9 @@ public:
 
 	template <typename Numeric>
 	static vector<int> getRiseAndFall(Numeric *v1, const size_t length);
+
+	template <typename TypeFrom, typename TypeTo>
+	static void Copy(const TypeFrom *v1, TypeTo *v2, const size_t length);
 };
 
 
@@ -369,6 +372,15 @@ vector<int> VectorUtil::getRiseAndFall(Numeric *v1, const size_t length)
 			result[i] = 0;
 	}
 	return result;
+}
+
+template <typename TypeFrom, typename TypeTo>
+static void VectorUtil::Copy(const TypeFrom *from, TypeTo *to, const size_t length)
+{
+	for (size_t i = 0; i < length; ++i)
+	{
+		to[i] = static_cast<TypeTo>(from[0]);
+	}
 }
 
 } //namespace comm_util

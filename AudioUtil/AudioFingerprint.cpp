@@ -14,6 +14,33 @@ AudioFingerprint::~AudioFingerprint()
 {
 }
 
+
+vector<double> AudioFingerprint::parseData(const AudioFrameStorage *source, const WAVEFORMATEX *pwfx)
+{
+	vector<double> finger;
+
+	int nBytesPerSample = pwfx->wBitsPerSample / 8;
+	int midValue = AudioCapture::GetMidValue(pwfx);
+	float value;
+	AudioFrameData *pFrames;
+
+	int index = 0;
+	auto it = source->cbegin();
+	while (it != source->cend())
+	{
+		pFrames = *it;
+		UINT count = pFrames->nDataLen / nBytesPerSample;
+		for (UINT i = 0; i < count; i += pwfx->nChannels)
+		{
+			value = AudioCapture::ParseValue(pwfx, pFrames->pData, i, midValue);
+			finger.push_back(value);
+		}
+		++it;
+	}
+
+	return finger;
+}
+
 vector<float> AudioFingerprint::getFingerprint(const AudioFrameStorage *source, const WAVEFORMATEX *pwfx)
 {
 	vector<float> finger(source->GetSize());

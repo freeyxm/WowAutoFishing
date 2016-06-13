@@ -11,6 +11,8 @@ public:
 	AudioFingerprint();
 	~AudioFingerprint();
 
+	static vector<double> parseData(const AudioFrameStorage *source, const WAVEFORMATEX *pwfx);
+
 	static vector<float> getFingerprint(const AudioFrameStorage *source, const WAVEFORMATEX *pwfx);
 	static vector<float> getFingerprint_diff(const AudioFrameStorage *source, const WAVEFORMATEX *pwfx);
 	static vector<float> getFingerprint_cutAvg(const AudioFrameStorage *source, const WAVEFORMATEX *pwfx);

@@ -84,6 +84,7 @@ private:
 	time_t m_throwTime; // 甩竿时间
 	bool m_bHasBite; // 是否已咬钩
 	bool m_bTimeout;
+	bool m_bDebugBite;
 	POINT m_floatPoint;
 
 	DWORD m_hotkeyThrow;
