@@ -127,10 +127,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CommUtil.h" />
-    <ClInclude Include="ImageUtil.h" />
-    <ClInclude Include="StringUtil.h" />
-    <ClInclude Include="VectorUtil.h" />
+    <ClInclude Include="CommUtil.hpp" />
+    <ClInclude Include="ImageUtil.hpp" />
+    <ClInclude Include="StringUtil.hpp" />
+    <ClInclude Include="VectorUtil.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CommUtil.cpp" />

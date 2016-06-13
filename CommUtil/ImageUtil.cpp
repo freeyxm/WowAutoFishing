@@ -1,5 +1,5 @@
-﻿#include "ImageUtil.h"
-#include "VectorUtil.h"
+﻿#include "ImageUtil.hpp"
+#include "VectorUtil.hpp"
 
 namespace comm_util
 {

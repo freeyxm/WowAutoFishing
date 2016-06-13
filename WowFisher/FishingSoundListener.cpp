@@ -1,10 +1,8 @@
 ﻿#include "stdafx.h"
 #include "FishingSoundListener.h"
-#include "WaveGraph/Util/FFT.h"
-#include "WaveGraph/Util/FastFourierTransform.h"
 #include "AudioUtil/AudioFingerprint.h"
-#include "CommUtil/StringUtil.h"
-#include "CommUtil/VectorUtil.h"
+#include "CommUtil/StringUtil.hpp"
+#include "CommUtil/VectorUtil.hpp"
 #include <functiondiscoverykeys.h>
 #include <cstdio>
 #include <cstring>

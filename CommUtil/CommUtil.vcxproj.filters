@@ -15,16 +15,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="VectorUtil.h">
+    <ClInclude Include="VectorUtil.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="StringUtil.h">
+    <ClInclude Include="CommUtil.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="CommUtil.h">
+    <ClInclude Include="ImageUtil.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ImageUtil.h">
+    <ClInclude Include="StringUtil.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

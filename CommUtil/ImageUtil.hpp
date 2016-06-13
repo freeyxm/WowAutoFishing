@@ -7,35 +7,36 @@ namespace comm_util
 
 using namespace std;
 
-struct Point
-{
-	int x;
-	int y;
-};
-
-struct Size
-{
-	int w;
-	int h;
-};
-
-struct Rect
-{
-	int x;
-	int y;
-	int w;
-	int h;
-};
-
-struct ImageData
-{
-	char *lpBits;
-	int w;
-	int h;
-};
-
 class ImageUtil
 {
+public:
+	struct Point
+	{
+		int x;
+		int y;
+	};
+
+	struct Size
+	{
+		int w;
+		int h;
+	};
+
+	struct Rect
+	{
+		int x;
+		int y;
+		int w;
+		int h;
+	};
+
+	struct ImageData
+	{
+		char *lpBits;
+		int w;
+		int h;
+	};
+
 public:
 	ImageUtil();
 	~ImageUtil();
