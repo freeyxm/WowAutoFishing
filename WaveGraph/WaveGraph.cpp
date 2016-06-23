@@ -110,8 +110,10 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	if (::AllocConsole())
 	{
-		::freopen("CONOUT$", "w", stdout);
-		::freopen("CONIN$", "r", stdin);
+		FILE *out;
+		FILE *in;
+		::freopen_s(&out, "CONOUT$", "w", stdout);
+		::freopen_s(&in, "CONIN$", "r", stdin);
 	}
 	printf("Start ...\n");
 

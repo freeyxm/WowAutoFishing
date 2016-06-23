@@ -79,28 +79,28 @@ HRESULT FishingSoundListener::SetFormat(WAVEFORMATEX *pwfx)
 
 void FishingSoundListener::EndSegment()
 {
-	if (m_pCurSegment->GetSize() < 100)
+	if (m_pCurSegment->GetSize() < 50)
 	{
 		m_pCurSegment->Clear();
 		return;
 	}
 
-	//auto sample = AudioFingerprint::parseData(m_pCurSegment, m_pwfx);
-	auto sample = AudioFingerprint::getFingerprint(m_pCurSegment, m_pwfx);
+	auto sample = AudioFingerprint::parseData(m_pCurSegment, m_pwfx);
 	m_pCurSegment->Clear();
 
-	m_sampleData.resize(sample.size());
-	VectorUtil::Copy(&sample[0], &m_sampleData[0], sample.size());
+	//m_sampleData.resize(sample.size());
+	//VectorUtil::Copy(&sample[0], &m_sampleData[0], sample.size());
 
+	// Aquila 可能需要使用2^n长度的数据，否则会崩溃，待确认！！！
 	size_t len = sample.size();
 	size_t n = 1;
-	while (n < len)
+	while (n <= len)
 	{
-		n = n << 1;
+		n <<= 1;
 	}
-	n = n >> 1;
+	n >>= 1;
 
-	Aquila::SignalSource input(&m_sampleData[0], m_sampleData.size(), m_pwfx->nSamplesPerSec/480);
+	Aquila::SignalSource input(&sample[0], n, m_pwfx->nSamplesPerSec);
 	Aquila::Mfcc mfcc(input.getSamplesCount());
 	auto mfccValues = mfcc.calculate(input);
 
