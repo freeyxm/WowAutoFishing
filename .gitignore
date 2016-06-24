@@ -1,8 +1,7 @@
-Debug
-Release
-WowAutoFishing/Debug
-ipch
-Test
+Debug/
+Release/
+ipch/
+Test/
 *.sdf
 *.suo
 *.opensdf
@@ -11,3 +10,4 @@ Test
 *.bmp
 *.VC.db
 *.VC.opendb
+fishing sample **.txt
