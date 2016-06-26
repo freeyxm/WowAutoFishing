@@ -85,22 +85,23 @@ void FishingSoundListener::EndSegment()
 		return;
 	}
 
-	auto sample = AudioFingerprint::parseData(m_pCurSegment, m_pwfx);
+	size_t step = 100; // reduce sample data.
+	auto sample = AudioFingerprint::parseData(m_pCurSegment, m_pwfx, step);
 	m_pCurSegment->Clear();
 
-	//m_sampleData.resize(sample.size());
-	//VectorUtil::Copy(&sample[0], &m_sampleData[0], sample.size());
-
-	// Aquila 可能需要使用2^n长度的数据，否则会崩溃，待确认！！！
+	// Aquila需要2^N长度的数据，否则会Crash
 	size_t len = sample.size();
 	size_t n = 1;
-	while (n <= len)
+	while (n < len)
 	{
 		n <<= 1;
 	}
-	n >>= 1;
+	if (len < n)
+	{
+		sample.resize(n, 0);
+	}
 
-	Aquila::SignalSource input(&sample[0], n, m_pwfx->nSamplesPerSec);
+	Aquila::SignalSource input(&sample[0], n, m_pwfx->nSamplesPerSec / step);
 	Aquila::Mfcc mfcc(input.getSamplesCount());
 	auto mfccValues = mfcc.calculate(input);
 
@@ -163,7 +164,6 @@ void FishingSoundListener::AddSample(const char *str, int hit)
 
 bool FishingSoundListener::IsSampleMatch(const SameData &data, double &out_cosa)
 {
-	//printf("sound: %zu\n", data.size());
 	out_cosa = 0;
 	if (data.empty())
 		return false;
@@ -173,7 +173,7 @@ bool FishingSoundListener::IsSampleMatch(const SameData &data, double &out_cosa)
 	{
 		double cosa = VectorUtil::getCosA_First(&it->sample[0], it->sample.size(), &data[0], data.size());
 		printf("cosa = %f\n", cosa);
-		if (cosa >= 0.9f)
+		if (cosa >= 0.999f)
 		{
 			it->hit++;
 			if (++m_sampleCount % 2 == 0)

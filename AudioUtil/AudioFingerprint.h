@@ -11,7 +11,7 @@ public:
 	AudioFingerprint();
 	~AudioFingerprint();
 
-	static vector<double> parseData(const AudioFrameStorage *source, const WAVEFORMATEX *pwfx);
+	static vector<double> parseData(const AudioFrameStorage *source, const WAVEFORMATEX *pwfx, const size_t step);
 
 	static vector<float> getFingerprint(const AudioFrameStorage *source, const WAVEFORMATEX *pwfx);
 	static vector<float> getFingerprint_diff(const AudioFrameStorage *source, const WAVEFORMATEX *pwfx);

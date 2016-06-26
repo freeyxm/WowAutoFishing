@@ -466,6 +466,7 @@ void CWowFisherDlg::OnBnClickedButtonStart()
 
 	if (m_bStart)
 	{
+		bool bSelectWin = false;
 		int index = m_pComboBox->GetCurSel();
 		if (index >= 0 && index < (int)m_wnds.size())
 		{
@@ -478,8 +479,10 @@ void CWowFisherDlg::OnBnClickedButtonStart()
 			{
 				m_pFisher->SetMainHWnd(GetSafeHwnd());
 				m_pFisher->SetWowHWnd(it->hwnd);
+				bSelectWin = true;
 			}
 		}
+		m_pFisher->SetDebugBite(!bSelectWin);
 		m_pFisher->Start();
 	}
 	else

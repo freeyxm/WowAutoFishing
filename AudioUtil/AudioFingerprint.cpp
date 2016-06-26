@@ -15,13 +15,13 @@ AudioFingerprint::~AudioFingerprint()
 }
 
 
-vector<double> AudioFingerprint::parseData(const AudioFrameStorage *source, const WAVEFORMATEX *pwfx)
+vector<double> AudioFingerprint::parseData(const AudioFrameStorage *source, const WAVEFORMATEX *pwfx, const size_t step)
 {
 	vector<double> finger;
 
 	int nBytesPerSample = pwfx->wBitsPerSample / 8;
 	int midValue = AudioCapture::GetMidValue(pwfx);
-	float value;
+	float value, min = 0, max = 0;
 	AudioFrameData *pFrames;
 
 	int index = 0;
@@ -33,9 +33,33 @@ vector<double> AudioFingerprint::parseData(const AudioFrameStorage *source, cons
 		for (UINT i = 0; i < count; i += pwfx->nChannels)
 		{
 			value = AudioCapture::ParseValue(pwfx, pFrames->pData, i, midValue);
-			finger.push_back(value);
+			if (step > 1)
+			{
+				if (++index <= step)
+				{
+					if (min > value)
+						min = value;
+					else if (max < value)
+						max = value;
+				}
+				if (index >= step)
+				{
+					index = 0;
+					finger.push_back(max > -min ? max : min);
+				}
+			}
+			else
+			{
+				finger.push_back(value);
+			}
 		}
 		++it;
+	}
+
+	if (index > 0)
+	{
+		index = 0;
+		finger.push_back(max > -min ? max : min);
 	}
 
 	return finger;

@@ -16,7 +16,7 @@ const POINT FLOAT_OFFSET = { 10, 25 }; // 鱼漂偏移，以便鼠标居中（10
 Fisher::Fisher(HWND hwnd, int x, int y, int w, int h)
 	: m_hWndWOW(hwnd), m_keyboard(hwnd), m_mouse(hwnd), m_hWndMain(0)
 	, m_posX(x), m_posY(y), m_width(w), m_height(h), m_sound(this)
-	, m_bInited(false), m_hThreadFishing(NULL), m_bDebugBite(true)
+	, m_bInited(false), m_hThreadFishing(NULL), m_bDebugBite(false)
 {
 	m_throwCount = m_timeoutCount = m_findFloatFailCount = 0;
 }
@@ -104,10 +104,7 @@ static UINT __stdcall FishingTheadProc(LPVOID param)
 
 void Fisher::StartFishing()
 {
-	if(m_bDebugBite)
-		m_state = FishingState::State_ThrowPole;
-	else
-		m_state = FishingState::State_CheckState;
+	m_state = FishingState::State_Start;
 	m_bFishing = true;
 
 	wprintf(L"---------------------------------------\n");
@@ -120,7 +117,7 @@ void Fisher::StartFishing()
 		{
 		case FishingState::State_Start:
 		case FishingState::State_CheckState:
-			if (CheckBaitTime())
+			if (!m_bDebugBite && CheckBaitTime())
 				m_state = FishingState::State_Bait;
 			else
 				m_state = FishingState::State_ThrowPole;
@@ -440,4 +437,9 @@ void Fisher::SetFindFloatFailCount(int count)
 void Fisher::SetTimeoutCount(int count)
 {
 	m_timeoutCount = count;
+}
+
+void Fisher::SetDebugBite(bool bDebug)
+{
+	m_bDebugBite = bDebug;
 }

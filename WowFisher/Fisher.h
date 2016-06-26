@@ -39,6 +39,8 @@ public:
 	void SetFindFloatFailCount(int count);
 	void SetTimeoutCount(int count);
 
+	void SetDebugBite(bool bDebug);
+
 private:
 	void ActiveWindow();
 
