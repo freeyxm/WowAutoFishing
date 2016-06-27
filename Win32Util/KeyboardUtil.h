@@ -13,8 +13,9 @@ public:
 	void PressKey(int key, const char *modifiers, int interval = 0);
 
 private:
-	void _KeyDown(int key, int interval = 0);
-	void _KeyUp(int key, int interval = 0);
+	void KeyDown(int key, int interval = 0);
+	void KeyUp(int key, int interval = 0);
+	void KeyEvent(char key, int interval, void(KeyboardUtil::*)(int, int));
 
 private:
 	HWND m_hwnd;

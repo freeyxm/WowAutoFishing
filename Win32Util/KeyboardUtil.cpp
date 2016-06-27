@@ -26,29 +26,29 @@ void KeyboardUtil::PressKey(int key, int interval)
 	}
 	else
 	{
-		_KeyDown(key, interval);
-		_KeyUp(key, interval);
+		KeyDown(key, interval);
+		KeyUp(key, interval);
 	}
 }
 
 void KeyboardUtil::PressKey(int key, int modifiers, int interval)
 {
 	if (modifiers & HOTKEYF_CONTROL)
-		_KeyDown(VK_CONTROL, interval); // Ctrl
+		KeyDown(VK_CONTROL, interval); // Ctrl
 	if (modifiers & HOTKEYF_ALT)
-		_KeyDown(VK_MENU, interval); // Alt
+		KeyDown(VK_MENU, interval); // Alt
 	if (modifiers & HOTKEYF_SHIFT)
-		_KeyDown(VK_SHIFT, interval); // Shift
+		KeyDown(VK_SHIFT, interval); // Shift
 
-	_KeyDown(key, interval);
-	_KeyUp(key, interval);
+	KeyDown(key, interval);
+	KeyUp(key, interval);
 
 	if (modifiers & HOTKEYF_SHIFT)
-		_KeyUp(VK_SHIFT, interval); // Shift
+		KeyUp(VK_SHIFT, interval); // Shift
 	if (modifiers & HOTKEYF_ALT)
-		_KeyUp(VK_MENU, interval); // Alt
+		KeyUp(VK_MENU, interval); // Alt
 	if (modifiers & HOTKEYF_CONTROL)
-		_KeyUp(VK_CONTROL, interval); // Ctrl
+		KeyUp(VK_CONTROL, interval); // Ctrl
 }
 
 /*
@@ -57,48 +57,40 @@ e.g. "C+A" is Ctrl + Alt.
 */
 void KeyboardUtil::PressKey(int key, const char *modifiers, int interval)
 {
-	const size_t len = modifiers != NULL ? ::strlen(modifiers) : 0;
-	for (size_t i = 0; i < len; ++i)
+	const int len = modifiers != NULL ? ::strlen(modifiers) : 0;
+	for (int i = 0; i < len; ++i)
 	{
-		switch (modifiers[i])
-		{
-		case 'C':
-			_KeyDown(VK_CONTROL, interval); // Ctrl
-			break;
-		case 'A':
-			_KeyDown(VK_MENU, interval); // Alt
-			break;
-		case 'S':
-			_KeyDown(VK_SHIFT, interval); // Shift
-			break;
-		default:
-			break;
-		}
+		KeyEvent(modifiers[i], interval, &KeyboardUtil::KeyDown);
 	}
 
-	_KeyDown(key, interval);
-	_KeyUp(key, interval);
+	KeyDown(key, interval);
+	KeyUp(key, interval);
 
-	for (size_t i = 1; i <= len; ++i)
+	for (int i = len - 1; i >= 0; --i)
 	{
-		switch (modifiers[len - i])
-		{
-		case 'C':
-			_KeyUp(VK_CONTROL, interval); // Ctrl
-			break;
-		case 'A':
-			_KeyUp(VK_MENU, interval); // Alt
-			break;
-		case 'S':
-			_KeyUp(VK_SHIFT, interval); // Shift
-			break;
-		default:
-			break;
-		}
+		KeyEvent(modifiers[i], interval, &KeyboardUtil::KeyUp);
 	}
 }
 
-void KeyboardUtil::_KeyDown(int key, int interval)
+void KeyboardUtil::KeyEvent(char key, int interval, void(KeyboardUtil::*_KeyOp)(int, int))
+{
+	switch (key)
+	{
+	case 'C':
+		(this->*_KeyOp)(VK_CONTROL, interval); // Ctrl
+		break;
+	case 'A':
+		(this->*_KeyOp)(VK_MENU, interval); // Alt
+		break;
+	case 'S':
+		(this->*_KeyOp)(VK_SHIFT, interval); // Shift
+		break;
+	default:
+		break;
+	}
+}
+
+void KeyboardUtil::KeyDown(int key, int interval)
 {
 	if (!m_hwnd)
 	{
@@ -111,7 +103,7 @@ void KeyboardUtil::_KeyDown(int key, int interval)
 	::Sleep(interval > 0 ? interval : (5 + ::rand() % 5));
 }
 
-void KeyboardUtil::_KeyUp(int key, int interval)
+void KeyboardUtil::KeyUp(int key, int interval)
 {
 	if (!m_hwnd)
 	{
