@@ -24,7 +24,7 @@ vector<double> AudioFingerprint::parseData(const AudioFrameStorage *source, cons
 	float value, min = 0, max = 0;
 	AudioFrameData *pFrames;
 
-	int index = 0;
+	size_t index = 0;
 	auto it = source->cbegin();
 	while (it != source->cend())
 	{
