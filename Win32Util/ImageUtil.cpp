@@ -20,24 +20,37 @@ pbi: 图像信息。
 bool ImageUtil::GetWindowSnapshot(HWND hWnd, int x, int y, int w, int h, char *lpBits, BITMAPINFOHEADER *pbi)
 {
 	bool bSuccess = false;
+	bool bUseDesktop = true; // 使用窗口句柄时，可能出现一直获取到缓存帧，导致图像不刷新，使用桌面窗口句柄可解。
 
 	// 通过内存DC复制客户区到DDB位图  
-	HDC hdcWnd = ::GetDC(hWnd);
+	HDC hdcWnd = bUseDesktop ? ::GetDC(NULL) : ::GetDC(hWnd);
 	HDC hdcMem = NULL;
 	HBITMAP hbmWnd = NULL;
 
 	do
 	{
-		if (w == 0 || h == 0)
+		RECT rect;
+		int px = x, py = y;
+
+		if (bUseDesktop && ::GetWindowRect(hWnd, &rect))
 		{
-			RECT rect;
-			if (!::GetClientRect(hWnd, &rect))
+			px += rect.left;
+			py += rect.top;
+		}
+
+		if ((bUseDesktop || w == 0 || h == 0)
+			&& ::GetClientRect(hWnd, &rect))
+		{
+			if (bUseDesktop)
 			{
-				printf("GetClientRect has failed.\n");
-				break;
+				px += rect.left + 8;
+				py += rect.top + 32;
 			}
-			w = rect.right - rect.left;
-			h = rect.bottom - rect.top;
+			if (w == 0 || h == 0)
+			{
+				w = rect.right - rect.left;
+				h = rect.bottom - rect.top;
+			}
 		}
 
 		hdcMem = ::CreateCompatibleDC(hdcWnd);
@@ -54,9 +67,13 @@ bool ImageUtil::GetWindowSnapshot(HWND hWnd, int x, int y, int w, int h, char *l
 			break;
 		}
 
-		::SelectObject(hdcMem, hbmWnd);
+		if (!::SelectObject(hdcMem, hbmWnd))
+		{
+			printf("SelectObject failed.\n");
+			break;
+		}
 
-		if (!::BitBlt(hdcMem, 0, 0, w, h, hdcWnd, x, y, SRCCOPY))
+		if (!::BitBlt(hdcMem, 0, 0, w, h, hdcWnd, px, py, SRCCOPY))
 		{
 			printf("BitBlt has failed.\n");
 			break;
@@ -85,7 +102,7 @@ bool ImageUtil::GetWindowSnapshot(HWND hWnd, int x, int y, int w, int h, char *l
 		// which is pointed to by lpbitmap.
 		if (!GetDIBits(hdcMem, hbmWnd, 0, (WORD)bi.biHeight, lpBits, (BITMAPINFO*)&bi, DIB_RGB_COLORS))
 		{
-			printf("GetDIBits has failed.\n");
+			printf("GetDIBits has failed. [%d]\n", GetLastError());
 			break;
 		}
 

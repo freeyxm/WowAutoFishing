@@ -218,14 +218,18 @@ bool Fisher::ThrowPole()
 
 static bool MatchFloatColor(char _r, char _g, char _b)
 {
-	unsigned r = (unsigned) _r;
-	unsigned g = (unsigned) _g;
-	unsigned b = (unsigned) _b;
+	unsigned r = (unsigned char)_r;
+	unsigned g = (unsigned char)_g;
+	unsigned b = (unsigned char)_b;
 	if (r > g && r > b)
 	{
+		if (g == 0)
+			g = 1;
+		if (b == 0)
+			b = 1;
 		float r_g = (float)r / g;
 		float r_b = (float)r / b;
-		if (r_g > 1.7f && r_b > 1.7f)
+		if (r_g > 2.0f && r_b > 2.0f)
 		{
 			return true;
 		}
@@ -249,15 +253,17 @@ bool Fisher::FindFloat()
 		//ImageUtil::FindColor((char*)m_lpBits, m_width, m_height, RGB(60, 10, 10), RGB(10, 10, 10), m_points); // AG
 		ImageUtil::FindColor((char*)m_lpBits, m_width, m_height, MatchFloatColor, m_points);
 
-		if(m_points.size() >= maxCount) // 找多太多点，可能是UI开着或水域不合适，无法定位鱼漂
+		if (m_points.size() >= maxCount) // 找多太多点，可能是UI开着或水域不合适，无法定位鱼漂
 			m_points.clear();
+		else if (m_points.size() == 0)
+			wprintf(L"寻找鱼漂失败。\n");
 
 		POINT p;
 		if (ImageUtil::SelectBestPoint(m_points, 30, p)) // 根据鱼漂的大概半径选择最优的点
 		{
 			p.x += m_posX;
 			p.y = m_height - p.y + m_posY;
-			
+
 			p.x += FLOAT_OFFSET.x;
 			p.y += FLOAT_OFFSET.y;
 
@@ -285,7 +291,7 @@ bool Fisher::WaitBiteStart()
 	PrintStatus(L"等待上钩...\n");
 	m_bHasBite = false;
 	m_bTimeout = false;
-	
+
 	return m_sound.Start();
 }
 
