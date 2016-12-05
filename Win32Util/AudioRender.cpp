@@ -1,6 +1,7 @@
-﻿#include "stdafx.h"
+﻿#pragma execution_character_set("utf-8")
+#include "stdafx.h"
 #include "AudioRender.h"
-#include "AudioCapture.h"
+#include "AudioUtil.h"
 #include <cstdio>
 
 AudioRender::AudioRender(bool bDefaultDevice)
@@ -10,7 +11,6 @@ AudioRender::AudioRender(bool bDefaultDevice)
 {
 	::memset(&m_srcWfx, 0, sizeof(m_srcWfx));
 }
-
 
 AudioRender::~AudioRender()
 {
@@ -28,11 +28,6 @@ AudioRender::~AudioRender()
 // REFERENCE_TIME time units per second and per millisecond
 #define REFTIMES_PER_SEC  10000000
 #define REFTIMES_PER_MILLISEC  10000
-
-#define BREAK_ON_ERROR(hres)  \
-	if (FAILED(hres)) { break; }
-#define SAFE_RELEASE(punk)  \
-	if ((punk) != NULL) { (punk)->Release(); (punk) = NULL; }
 
 bool AudioRender::Init()
 {
@@ -133,7 +128,7 @@ void AudioRender::Release()
 
 bool AudioRender::SelectDevice(IMMDeviceEnumerator *pEnumerator)
 {
-	return AudioCapture::SelectDevice(pEnumerator, eRender, m_bDefaultDevice, &m_pDevice);
+	return AudioUtil::SelectDevice(pEnumerator, eRender, m_bDefaultDevice, &m_pDevice);
 }
 
 HRESULT AudioRender::StartRender()
@@ -223,6 +218,13 @@ inline HRESULT AudioRender::LoadData(DWORD *pFlags)
 	return hr;
 }
 
+HRESULT AudioRender::OnLoadData(BYTE *pData, UINT32 nFrameCount, DWORD *pFlags)
+{
+	*pFlags = AUDCLNT_BUFFERFLAGS_SILENT;
+
+	return S_OK;
+}
+
 const WAVEFORMATEX* AudioRender::GetFormat() const
 {
 	return m_pwfx != NULL ? m_pwfx : &m_srcWfx;
@@ -239,13 +241,6 @@ HRESULT AudioRender::SetFormat(WAVEFORMATEX *pwfx)
 HRESULT AudioRender::SetSourceFormat(WAVEFORMATEX *pwfx)
 {
 	::memcpy(&m_srcWfx, pwfx, sizeof(WAVEFORMATEX));
-
-	return S_OK;
-}
-
-HRESULT AudioRender::OnLoadData(BYTE *pData, UINT32 nFrameCount, DWORD *pFlags)
-{
-	*pFlags = AUDCLNT_BUFFERFLAGS_SILENT;
 
 	return S_OK;
 }

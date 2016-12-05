@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "AudioFingerprint.h"
-#include "Win32Util/AudioCapture.h"
+#include "Win32Util/AudioUtil.h"
 #include "CommUtil/VectorUtil.hpp"
 
 using comm_util::VectorUtil;
@@ -19,7 +19,7 @@ vector<float> AudioFingerprint::getFingerprint(const AudioFrameStorage *source, 
 	vector<float> finger(source->GetSize());
 
 	int nBytesPerSample = pwfx->wBitsPerSample / 8;
-	int midValue = AudioCapture::GetMidValue(pwfx);
+	int midValue = AudioUtil::GetMidValue(pwfx);
 	float min, max, value;
 	AudioFrameData *pFrames;
 
@@ -34,7 +34,7 @@ vector<float> AudioFingerprint::getFingerprint(const AudioFrameStorage *source, 
 		UINT count = pFrames->nDataLen / nBytesPerSample;
 		for (UINT i = 0; i < count; i += pwfx->nChannels)
 		{
-			value = AudioCapture::ParseValue(pwfx, pFrames->pData, i, midValue);
+			value = AudioUtil::ParseValue(pwfx, pFrames->pData, i, midValue);
 			if (min > value)
 				min = value;
 			if (max < value)

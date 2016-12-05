@@ -48,6 +48,9 @@
     <ClInclude Include="DcBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AudioUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -75,6 +78,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DcBuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="AudioUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

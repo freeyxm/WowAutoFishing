@@ -1,6 +1,6 @@
 ﻿#include "stdafx.h"
 #include "AudioPainter.h"
-#include "Win32Util/AudioCapture.h"
+#include "Win32Util/AudioUtil.h"
 
 
 AudioPainter::AudioPainter()
@@ -18,7 +18,7 @@ void AudioPainter::SetFormat(const WAVEFORMATEX *pwfx)
 {
 	m_pwfx = pwfx;
 
-	m_bFloatFormat = AudioCapture::IsFloatFormat(pwfx);
+	m_bFloatFormat = AudioUtil::IsFloatFormat(pwfx);
 
 	m_nBytesPerSample = pwfx->wBitsPerSample / 8;
 	m_nBytesPerFrame = m_nBytesPerSample * m_pwfx->nChannels;
@@ -147,7 +147,7 @@ size_t AudioPainter::GetNext(size_t range, float *pMin, float *pMax)
 
 float AudioPainter::ParseValue(BYTE *pData, size_t index)
 {
-	return AudioCapture::ParseValue(m_pwfx, pData, index, m_midValue);
+	return AudioUtil::ParseValue(m_pwfx, pData, index, m_midValue);
 }
 
 void AudioPainter::AddScale(float scale)

@@ -149,6 +149,7 @@
   <ItemGroup>
     <ClInclude Include="AudioCapture.h" />
     <ClInclude Include="AudioRender.h" />
+    <ClInclude Include="AudioUtil.h" />
     <ClInclude Include="DcBuffer.h" />
     <ClInclude Include="ImageUtil.h" />
     <ClInclude Include="KeyboardUtil.h" />
@@ -161,6 +162,7 @@
   <ItemGroup>
     <ClCompile Include="AudioCapture.cpp" />
     <ClCompile Include="AudioRender.cpp" />
+    <ClCompile Include="AudioUtil.cpp" />
     <ClCompile Include="DcBuffer.cpp" />
     <ClCompile Include="ImageUtil.cpp" />
     <ClCompile Include="KeyboardUtil.cpp" />

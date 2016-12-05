@@ -1,11 +1,8 @@
 ﻿#pragma execution_character_set("utf-8")
 #include "stdafx.h"
 #include "AudioCapture.h"
-#include <functiondiscoverykeys.h>
+#include "AudioUtil.h"
 #include <cstdio>
-#include <iostream>
-#include <string>
-#include <assert.h>
 
 AudioCapture::AudioCapture(bool bLoopback, bool bDefaultDevice)
 	: m_pDevice(NULL), m_pAudioClient(NULL), m_pCaptureClient(NULL), m_pwfx(NULL)
@@ -30,11 +27,6 @@ AudioCapture::~AudioCapture()
 // REFERENCE_TIME time units per second and per millisecond
 #define REFTIMES_PER_SEC  10000000
 #define REFTIMES_PER_MILLISEC  10000
-
-#define BREAK_ON_ERROR(hres)  \
-	if (FAILED(hres)) { break; }
-#define SAFE_RELEASE(punk)  \
-	if ((punk) != NULL) { (punk)->Release(); (punk) = NULL; }
 
 bool AudioCapture::Init()
 {
@@ -124,164 +116,7 @@ void AudioCapture::Release()
 
 bool AudioCapture::SelectDevice(IMMDeviceEnumerator *pEnumerator)
 {
-	return SelectDevice(pEnumerator, m_bLoopback ? eRender : eCapture, m_bDefaultDevice, &m_pDevice);
-}
-
-bool AudioCapture::SelectDevice(IMMDeviceEnumerator *pEnumerator, EDataFlow eDataFlow, bool bDefault, IMMDevice **ppDevice)
-{
-	HRESULT hr;
-	if (bDefault)
-	{
-		hr = pEnumerator->GetDefaultAudioEndpoint(eDataFlow, eConsole, ppDevice);
-		return SUCCEEDED(hr) ? true : false;
-	}
-	else
-	{
-		std::list<DeviceInfo> devices;
-		int count = GetDevices(eDataFlow, pEnumerator, devices);
-
-		// Print device name list
-		printf("---------------------------------------\n");
-		printf("Current Available Devices:\n");
-		int index = 1;
-		for (std::list<DeviceInfo>::const_iterator it = devices.cbegin(); it != devices.cend(); ++it)
-		{
-			wprintf_s(L"%d. %ls\n", index, it->sName);
-			++index;
-		}
-		printf("---------------------------------------\n");
-
-		// Select device by index
-		index = GetSelectIndex(1, count);
-		if (index >= 1 && index <= count)
-		{
-			std::list<DeviceInfo>::const_iterator it = devices.begin();
-			for (int i = 1; i < index; ++i)
-			{
-				++it;
-			}
-			*ppDevice = it->pDevice;
-		}
-
-		// Release unselected devices
-		for (std::list<DeviceInfo>::const_iterator it = devices.cbegin(); it != devices.cend(); ++it)
-		{
-			if (*ppDevice != it->pDevice)
-			{
-				IMMDevice *pDevice = it->pDevice;
-				SAFE_RELEASE(pDevice);
-			}
-		}
-		devices.clear();
-
-		return count > 0 && *ppDevice != NULL;
-	}
-}
-
-UINT AudioCapture::GetDevices(EDataFlow eDataFlow, IMMDeviceEnumerator *pEnumerator, std::list<DeviceInfo> &devices)
-{
-	HRESULT hr;
-	IMMDeviceCollection *pCollection = NULL;
-	IMMDevice *pDevice = NULL;
-	IPropertyStore *pProps = NULL;
-	//LPWSTR pwszID = NULL;
-	UINT count = 0;
-
-	do
-	{
-		hr = pEnumerator->EnumAudioEndpoints(eDataFlow, DEVICE_STATE_ACTIVE, &pCollection);
-		BREAK_ON_ERROR(hr);
-
-		hr = pCollection->GetCount(&count);
-		BREAK_ON_ERROR(hr);
-
-		for (UINT i = 0; i < count; ++i)
-		{
-			DeviceInfo devInfo = { 0 };
-			do
-			{
-				hr = pCollection->Item(i, &pDevice);
-				BREAK_ON_ERROR(hr);
-
-				// Get the endpoint ID string.
-				//hr = pDevice->GetId(&pwszID);
-				//BREAK_ON_ERROR(hr);
-
-				hr = pDevice->OpenPropertyStore(STGM_READ, &pProps);
-				BREAK_ON_ERROR(hr);
-
-				PROPVARIANT varName;
-				::PropVariantInit(&varName);
-
-				hr = pProps->GetValue(PKEY_Device_FriendlyName, &varName);
-				if (SUCCEEDED(hr))
-				{
-					wsprintf(devInfo.sName, L"%ls", varName.pwszVal);
-				}
-				else
-				{
-					wsprintf(devInfo.sName, L"Unknown name");
-				}
-
-				::PropVariantClear(&varName);
-
-				devInfo.pDevice = pDevice;
-			} while (false);
-
-			//if (pwszID)
-			//{
-			//	CoTaskMemFree(pwszID);
-			//	pwszID = NULL;
-			//}
-			SAFE_RELEASE(pProps);
-
-			if (devInfo.pDevice != NULL)
-			{
-				devices.push_back(devInfo);
-			}
-		}
-	} while (false);
-
-	SAFE_RELEASE(pCollection);
-
-	return count;
-}
-
-int AudioCapture::GetSelectIndex(int min, int max)
-{
-	if (min == max)
-		return min;
-
-	int selectIndex = 0;
-	bool printTip = true;
-	std::string line;
-	do
-	{
-		if (printTip)
-			printf("Please select a device (index): ");
-
-		if (!getline(std::cin, line))
-			break;
-
-		if (line.empty())
-		{
-			printTip = false;
-			continue;
-		}
-
-		selectIndex = ::atoi(line.c_str());
-		if (selectIndex >= min && selectIndex <= max)
-		{
-			break;
-		}
-		else
-		{
-			printf("Device index between %d and %d, please re-choose.\n", min, max);
-			printTip = true;
-		}
-	} while (true);
-
-	return selectIndex;
+	return AudioUtil::SelectDevice(pEnumerator, m_bLoopback ? eRender : eCapture, m_bDefaultDevice, &m_pDevice);
 }
 
 bool AudioCapture::StartCapture()
@@ -355,6 +190,12 @@ HRESULT AudioCapture::Capture()
 	return hr;
 }
 
+HRESULT AudioCapture::OnCaptureData(BYTE *pData, UINT32 nFrameCount)
+{
+	//printf("OnCaptureData: %d\n", nFrameCount);
+	return S_OK;
+}
+
 const WAVEFORMATEX* AudioCapture::GetFormat() const
 {
 	return m_pwfx;
@@ -373,14 +214,8 @@ HRESULT AudioCapture::SetFormat(WAVEFORMATEX *pwfx)
 
 	m_nBytesPerSample = pwfx->wBitsPerSample / 8;
 	m_nBytesPerFrame = m_nBytesPerSample * m_pwfx->nChannels;
-	m_midValue = GetMidValue(m_pwfx);
+	m_midValue = AudioUtil::GetMidValue(m_pwfx);
 
-	return S_OK;
-}
-
-HRESULT AudioCapture::OnCaptureData(BYTE *pData, UINT32 nFrameCount)
-{
-	//printf("OnCaptureData: %d\n", nFrameCount);
 	return S_OK;
 }
 
@@ -394,55 +229,7 @@ void AudioCapture::SetDone(bool bDone)
 	m_bDone = bDone;
 }
 
-int AudioCapture::GetMidValue(const WAVEFORMATEX *pwfx)
-{
-	return ((1L << (pwfx->wBitsPerSample - 1)) - 1) >> 1;
-}
-
-bool AudioCapture::IsFloatFormat(const WAVEFORMATEX *pwfx)
-{
-	if (pwfx->wFormatTag == WAVE_FORMAT_IEEE_FLOAT)
-	{
-		return true;
-	}
-	else if (pwfx->wFormatTag == WAVE_FORMAT_EXTENSIBLE)
-	{
-		WAVEFORMATEXTENSIBLE *pfwxt = (WAVEFORMATEXTENSIBLE*)pwfx;
-		if (pfwxt->SubFormat == KSDATAFORMAT_SUBTYPE_IEEE_FLOAT)
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
 float AudioCapture::ParseValue(BYTE *pData, size_t index) const
 {
-	return ParseValue(m_pwfx, pData, index, m_midValue);
-}
-
-float AudioCapture::ParseValue(const WAVEFORMATEX *pwfx, const void *pData, size_t index, int midValue)
-{
-	if (pData == nullptr)
-		return 0;
-
-	switch (pwfx->wBitsPerSample)
-	{
-	case 8:
-		return (float)*((INT8*)pData + index) / midValue;
-		break;
-	case 16:
-		return (float)*((INT16*)pData + index) / midValue;
-		break;
-	case 32:
-		if (IsFloatFormat(pwfx))
-			return (float)*((float*)pData + index);
-		else
-			return (float)*((INT32*)pData + index) / midValue;
-		break;
-	default:
-		assert(false);
-		break;
-	}
-	return 0;
+	return AudioUtil::ParseValue(m_pwfx, pData, index, m_midValue);
 }

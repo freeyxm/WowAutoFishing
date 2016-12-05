@@ -1,5 +1,5 @@
 ﻿#pragma once
-#pragma once
+#pragma execution_character_set("utf-8")
 #include <Windows.h>
 #include <mmdeviceapi.h>
 #include <Audioclient.h>
@@ -11,13 +11,12 @@ public:
 	virtual ~AudioRender();
 
 	virtual bool Init();
-	
-	virtual HRESULT Render();
 
 	virtual const WAVEFORMATEX* GetFormat() const;
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
 	virtual HRESULT SetSourceFormat(WAVEFORMATEX *pwfx);
 
+	virtual HRESULT Render();
 	virtual HRESULT OnLoadData(BYTE *pData, UINT32 nFrameCount, DWORD *pFlags);
 
 	virtual bool IsDone() const;
