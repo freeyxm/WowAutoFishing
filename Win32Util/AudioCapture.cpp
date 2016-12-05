@@ -36,14 +36,16 @@ AudioCapture::~AudioCapture()
 #define SAFE_RELEASE(punk)  \
 	if ((punk) != NULL) { (punk)->Release(); (punk) = NULL; }
 
-
 bool AudioCapture::Init()
 {
+	if (m_bInited)
+		return true;
+	m_bInited = false;
+
 	HRESULT hr = S_FALSE;
 	IMMDeviceEnumerator *pEnumerator = NULL;
 	REFERENCE_TIME hnsRequestedDuration = REFTIMES_PER_SEC;
-	UINT32 bufferFrameCount;
-	m_bInited = false;
+	UINT32 bufferFrameCount = 0;
 
 	do
 	{
@@ -193,9 +195,6 @@ UINT AudioCapture::GetDevices(EDataFlow eDataFlow, IMMDeviceEnumerator *pEnumera
 		hr = pCollection->GetCount(&count);
 		BREAK_ON_ERROR(hr);
 
-		if (count == 0)
-			break;
-
 		for (UINT i = 0; i < count; ++i)
 		{
 			DeviceInfo devInfo = { 0 };
@@ -236,7 +235,7 @@ UINT AudioCapture::GetDevices(EDataFlow eDataFlow, IMMDeviceEnumerator *pEnumera
 			//}
 			SAFE_RELEASE(pProps);
 
-			if (devInfo.pDevice != 0)
+			if (devInfo.pDevice != NULL)
 			{
 				devices.push_back(devInfo);
 			}

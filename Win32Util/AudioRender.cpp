@@ -34,13 +34,15 @@ AudioRender::~AudioRender()
 #define SAFE_RELEASE(punk)  \
 	if ((punk) != NULL) { (punk)->Release(); (punk) = NULL; }
 
-
 bool AudioRender::Init()
 {
+	if (m_bInited)
+		return true;
+	m_bInited = false;
+
 	HRESULT hr = S_FALSE;
 	IMMDeviceEnumerator *pEnumerator = NULL;
 	REFERENCE_TIME hnsRequestedDuration = REFTIMES_PER_SEC;
-	m_bInited = false;
 
 	do
 	{

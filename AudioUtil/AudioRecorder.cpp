@@ -62,6 +62,9 @@ bool AudioRecorder::Start()
 {
 	Clear();
 
+	if (m_hThreadCapture != NULL)
+		return false;
+
 	if (!StartCapture())
 		return false;
 
@@ -86,13 +89,14 @@ void AudioRecorder::Stop()
 {
 	SetDone(true);
 
-	StopCapture();
-
 	if (m_hThreadCapture != NULL)
 	{
-		CloseHandle(m_hThreadCapture);
+		::WaitForSingleObject(m_hThreadCapture, INFINITE);
+		::CloseHandle(m_hThreadCapture);
 		m_hThreadCapture = NULL;
 	}
+
+	StopCapture();
 }
 
 void AudioRecorder::Clear()

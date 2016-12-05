@@ -281,6 +281,9 @@ bool AudioExtractor::Start()
 	if (!StartCapture())
 		return false;
 
+	if (m_hThreadCapture != NULL)
+		return false;
+
 	SetDone(false);
 
 	m_hThreadCapture = (HANDLE)::_beginthreadex(NULL, 0, &CaptureTheadProc, this, 0, NULL);
@@ -294,13 +297,14 @@ void AudioExtractor::Stop()
 {
 	SetDone(true);
 
-	StopCapture();
-
 	if (m_hThreadCapture != NULL)
 	{
-		CloseHandle(m_hThreadCapture);
+		::WaitForSingleObject(m_hThreadCapture, INFINITE);
+		::CloseHandle(m_hThreadCapture);
 		m_hThreadCapture = NULL;
 	}
+
+	StopCapture();
 }
 
 static UINT __stdcall CaptureTheadProc(LPVOID param)
