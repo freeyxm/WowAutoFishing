@@ -41,6 +41,15 @@ bool AudioRenderer::Start()
 void AudioRenderer::Stop()
 {
 	SetDone(true);
+
+	if (m_hThreadRenderer != NULL)
+	{
+		::WaitForSingleObject(m_hThreadRenderer, INFINITE);
+		::CloseHandle(m_hThreadRenderer);
+		m_hThreadRenderer = NULL;
+	}
+
+	StopRender();
 }
 
 static UINT __stdcall RenderTheadProc(LPVOID param)

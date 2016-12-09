@@ -278,10 +278,10 @@ inline size_t AudioExtractor::GetCurFrameCount()
 
 bool AudioExtractor::Start()
 {
-	if (!StartCapture())
+	if (m_hThreadCapture != NULL)
 		return false;
 
-	if (m_hThreadCapture != NULL)
+	if (!StartCapture())
 		return false;
 
 	SetDone(false);

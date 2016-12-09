@@ -74,14 +74,6 @@ bool AudioRecorder::Start()
 	if (m_hThreadCapture == NULL)
 		return false;
 
-	//HANDLE arWaits[1] = { m_hThreadCapture };
-	//DWORD dwWaitResult = WaitForMultipleObjects(sizeof(arWaits) / sizeof(arWaits[0]), arWaits, FALSE, INFINITE);
-	//if (dwWaitResult != WAIT_OBJECT_0)
-	//{
-	//	StopRecord();
-	//	return false;
-	//}
-
 	return true;
 }
 
