@@ -15,11 +15,13 @@ public:
 	virtual void Stop();
 
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
-	virtual HRESULT OnLoadData(BYTE *pData, UINT32 nFrameCount, DWORD *pFlags);
 
 	virtual bool IsDone() const;
 
 	friend UINT __stdcall RenderTheadProc(LPVOID param);
+
+protected:
+	virtual HRESULT OnLoadData(BYTE *pData, UINT32 nFrameCount, DWORD *pFlags);
 
 private:
 	const AudioFrameStorage *m_pStorage;

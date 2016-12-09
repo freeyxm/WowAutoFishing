@@ -25,9 +25,11 @@ public:
 	inline void Unlock();
 
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
-	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nFrameCount);
 
 	const AudioFrameStorage* GetStorage() const;
+
+protected:
+	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nFrameCount);
 
 private:
 	CRITICAL_SECTION m_dataSection; // lock

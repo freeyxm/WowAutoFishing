@@ -33,7 +33,6 @@ bool AudioRender::Init()
 {
 	if (m_bInited)
 		return true;
-	m_bInited = false;
 
 	HRESULT hr = S_FALSE;
 	IMMDeviceEnumerator *pEnumerator = NULL;
@@ -131,22 +130,22 @@ bool AudioRender::SelectDevice(IMMDeviceEnumerator *pEnumerator)
 	return AudioUtil::SelectDevice(pEnumerator, eRender, m_bDefaultDevice, &m_pDevice);
 }
 
-HRESULT AudioRender::StartRender()
+bool AudioRender::StartRender()
 {
 	if (m_bInited && m_pAudioClient)
 	{
-		return m_pAudioClient->Start();
+		return SUCCEEDED(m_pAudioClient->Start());
 	}
-	return E_FAIL;
+	return false;
 }
 
-HRESULT AudioRender::StopRender()
+bool AudioRender::StopRender()
 {
 	if (m_bInited && m_pAudioClient)
 	{
-		return m_pAudioClient->Stop();
+		return SUCCEEDED(m_pAudioClient->Stop());
 	}
-	return E_FAIL;
+	return false;
 }
 
 HRESULT AudioRender::Render()

@@ -17,18 +17,18 @@ public:
 	virtual HRESULT SetSourceFormat(WAVEFORMATEX *pwfx);
 
 	virtual HRESULT Render();
-	virtual HRESULT OnLoadData(BYTE *pData, UINT32 nFrameCount, DWORD *pFlags);
 
 	virtual bool IsDone() const;
 	virtual void SetDone(bool bDone);
 
 protected:
 	virtual void Release();
-	virtual HRESULT StartRender();
-	virtual HRESULT StopRender();
-	inline HRESULT LoadData(DWORD *pFlags);
-
+	virtual bool StartRender();
+	virtual bool StopRender();
 	virtual bool SelectDevice(IMMDeviceEnumerator *pEnumerator);
+
+	inline HRESULT LoadData(DWORD *pFlags);
+	virtual HRESULT OnLoadData(BYTE *pData, UINT32 nFrameCount, DWORD *pFlags);
 
 protected:
 	WAVEFORMATEX *m_pwfx;

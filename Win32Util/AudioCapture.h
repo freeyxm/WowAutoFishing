@@ -17,7 +17,6 @@ public:
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
 
 	virtual HRESULT Capture();
-	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nFrameCount);
 
 	virtual bool IsDone() const;
 	virtual void SetDone(bool bDone);
@@ -27,6 +26,8 @@ protected:
 	virtual bool StartCapture();
 	virtual bool StopCapture();
 	virtual bool SelectDevice(IMMDeviceEnumerator *pEnumerator);
+
+	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nFrameCount);
 
 	float ParseValue(BYTE *pData, size_t index) const;
 

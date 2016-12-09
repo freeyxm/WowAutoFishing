@@ -32,7 +32,6 @@ bool AudioCapture::Init()
 {
 	if (m_bInited)
 		return true;
-	m_bInited = false;
 
 	HRESULT hr = S_FALSE;
 	IMMDeviceEnumerator *pEnumerator = NULL;

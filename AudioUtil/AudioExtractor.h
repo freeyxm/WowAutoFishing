@@ -18,7 +18,6 @@ public:
 	void Stop();
 
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
-	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nFrameCount);
 
 	void SetSilentMaxCount(UINT count);
 	void SetSoundMinCount(UINT count);
@@ -49,6 +48,8 @@ protected:
 	inline virtual void PopSilentFrame(BYTE *pData, UINT32 nFrameCount, float amp);
 
 	inline virtual size_t GetCurFrameCount();
+
+	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nFrameCount);
 
 protected:
 	CRITICAL_SECTION m_segmentSection; // lock
