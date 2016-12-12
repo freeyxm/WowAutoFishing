@@ -19,7 +19,7 @@ float StringUtil::atof(const char *str)
 
 std::list<std::string> StringUtil::split(const char *str, const char *delimiter)
 {
-	list<string> strs;
+	std::list<string> strs;
 	size_t size = strlen(str);
 	std::shared_ptr<char> buf(new char[size + 1], std::default_delete<char[]>());
 	assert(buf.get());

@@ -1,6 +1,6 @@
 #pragma once
-#include <vector>
 #include "CommUtil.hpp"
+#include <vector>
 #include <cmath>
 #include <cfloat>
 #include <vector>
@@ -24,9 +24,6 @@ public:
 	static Numeric getCosA_First(const Numeric *v1, size_t len1, const Numeric *v2, size_t len2);
 
 	template <typename Numeric>
-	static Numeric getCosA_MinSub(const Numeric *v1, size_t len1, const Numeric *v2, size_t len2);
-
-	template <typename Numeric>
 	static Numeric getLengthSqr(const Numeric *vec, const size_t length);
 
 	template <typename Numeric>
@@ -41,11 +38,6 @@ public:
 	static void Add(Numeric *v1, const Numeric *v2, const size_t length);
 	template <typename Numeric>
 	static void Sub(Numeric *v1, const Numeric *v2, const size_t length);
-	template <typename Numeric>
-	static void Sub(Numeric *v1, size_t len1, const Numeric *v2, size_t len2);
-
-	template <typename Numeric>
-	static vector<int> getRiseAndFall(Numeric *v1, const size_t length);
 };
 
 
@@ -185,20 +177,6 @@ Numeric VectorUtil::getCosA_First(const Numeric *v1, size_t len1, const Numeric 
 }
 
 template <typename Numeric>
-Numeric VectorUtil::getCosA_MinSub(const Numeric *v1, size_t len1, const Numeric *v2, size_t len2)
-{
-	Numeric base = 1.0f; // getAvg(v1, len1);
-	vector<Numeric> samp(len1, base);
-	vector<Numeric> temp(len1);
-	memcpy(&temp[0], v1, len1 * sizeof(v1[0]));
-	Sub(&temp[0], len1, v2, len2);
-	Add(&temp[0], len1, base);
-
-	Numeric cosa = getCosA(&samp[0], &temp[0], len1);
-	return cosa;
-}
-
-template <typename Numeric>
 Numeric VectorUtil::getLengthSqr(const Numeric *vec, const size_t length)
 {
 	double sum = 0;
@@ -294,81 +272,6 @@ void VectorUtil::Sub(Numeric *v1, const Numeric *v2, const size_t length)
 	{
 		v1[i] -= v2[i];
 	}
-}
-
-template <typename Numeric>
-void VectorUtil::Sub(Numeric *v1, size_t len1, const Numeric *v2, size_t len2)
-{
-	if (len1 < len2)
-	{
-		Numeric min = FLT_MAX, sum;
-		size_t min_offset = 0;
-		size_t count = len2 - len1;
-		for (size_t k = 0; k <= count; ++k)
-		{
-			sum = 0;
-			for (size_t i = 0; i < len1; ++i)
-			{
-				sum += abs(v1[i] - v2[i + k]);
-			}
-			if (min > sum)
-			{
-				min = sum;
-				min_offset = k;
-			}
-		}
-		Sub(v1, v2 + min_offset, len1);
-	}
-	else if (len1 > len2)
-	{
-		Numeric min = FLT_MAX, sum;
-		size_t min_offset = 0;
-		size_t count = len1 - len2;
-		for (size_t k = 0; k <= count; ++k)
-		{
-			sum = 0;
-			for (size_t i = 0; i < k; ++i)
-			{
-				sum += (v1[i] >= 0) ? v1[i] : -v1[i];
-			}
-			for (size_t i = 0; i < len2; ++i)
-			{
-				sum += abs(v1[i + k] - v2[i]);
-			}
-			for (size_t i = k + len2; i < len1; ++i)
-			{
-				sum += (v1[i] >= 0) ? v1[i] : -v1[i];
-			}
-			if (min > sum)
-			{
-				min = sum;
-				min_offset = k;
-			}
-		}
-		Sub(v1 + min_offset, v2, len2);
-	}
-	else
-	{
-		Sub(v1, v2, len1);
-	}
-}
-
-template <typename Numeric>
-vector<int> VectorUtil::getRiseAndFall(Numeric *v1, const size_t length)
-{
-	vector<int> result(length);
-	result[0] = 0;
-	for (size_t i = 1; i < length; ++i)
-	{
-		Numeric diff = v1[i] - v1[i - 1];
-		if (diff > CommUtil::EPSINON)
-			result[i] = 1;
-		else if (diff < -CommUtil::EPSINON)
-			result[i] = -1;
-		else
-			result[i] = 0;
-	}
-	return result;
 }
 
 } //namespace comm_util
