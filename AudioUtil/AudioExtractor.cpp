@@ -6,6 +6,7 @@ static UINT __stdcall CaptureTheadProc(LPVOID param);
 AudioExtractor::AudioExtractor(bool bLoopback, bool bDefaultDevice)
 	: AudioCapture(bLoopback, bDefaultDevice)
 	, m_pCurSegment(NULL), m_eSoundState(SoundState::Silent), m_silentCount(0)
+	, m_hThreadCapture(NULL)
 {
 	InitializeCriticalSection(&m_segmentSection);
 }

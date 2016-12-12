@@ -6,7 +6,7 @@ static UINT __stdcall RenderTheadProc(LPVOID param);
 
 AudioRenderer::AudioRenderer(bool bDefaultDevice)
 	: AudioRender(bDefaultDevice)
-	, m_bPlaying(false)
+	, m_bPlaying(false), m_hThreadRenderer(NULL)
 {
 }
 
