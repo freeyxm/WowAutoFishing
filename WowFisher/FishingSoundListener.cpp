@@ -88,8 +88,7 @@ void FishingSoundListener::EndSegment()
 	auto sample = AudioFingerprint::getFingerprint_cutAvg(m_pCurSegment, m_pwfx);
 	m_pCurSegment->Clear();
 
-	float cosa = 0;
-	bool isMatch = IsSampleMatch(sample, cosa);
+	bool isMatch = IsSampleMatch(sample);
 
 	if (m_pSampleFile != NULL && !isMatch)
 	{
@@ -145,10 +144,9 @@ void FishingSoundListener::AddSample(const char *str, int hit)
 	}
 }
 
-bool FishingSoundListener::IsSampleMatch(const std::vector<float> &data, float &out_cosa)
+bool FishingSoundListener::IsSampleMatch(const std::vector<float> &data)
 {
 	//printf("sound: %zu\n", data.size());
-	out_cosa = 0;
 	if (data.empty())
 		return false;
 
@@ -165,13 +163,34 @@ bool FishingSoundListener::IsSampleMatch(const std::vector<float> &data, float &
 				SaveSamples();
 			}
 			//printf("matched!\n");
-			out_cosa = cosa;
 			return true;
 		}
-		else
+		++it;
+	}
+	//printf("not matched!\n");
+	return false;
+}
+
+bool FishingSoundListener::IsSampleMatchDtw(const std::vector<float> &data)
+{
+	//printf("sound: %zu\n", data.size());
+	if (data.empty())
+		return false;
+
+	auto it = m_samples.begin();
+	while (it != m_samples.end())
+	{
+		float dtw = VectorUtil::getDTW(&it->sample[0], it->sample.size(), &data[0], data.size());
+		//printf("dtw = %f\n", dtw);
+		if (dtw < 0.1f)
 		{
-			if (out_cosa < cosa)
-				out_cosa = cosa;
+			it->hit++;
+			if (++m_sampleCount % 2 == 0)
+			{
+				SaveSamples();
+			}
+			//printf("matched!\n");
+			return true;
 		}
 		++it;
 	}

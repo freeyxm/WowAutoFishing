@@ -42,7 +42,8 @@ protected:
 	void LoadSamples();
 	void SaveSamples();
 	void SortSamples();
-	bool IsSampleMatch(const std::vector<float> &data, float &cosa);
+	bool IsSampleMatch(const std::vector<float> &data);
+	bool IsSampleMatchDtw(const std::vector<float> &data);
 
 private:
 	const WAVEFORMATEX *m_pwfx;
