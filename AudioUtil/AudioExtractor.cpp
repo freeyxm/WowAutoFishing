@@ -324,19 +324,6 @@ void AudioExtractor::SetSegmentMaxCount(UINT count)
 	m_segmentMaxCount = count;
 }
 
-AudioFrameStorage* AudioExtractor::PopSegment()
-{
-	if (m_segmentList.size() > 0)
-	{
-		Lock();
-		AudioFrameStorage *pStorage = m_segmentList.front();
-		m_segmentList.pop_front();
-		Unlock();
-		return pStorage;
-	}
-	return NULL;
-}
-
 AudioExtractor::SegmentCIter AudioExtractor::cbegin() const
 {
 	return m_segmentList.cbegin();

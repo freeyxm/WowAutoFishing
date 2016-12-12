@@ -111,6 +111,12 @@ bool AudioRender::Init()
 	}
 }
 
+bool AudioRender::Init(WAVEFORMATEX *pwfx)
+{
+	SetSourceFormat(pwfx);
+	return Init();
+}
+
 void AudioRender::Release()
 {
 	if (m_pwfx != NULL)

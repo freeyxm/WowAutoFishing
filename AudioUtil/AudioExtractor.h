@@ -17,8 +17,6 @@ public:
 	bool Start();
 	void Stop();
 
-	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
-
 	void SetSilentMaxCount(UINT count);
 	void SetSoundMinCount(UINT count);
 	void SetSoundMaxCount(UINT count);
@@ -28,7 +26,6 @@ public:
 
 	size_t GetSegmentCount() const;
 	void SetSegmentMaxCount(UINT count);
-	AudioFrameStorage* PopSegment();
 
 	SegmentCIter cbegin() const;
 	SegmentCIter cend() const;
@@ -48,6 +45,8 @@ protected:
 	inline virtual void PopSilentFrame(BYTE *pData, UINT32 nFrameCount, float amp);
 
 	inline virtual size_t GetCurFrameCount();
+
+	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
 
 	virtual HRESULT OnCaptureData(BYTE *pData, UINT32 nFrameCount);
 

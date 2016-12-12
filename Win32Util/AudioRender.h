@@ -11,10 +11,9 @@ public:
 	virtual ~AudioRender();
 
 	virtual bool Init();
+	virtual bool Init(WAVEFORMATEX *pwfx);
 
 	virtual const WAVEFORMATEX* GetFormat() const;
-	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
-	virtual HRESULT SetSourceFormat(WAVEFORMATEX *pwfx);
 
 	virtual HRESULT Render();
 
@@ -26,6 +25,9 @@ protected:
 	virtual bool StartRender();
 	virtual bool StopRender();
 	virtual bool SelectDevice(IMMDeviceEnumerator *pEnumerator);
+
+	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
+	virtual HRESULT SetSourceFormat(WAVEFORMATEX *pwfx);
 
 	inline HRESULT LoadData(DWORD *pFlags);
 	virtual HRESULT OnLoadData(BYTE *pData, UINT32 nFrameCount, DWORD *pFlags);

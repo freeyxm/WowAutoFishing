@@ -14,13 +14,12 @@ public:
 	virtual bool Start();
 	virtual void Stop();
 
-	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
-
 	virtual bool IsDone() const;
 
 	friend UINT __stdcall RenderTheadProc(LPVOID param);
 
 protected:
+	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
 	virtual HRESULT OnLoadData(BYTE *pData, UINT32 nFrameCount, DWORD *pFlags);
 
 private:
