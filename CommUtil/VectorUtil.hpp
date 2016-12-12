@@ -262,7 +262,7 @@ Numeric VectorUtil::getDTW(const Numeric *v1, const size_t len1, const Numeric *
 			d1 = d[ii_1 + j];
 			d2 = d[ii_1 + j_1];
 			d3 = d[ii + j_1];
-			d[ii + j] += CommUtil::min(d1, d2, d3);
+			d[ii + j] += min(d1, d2, d3);
 		}
 	}
 
