@@ -220,7 +220,7 @@ void AudioExtractor::EndSegment()
 		if (m_segmentList.size() > m_segmentMaxCount)
 		{
 			m_pCurSegment = m_segmentList.front();
-			m_pCurSegment->Clear();
+			m_pCurSegment->Reset();
 			m_segmentList.pop_front();
 		}
 		else
@@ -235,7 +235,7 @@ void AudioExtractor::CancelSegment()
 {
 	if(m_pCurSegment != NULL)
 	{
-		m_pCurSegment->Clear();
+		m_pCurSegment->Reset();
 	}
 }
 
@@ -253,7 +253,7 @@ void AudioExtractor::AppendSilentFrames()
 
 void AudioExtractor::ClearSilentFrames()
 {
-	m_silentFrames.Clear();
+	m_silentFrames.Reset();
 	m_silentCount = 0;
 }
 

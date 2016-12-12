@@ -81,12 +81,12 @@ void FishingSoundListener::EndSegment()
 {
 	if (m_pCurSegment->GetSize() < 100)
 	{
-		m_pCurSegment->Clear();
+		m_pCurSegment->Reset();
 		return;
 	}
 
 	auto sample = AudioFingerprint::getFingerprint_cutAvg(m_pCurSegment, m_pwfx);
-	m_pCurSegment->Clear();
+	m_pCurSegment->Reset();
 
 	bool isMatch = IsSampleMatch(sample);
 

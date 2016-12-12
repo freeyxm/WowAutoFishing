@@ -2,14 +2,13 @@
 #include "AudioFrameStorage.h"
 
 AudioFrameStorage::AudioFrameStorage()
-	: m_totalBytes(0), m_nCacheSize(0)
+	: m_totalBytes(0), m_cacheSize(0)
 {
 }
 
 AudioFrameStorage::~AudioFrameStorage()
 {
 	Clear();
-	ClearCache();
 }
 
 bool AudioFrameStorage::PushBack(AudioFrameData *pFrame)
@@ -119,12 +118,12 @@ inline bool AudioFrameStorage::ResizeFrame(AudioFrameData *pFrame, uint32_t nDat
 	}
 }
 
-void AudioFrameStorage::Clear()
+void AudioFrameStorage::Reset()
 {
 	for (AudioFrameCIter it = m_datas.begin(); it != m_datas.end();)
 	{
 		AudioFrameData *pFrame = *it;
-		if(m_cache.size() < m_nCacheSize)
+		if(m_cache.size() < m_cacheSize)
 		{
 			m_cache.push_back(pFrame);
 		}
@@ -138,18 +137,30 @@ void AudioFrameStorage::Clear()
 	m_totalBytes = 0;
 }
 
+void AudioFrameStorage::Clear()
+{
+	Clear(m_datas);
+	Clear(m_cache);
+	m_totalBytes = 0;
+}
+
 void AudioFrameStorage::ClearCache()
 {
-	for (AudioFrameCIter it = m_cache.begin(); it != m_cache.end(); ++it)
+	Clear(m_cache);
+}
+
+void AudioFrameStorage::Clear(AudioFrameList &list)
+{
+	for (AudioFrameCIter it = list.begin(); it != list.end(); ++it)
 	{
 		AudioFrameData *pFrame = *it;
 		::free(pFrame->pData);
 		delete pFrame;
 	}
-	m_cache.clear();
+	list.clear();
 }
 
 void AudioFrameStorage::SetCacheSize(uint32_t size)
 {
-	m_nCacheSize = size;
+	m_cacheSize = size;
 }

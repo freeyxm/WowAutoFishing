@@ -24,6 +24,7 @@ public:
 	bool PushBack(AudioFrameData *pFrame);
 	AudioFrameData* PopFront();
 
+	void Reset();
 	void Clear();
 	void ClearCache();
 
@@ -38,12 +39,13 @@ public:
 private:
 	inline void PushBack(AudioFrameData *pFrame, uint8_t *pData, uint32_t nDataLen);
 	inline bool ResizeFrame(AudioFrameData *pFrame, uint32_t nDataLen);
+	static void Clear(AudioFrameList &list);
 
 private:
 	AudioFrameList m_datas;
 	AudioFrameList m_cache;
 	uint32_t m_totalBytes;
-	uint32_t m_nCacheSize;
+	uint32_t m_cacheSize;
 };
 
 inline size_t AudioFrameStorage::GetSize() const

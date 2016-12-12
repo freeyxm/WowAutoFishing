@@ -94,7 +94,7 @@ void AudioRecorder::Stop()
 void AudioRecorder::Clear()
 {
 	Lock();
-	m_dataStorage.Clear();
+	m_dataStorage.Reset();
 	Unlock();
 }
 
