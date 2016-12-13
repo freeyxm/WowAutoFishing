@@ -3,6 +3,10 @@
 #undef min
 #undef max
 
+#define SAFE_FREE(p) if(p) { free(p); p = NULL; }
+#define SAFE_DELETE(p) if(p) { delete p; p = NULL; }
+#define SAFE_DELETE_A(p) if(p) { delete[] p; p = NULL; }
+
 namespace comm_util
 {
 
