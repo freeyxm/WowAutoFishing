@@ -1,9 +1,12 @@
 #pragma once
 #include <cstdint>
+#include <fstream>
 
 class WaveFile
 {
-private:
+protected:
+#pragma pack(push)
+#pragma pack(2)
 	struct RiffChunk
 	{
 		char chunkId[4]; // "RIFF"
@@ -31,17 +34,35 @@ private:
 		uint32_t chunkSize;
 		char *pData;
 	};
+#pragma pack(pop)
 
 public:
 	WaveFile();
 	~WaveFile();
 
+	void Clear();
+
 	bool Load(const char *fileName);
 	bool Save(const char *fileName);
 
-private:
+	bool BeginWrite(const char *fileName, bool append);
+	bool WriteData(const char *pData, uint32_t count);
+	void EndWrite();
+
+	bool BeginRead(const char *fileName);
+	int  ReadData(char *pData, uint32_t count);
+	void EndRead();
+
+protected:
+	bool ReadHead(std::fstream &file);
+	bool WriteHead(std::fstream &file);
+
+protected:
 	RiffChunk m_riff;
 	FormatChunk m_fmt;
 	DataChunk m_data;
+	std::fstream m_inFile;
+	std::fstream m_outFile;
+	bool m_bAppend;
 };
 
