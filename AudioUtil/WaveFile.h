@@ -34,6 +34,13 @@ protected:
 		uint32_t chunkSize;
 		char *pData;
 	};
+
+	struct WaveInfo
+	{
+		RiffChunk riff;
+		FormatChunk fmt;
+		DataChunk data;
+	};
 #pragma pack(pop)
 
 public:
@@ -58,9 +65,7 @@ protected:
 	bool WriteHead(std::fstream &file);
 
 protected:
-	RiffChunk m_riff;
-	FormatChunk m_fmt;
-	DataChunk m_data;
+	WaveInfo m_info;
 	std::fstream m_inFile;
 	std::fstream m_outFile;
 	bool m_bAppend;
