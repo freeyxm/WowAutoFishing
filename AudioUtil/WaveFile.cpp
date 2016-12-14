@@ -243,7 +243,10 @@ bool WaveFile::SetFormat(FormatChunk fmt)
 	if (fmt.extParamSize > 0 && fmt.pExtParam == NULL)
 		return false;
 
-	m_info.fmt = fmt;
+	memcpy_s(&m_info.fmt, sizeof(m_info.fmt), &fmt, sizeof(fmt));
+	strncpy_s(m_info.fmt.chunkId, "fmt ", 4);
+	fmt.pExtParam = NULL; // !!!
+
 	return true;
 }
 
