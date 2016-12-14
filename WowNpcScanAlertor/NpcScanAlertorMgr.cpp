@@ -39,7 +39,7 @@ bool NpcScanAlertorMgr::InitAudioPlayer()
 		return false;
 
 	WAVEFORMATEX wfx;
-	if (!WaveCreator::LoadWave("./npcscan.wav", &wfx, &pFrame->pData, &pFrame->nDataLen, NULL))
+	if (!WaveCreator::LoadWave("./npcscan.wav", &wfx, (char**)&pFrame->pData, &pFrame->nDataLen))
 		return false;
 
 	m_alarm.PushBack(pFrame);
