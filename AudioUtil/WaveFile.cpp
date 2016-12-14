@@ -18,6 +18,10 @@ void WaveFile::Clear()
 {
 	SAFE_DELETE_A(m_info.fmt.pExtParam);
 	SAFE_DELETE_A(m_info.data.pData);
+
+	m_info.fmt.extParamSize = 0;
+	m_info.fmt.chunkSize = 16; // !!!
+	SetDataChunkSize(0);
 }
 
 bool WaveFile::Load(const char *fileName)
@@ -195,8 +199,7 @@ bool WaveFile::BeginWrite(const char *fileName, bool append)
 	m_bAppend = append;
 	if (m_bAppend)
 	{
-		m_info.data.chunkSize = 0;
-		m_info.riff.chunkSize = m_info.fmt.chunkSize + m_info.data.chunkSize + 20;
+		SetDataChunkSize(0);
 	}
 
 	return WriteHead(m_outFile);
@@ -212,17 +215,46 @@ bool WaveFile::WriteData(const char *pData, uint32_t count)
 	{
 		m_info.riff.chunkSize += count;
 		m_info.data.chunkSize += count;
-
-		m_outFile.seekp(4, std::ios::beg);
-		m_outFile.write((char*)&m_info.riff.chunkSize, 4);
-
-		m_outFile.seekp(20 + m_info.fmt.chunkSize, std::ios::beg);
-		m_outFile.write((char*)&m_info.data.chunkSize, 4);
 	}
 	return true;
 }
 
 void WaveFile::EndWrite()
 {
+	if (m_bAppend)
+	{
+		m_outFile.seekp(4, std::ios::beg);
+		m_outFile.write((char*)&m_info.riff.chunkSize, 4);
+		m_outFile.seekp(20 + m_info.fmt.chunkSize, std::ios::beg);
+		m_outFile.write((char*)&m_info.data.chunkSize, 4);
+	}
 	m_outFile.close();
+}
+
+void WaveFile::SetDataChunkSize(uint32_t size)
+{
+	m_info.data.chunkSize = size;
+	m_info.riff.chunkSize = m_info.fmt.chunkSize + m_info.data.chunkSize + 20;
+}
+
+uint32_t WaveFile::GetDataChunkSize()
+{
+	return m_info.data.chunkSize;
+}
+
+void WaveFile::TakeData(char **ppData, uint32_t *pDataLen)
+{
+	*ppData = m_info.data.pData;
+	*pDataLen = m_info.data.chunkSize;
+
+	m_info.data.pData = NULL;
+	SetDataChunkSize(0);
+}
+
+void WaveFile::GiveData(char *pData, uint32_t dataLen)
+{
+	SAFE_DELETE_A(m_info.data.pData);
+
+	m_info.data.pData = pData;
+	SetDataChunkSize(dataLen);
 }

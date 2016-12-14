@@ -60,9 +60,16 @@ public:
 	int  ReadData(char *pData, uint32_t count);
 	void EndRead();
 
+	uint32_t GetDataChunkSize();
+
+	void TakeData(char **ppData, uint32_t *pDataLen);
+	void GiveData(char *pData, uint32_t dataLen);
+
 protected:
 	bool ReadHead(std::fstream &file);
 	bool WriteHead(std::fstream &file);
+
+	void SetDataChunkSize(uint32_t size);
 
 protected:
 	WaveInfo m_info;
