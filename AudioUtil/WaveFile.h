@@ -4,7 +4,7 @@
 
 class WaveFile
 {
-protected:
+public:
 #pragma pack(push)
 #pragma pack(2)
 	struct RiffChunk
@@ -61,6 +61,8 @@ public:
 	void EndRead();
 
 	uint32_t GetDataChunkSize();
+
+	bool SetFormat(FormatChunk fmt);
 
 	void TakeData(char **ppData, uint32_t *pDataLen);
 	void GiveData(char *pData, uint32_t dataLen);
