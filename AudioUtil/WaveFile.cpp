@@ -196,10 +196,10 @@ bool WaveFile::BeginWrite(const char *fileName, bool append)
 	if (!m_outFile.is_open())
 		return false;
 
-	strncpy_s(m_info.riff.chunkId, "RIFF", 4);
-	strncpy_s(m_info.riff.format, "WAVE", 4);
-	strncpy_s(m_info.fmt.chunkId, "fmt ", 4);
-	strncpy_s(m_info.data.chunkId, "data", 4);
+	memcpy_s(m_info.riff.chunkId, 4, "RIFF", 4);
+	memcpy_s(m_info.riff.format, 4, "WAVE", 4);
+	memcpy_s(m_info.fmt.chunkId, 4, "fmt ", 4);
+	memcpy_s(m_info.data.chunkId, 4, "data", 4);
 
 	m_bAppend = append;
 	if (m_bAppend)
@@ -244,7 +244,7 @@ bool WaveFile::SetFormat(FormatChunk fmt)
 		return false;
 
 	memcpy_s(&m_info.fmt, sizeof(m_info.fmt), &fmt, sizeof(fmt));
-	strncpy_s(m_info.fmt.chunkId, "fmt ", 4);
+	memcpy_s(m_info.fmt.chunkId, 4, "fmt ", 4);
 	fmt.pExtParam = NULL; // !!!
 
 	return true;
