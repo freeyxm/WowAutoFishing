@@ -116,11 +116,14 @@ bool WaveFile::ReadHead(std::fstream &file)
 
 	// data chunk
 	file.read((char*)&m_info.data, 8);
-	if (!file
-		|| strncmp(m_info.data.chunkId, "data", 4) != 0
-		|| m_info.data.chunkSize != m_info.riff.chunkSize - m_info.fmt.chunkSize - 20)
-	{
+	if (!file || strncmp(m_info.data.chunkId, "data", 4) != 0)
 		return false;
+
+	// many wave file's data chunk size invalid, so here just correct it.
+	uint32_t dataSize = m_info.riff.chunkSize - m_info.fmt.chunkSize - 20;
+	if (m_info.data.chunkSize != dataSize)
+	{
+		SetDataChunkSize(dataSize);
 	}
 
 	return true;
