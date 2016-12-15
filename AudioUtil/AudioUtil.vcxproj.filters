@@ -39,13 +39,13 @@
     <ClInclude Include="AudioRenderer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="WaveCreator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="AudioFingerprint.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WaveFile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="WaveUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -68,13 +68,13 @@
     <ClCompile Include="AudioRenderer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="WaveCreator.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="AudioFingerprint.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="WaveFile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="WaveUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

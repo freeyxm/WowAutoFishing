@@ -1,15 +1,15 @@
 ﻿#include "stdafx.h"
-#include "WaveCreator.h"
+#include "WaveUtil.h"
 
-WaveCreator::WaveCreator()
+WaveUtil::WaveUtil()
 {
 }
 
-WaveCreator::~WaveCreator()
+WaveUtil::~WaveUtil()
 {
 }
 
-void WaveCreator::ConvertFormat(const WaveFile::FormatChunk *pfmt, WAVEFORMATEX *pwfx)
+void WaveUtil::ConvertFormat(const WaveFile::FormatChunk *pfmt, WAVEFORMATEX *pwfx)
 {
 	pwfx->wFormatTag = pfmt->audioFormat;
 	pwfx->nChannels = pfmt->numChannels;
@@ -20,7 +20,7 @@ void WaveCreator::ConvertFormat(const WaveFile::FormatChunk *pfmt, WAVEFORMATEX 
 	pwfx->cbSize = 0;
 }
 
-void WaveCreator::ConvertFormat(const WAVEFORMATEX *pwfx, WaveFile::FormatChunk *pfmt)
+void WaveUtil::ConvertFormat(const WAVEFORMATEX *pwfx, WaveFile::FormatChunk *pfmt)
 {
 	pfmt->audioFormat = pwfx->wFormatTag;
 	pfmt->numChannels = pwfx->nChannels;
@@ -31,9 +31,9 @@ void WaveCreator::ConvertFormat(const WAVEFORMATEX *pwfx, WaveFile::FormatChunk 
 	pfmt->extParamSize = 0;
 }
 
-bool WaveCreator::LoadWave(const char *path, WAVEFORMATEX *pwfx, char **ppData, uint32_t *pDataLen)
+bool WaveUtil::LoadWave(const char *path, WAVEFORMATEX *pwfx, char **ppData, uint32_t *pDataLen)
 {
-	WaveCreator wave;
+	WaveUtil wave;
 	if (wave.Load(path))
 	{
 		ConvertFormat(&wave.m_info.fmt, pwfx);
@@ -43,9 +43,9 @@ bool WaveCreator::LoadWave(const char *path, WAVEFORMATEX *pwfx, char **ppData, 
 	return false;
 }
 
-bool WaveCreator::SaveWave(const char *path, WAVEFORMATEX *pwfx, char *pData, uint32_t dataLen)
+bool WaveUtil::SaveWave(const char *path, WAVEFORMATEX *pwfx, char *pData, uint32_t dataLen)
 {
-	WaveCreator wave;
+	WaveUtil wave;
 	ConvertFormat(pwfx, &wave.m_info.fmt);
 
 	wave.GiveData(pData, dataLen);

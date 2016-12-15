@@ -3,11 +3,11 @@
 #include "WaveFile.h"
 #include "AudioFrameStorage.h"
 
-class WaveCreator : public WaveFile
+class WaveUtil : public WaveFile
 {
 public:
-	WaveCreator();
-	~WaveCreator();
+	WaveUtil();
+	~WaveUtil();
 
 	static bool LoadWave(const char *path, WAVEFORMATEX *pwfx, char **ppData, uint32_t *pDataLen);
 	static bool SaveWave(const char *path, WAVEFORMATEX *pwfx, char *pData, uint32_t dataLen);

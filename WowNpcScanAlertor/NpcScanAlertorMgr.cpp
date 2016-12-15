@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 #include "NpcScanAlertorMgr.h"
 #include "Win32Util/Utility.h"
-#include "AudioUtil/WaveCreator.h"
+#include "AudioUtil/WaveUtil.h"
 #include <conio.h>
 #include <iostream>
 #include <string>
@@ -39,7 +39,7 @@ bool NpcScanAlertorMgr::InitAudioPlayer()
 		return false;
 
 	WAVEFORMATEX wfx;
-	if (!WaveCreator::LoadWave("./npcscan.wav", &wfx, (char**)&pFrame->pData, &pFrame->nDataLen))
+	if (!WaveUtil::LoadWave("./npcscan.wav", &wfx, (char**)&pFrame->pData, &pFrame->nDataLen))
 		return false;
 
 	m_alarm.PushBack(pFrame);

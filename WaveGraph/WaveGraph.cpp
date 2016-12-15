@@ -7,7 +7,6 @@
 #include "AudioUtil/AudioRenderer.h"
 #include "AudioUtil/AudioExtractor.h"
 #include "AudioUtil/AudioPainter.h"
-#include "AudioUtil/WaveCreator.h"
 #include "Win32Util/DcBuffer.h"
 #include <cstdio>
 
