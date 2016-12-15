@@ -10,4 +10,5 @@ Test/
 *.bmp
 *.VC.db
 *.VC.opendb
+*.vcxproj.user
 fishing sample**.txt
