@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "stdafx.h"
 
 #ifndef INCLUDE_FASTTOURIERTRANSFORM
 #define INCLUDE_FASTTOURIERTRANSFORM
