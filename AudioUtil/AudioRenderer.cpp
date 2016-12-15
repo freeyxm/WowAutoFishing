@@ -74,8 +74,7 @@ HRESULT AudioRenderer::SetFormat(WAVEFORMATEX *pwfx)
 
 HRESULT AudioRenderer::OnLoadData(BYTE *pData, UINT32 *pFrameCount, DWORD *pFlags)
 {
-	bool isDone = IsDone();
-	if (!isDone)
+	if (!IsDone())
 	{
 		UINT32 nDataLen = (*pFrameCount) * m_nBytesPerFrame;
 		UINT32 nLoaded = 0;
@@ -95,14 +94,16 @@ HRESULT AudioRenderer::OnLoadData(BYTE *pData, UINT32 *pFrameCount, DWORD *pFlag
 				m_dataIndex = 0;
 			}
 		}
+
+		*pFrameCount = nLoaded / m_nBytesPerFrame;
+
 		if (nLoaded < nDataLen)
 		{
-			isDone = true;
+			m_bDone = true;
 		}
-		*pFrameCount = nLoaded / m_nBytesPerFrame;
 	}
 
-	if (isDone)
+	if (m_bDone)
 	{
 		*pFlags = AUDCLNT_BUFFERFLAGS_SILENT;
 	}

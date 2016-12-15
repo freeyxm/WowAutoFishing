@@ -173,10 +173,13 @@ HRESULT AudioRender::Render()
 		hr = this->StartRender();
 		BREAK_ON_ERROR(hr);
 
-		while (!IsDone() && flags != AUDCLNT_BUFFERFLAGS_SILENT)
+		while (!m_bDone)
 		{
 			// Sleep for half the buffer duration.
-			Sleep((DWORD)(m_hnsActualDuration * frameCount / m_bufferFrameCount / REFTIMES_PER_MILLISEC / 2));
+			DWORD time = (DWORD)(m_hnsActualDuration * frameCount / m_bufferFrameCount / REFTIMES_PER_MILLISEC / 2);
+			if (time < 10)
+				time = 10; // Sleep at least 10 ms.
+			Sleep(time);
 
 			hr = LoadData(&frameCount, &flags);
 			BREAK_ON_ERROR(hr);
@@ -229,7 +232,6 @@ inline HRESULT AudioRender::LoadData(DWORD *pFrameCount, DWORD *pFlags)
 
 HRESULT AudioRender::OnLoadData(BYTE *pData, UINT32 *pFrameCount, DWORD *pFlags)
 {
-	*pFrameCount = 0;
 	*pFlags = AUDCLNT_BUFFERFLAGS_SILENT;
 
 	return S_OK;
@@ -262,9 +264,5 @@ bool AudioRender::IsDone() const
 
 void AudioRender::SetDone(bool bDone)
 {
-	if (!m_bDone)
-	{
-		StopRender();
-	}
 	m_bDone = bDone;
 }
