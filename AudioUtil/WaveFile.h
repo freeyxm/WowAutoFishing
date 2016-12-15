@@ -63,6 +63,7 @@ public:
 	uint32_t GetDataChunkSize();
 
 	bool SetFormat(FormatChunk fmt);
+	const FormatChunk* GetFormat();
 
 	void TakeData(char **ppData, uint32_t *pDataLen);
 	void GiveData(char *pData, uint32_t dataLen);

@@ -253,6 +253,11 @@ bool WaveFile::SetFormat(FormatChunk fmt)
 	return true;
 }
 
+const WaveFile::FormatChunk* WaveFile::GetFormat()
+{
+	return &m_info.fmt;
+}
+
 void WaveFile::SetDataChunkSize(uint32_t size)
 {
 	m_info.data.chunkSize = size;
