@@ -162,11 +162,12 @@ HRESULT AudioRender::Render()
 	}
 
 	HRESULT hr;
+	DWORD frameCount = 0;
 	DWORD flags = 0;
 
 	do
 	{
-		hr = LoadData(&flags);
+		hr = LoadData(&frameCount, &flags);
 		BREAK_ON_ERROR(hr);
 
 		hr = this->StartRender();
@@ -175,14 +176,14 @@ HRESULT AudioRender::Render()
 		while (!IsDone() && flags != AUDCLNT_BUFFERFLAGS_SILENT)
 		{
 			// Sleep for half the buffer duration.
-			Sleep((DWORD)(m_hnsActualDuration / REFTIMES_PER_MILLISEC / 2));
+			Sleep((DWORD)(m_hnsActualDuration * frameCount / m_bufferFrameCount / REFTIMES_PER_MILLISEC / 2));
 
-			hr = LoadData(&flags);
+			hr = LoadData(&frameCount, &flags);
 			BREAK_ON_ERROR(hr);
 		}
 
 		// Wait for last data in buffer to play before stopping.
-		Sleep((DWORD)(m_hnsActualDuration / REFTIMES_PER_MILLISEC / 2));
+		Sleep((DWORD)(m_hnsActualDuration * frameCount / m_bufferFrameCount / REFTIMES_PER_MILLISEC));
 
 		hr = this->StopRender();
 		BREAK_ON_ERROR(hr);
@@ -192,7 +193,7 @@ HRESULT AudioRender::Render()
 	return hr;
 }
 
-inline HRESULT AudioRender::LoadData(DWORD *pFlags)
+inline HRESULT AudioRender::LoadData(DWORD *pFrameCount, DWORD *pFlags)
 {
 	HRESULT hr;
 	UINT32 numFramesPadding;
@@ -212,19 +213,23 @@ inline HRESULT AudioRender::LoadData(DWORD *pFlags)
 		BREAK_ON_ERROR(hr);
 
 		// Load the initial data into the shared buffer.
-		hr = this->OnLoadData(pData, numFramesAvailable, pFlags);
+		hr = this->OnLoadData(pData, &numFramesAvailable, pFlags);
 		BREAK_ON_ERROR(hr);
 
 		hr = m_pRenderClient->ReleaseBuffer(numFramesAvailable, *pFlags);
 		BREAK_ON_ERROR(hr);
+
+		// return available frame count.
+		*pFrameCount = numFramesPadding + numFramesAvailable;
 
 	} while (false);
 
 	return hr;
 }
 
-HRESULT AudioRender::OnLoadData(BYTE *pData, UINT32 nFrameCount, DWORD *pFlags)
+HRESULT AudioRender::OnLoadData(BYTE *pData, UINT32 *pFrameCount, DWORD *pFlags)
 {
+	*pFrameCount = 0;
 	*pFlags = AUDCLNT_BUFFERFLAGS_SILENT;
 
 	return S_OK;

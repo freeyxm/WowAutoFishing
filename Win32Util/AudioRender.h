@@ -29,8 +29,8 @@ protected:
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
 	virtual HRESULT SetSourceFormat(WAVEFORMATEX *pwfx);
 
-	inline HRESULT LoadData(DWORD *pFlags);
-	virtual HRESULT OnLoadData(BYTE *pData, UINT32 nFrameCount, DWORD *pFlags);
+	inline HRESULT LoadData(DWORD *pFrameCount, DWORD *pFlags);
+	virtual HRESULT OnLoadData(BYTE *pData, UINT32 *pFrameCount, DWORD *pFlags);
 
 protected:
 	WAVEFORMATEX *m_pwfx;

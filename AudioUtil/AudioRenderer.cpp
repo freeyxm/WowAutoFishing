@@ -72,12 +72,12 @@ HRESULT AudioRenderer::SetFormat(WAVEFORMATEX *pwfx)
 	return S_OK;
 }
 
-HRESULT AudioRenderer::OnLoadData(BYTE *pData, UINT32 nFrameCount, DWORD *pFlags)
+HRESULT AudioRenderer::OnLoadData(BYTE *pData, UINT32 *pFrameCount, DWORD *pFlags)
 {
 	bool isDone = IsDone();
 	if (!isDone)
 	{
-		UINT32 nDataLen = nFrameCount * m_nBytesPerFrame;
+		UINT32 nDataLen = (*pFrameCount) * m_nBytesPerFrame;
 		UINT32 nLoaded = 0;
 		while (nLoaded < nDataLen && m_dataIter != m_pStorage->cend())
 		{
@@ -99,6 +99,7 @@ HRESULT AudioRenderer::OnLoadData(BYTE *pData, UINT32 nFrameCount, DWORD *pFlags
 		{
 			isDone = true;
 		}
+		*pFrameCount = nLoaded / m_nBytesPerFrame;
 	}
 
 	if (isDone)
