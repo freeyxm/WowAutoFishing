@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "WaveConverter.h"
 #include <cmath>
 #include <assert.h>
@@ -36,7 +36,7 @@ uint32_t WaveConverter::Convert(const char *pDataSrc, char *pDataDst, uint32_t f
 	uint32_t index = 0;
 	for (; index < frameCount; ++index)
 	{
-		// Ìø×ªµ½²ÉÑùÖ¡
+		// è·³è½¬åˆ°é‡‡æ ·å¸§
 		if (m_pwfxSrc->nSamplesPerSec != m_pwfxDst->nSamplesPerSec)
 		{
 			uint32_t srcFrameIndex = (uint32_t)::roundf(m_dstFrameIndex * m_sampleRateRatio);
@@ -50,18 +50,23 @@ uint32_t WaveConverter::Convert(const char *pDataSrc, char *pDataDst, uint32_t f
 		if (m_srcFrameIndex >= m_srcFrameCount)
 			break;
 
-		// ×ª»»Ã¿Ö¡Êý¾Ý
-		for (int c = 0; c < m_pwfxSrc->nChannels; ++c)
+		// è½¬æ¢æ¯å¸§æ•°æ®
+		if (m_pwfxSrc->nChannels >= m_pwfxDst->nChannels)
 		{
-			if (c >= m_pwfxDst->nChannels)
-				break;
-			ConvertSample(pDataSrc + c * m_srcBytesPerSample, pDataDst + c * m_dstBytesPerSample);
+			for (int c = 0; c < m_pwfxDst->nChannels; ++c)
+			{
+				ConvertSample(pDataSrc + c * m_srcBytesPerSample, pDataDst + c * m_dstBytesPerSample);
+			}
 		}
-
-		// Ìî³ä¿ÕÉùµÀ
-		if (m_pwfxSrc->nChannels < m_pwfxDst->nChannels)
+		else
 		{
-			memset(pDataDst + m_pwfxSrc->nChannels * m_dstBytesPerSample, 0, m_dstBytesPerSample * (m_pwfxDst->nChannels - m_pwfxSrc->nChannels));
+			for (int index = 0; index < m_pwfxDst->nChannels; index += m_pwfxSrc->nChannels)
+			{
+				for (int c = 0; c < m_pwfxSrc->nChannels; ++c)
+				{
+					ConvertSample(pDataSrc + c * m_srcBytesPerSample, pDataDst + (index + c) * m_dstBytesPerSample);
+				}
+			}
 		}
 
 		pDataSrc += m_srcBytesPerFrame;

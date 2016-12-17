@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "WaveFile.h"
 #include "WaveUtil.h"
 
