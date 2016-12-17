@@ -9,17 +9,18 @@ public:
 	~WaveConverter();
 
 	void SetFormat(const WAVEFORMATEX *pwfxSrc, const WAVEFORMATEX *pwfxDst);
-	void SetSrcFrameCount(uint32_t count);
-	uint32_t Convert(const char *pDataSrc, char *pDataDst, uint32_t frameCount);
+
+	uint32_t GetSrcFrameCount(uint32_t dstFrameCount);
+	uint32_t Convert(const char *pDataSrc, uint32_t srcFrameCount, char *pDataDst, uint32_t dstFrameCount);
 
 private:
+	uint32_t DstToSrcFrameIndex(uint32_t dstFrameIndex);
 	void ConvertSample(const char *pDataSrc, char *pDataDst);
 
 private:
 	const WAVEFORMATEX *m_pwfxSrc;
 	const WAVEFORMATEX *m_pwfxDst;
 	float m_sampleRateRatio;
-	uint32_t m_srcFrameCount;
 	uint32_t m_srcFrameIndex;
 	uint32_t m_dstFrameIndex;
 	uint32_t m_srcBytesPerSample;

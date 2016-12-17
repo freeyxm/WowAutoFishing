@@ -26,28 +26,53 @@ void WaveConverter::SetFormat(const WAVEFORMATEX *pwfxSrc, const WAVEFORMATEX *p
 	m_dstFrameIndex = 0;
 }
 
-void WaveConverter::SetSrcFrameCount(uint32_t count)
+uint32_t WaveConverter::GetSrcFrameCount(uint32_t dstFrameCount)
 {
-	m_srcFrameCount = count;
+	if (dstFrameCount == 0)
+		return 0;
+	else
+		return DstToSrcFrameIndex(m_dstFrameIndex + dstFrameCount - 1) - m_srcFrameIndex + 1;
 }
 
-uint32_t WaveConverter::Convert(const char *pDataSrc, char *pDataDst, uint32_t frameCount)
+uint32_t WaveConverter::DstToSrcFrameIndex(uint32_t dstFrameIndex)
 {
-	uint32_t index = 0;
-	for (; index < frameCount; ++index)
+	return (uint32_t)::roundf(dstFrameIndex * m_sampleRateRatio);
+}
+
+uint32_t WaveConverter::Convert(const char *pDataSrc, uint32_t srcFrameCount, char *pDataDst, uint32_t dstFrameCount)
+{
+	uint32_t srcIndex = 0;
+	uint32_t dstIndex = 0;
+	for (; dstIndex < dstFrameCount; ++dstIndex)
 	{
 		// 跳转到采样帧
 		if (m_pwfxSrc->nSamplesPerSec != m_pwfxDst->nSamplesPerSec)
 		{
-			uint32_t srcFrameIndex = (uint32_t)::roundf(m_dstFrameIndex * m_sampleRateRatio);
+			uint32_t srcFrameIndex = DstToSrcFrameIndex(m_dstFrameIndex);
 			if (srcFrameIndex > m_srcFrameIndex)
 			{
-				pDataSrc += m_srcBytesPerFrame * (srcFrameIndex - m_srcFrameIndex);
+				uint32_t step = srcFrameIndex - m_srcFrameIndex;
+				pDataSrc += m_srcBytesPerFrame * step;
+				srcIndex += step;
+				m_srcFrameIndex = srcFrameIndex;
 			}
-			m_srcFrameIndex = srcFrameIndex;
+			else if (srcFrameIndex < m_srcFrameIndex)
+			{
+				if (dstIndex > 0)
+				{
+					pDataSrc -= m_srcBytesPerFrame;
+					m_srcFrameIndex--;
+					srcIndex--;
+				}
+				else
+				{
+					// data lost !!!
+					assert(false);
+				}
+			}
 		}
 
-		if (m_srcFrameIndex >= m_srcFrameCount)
+		if (srcIndex >= srcFrameCount)
 			break;
 
 		// 转换每帧数据
@@ -73,8 +98,9 @@ uint32_t WaveConverter::Convert(const char *pDataSrc, char *pDataDst, uint32_t f
 		pDataDst += m_dstBytesPerFrame;
 		m_srcFrameIndex++;
 		m_dstFrameIndex++;
+		srcIndex++;
 	}
-	return index;
+	return dstIndex;
 }
 
 // little-endian !!!
