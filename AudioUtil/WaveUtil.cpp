@@ -29,6 +29,17 @@ void WaveUtil::ConvertFormat(const WAVEFORMATEX *pwfx, WaveFile::FormatChunk *pf
 	pfmt->blockAlign = pwfx->nBlockAlign;
 	pfmt->bitsPerSample = pwfx->wBitsPerSample;
 	pfmt->extParamSize = 0;
+	pfmt->pExtParam = NULL;
+	pfmt->chunkSize = 16;
+}
+
+void WaveUtil::SetFormat(WAVEFORMATEX *pwfx, int sampleRate, int bitsPerSample, int channel)
+{
+	pwfx->nChannels = channel;
+	pwfx->nSamplesPerSec = sampleRate;
+	pwfx->wBitsPerSample = bitsPerSample;
+	pwfx->nBlockAlign = channel * bitsPerSample / 8;
+	pwfx->nAvgBytesPerSec = sampleRate * channel * bitsPerSample / 8;
 }
 
 bool WaveUtil::LoadWave(const char *path, WAVEFORMATEX *pwfx, char **ppData, uint32_t *pDataLen)

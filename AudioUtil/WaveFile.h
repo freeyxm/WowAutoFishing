@@ -54,13 +54,17 @@ public:
 
 	bool BeginWrite(const char *fileName, bool append);
 	bool WriteData(const char *pData, uint32_t count);
+	bool WriteFrame(const char *pData, uint32_t frameCount);
 	void EndWrite();
 
 	bool BeginRead(const char *fileName);
-	int  ReadData(char *pData, uint32_t count);
+	uint32_t ReadData(char *pData, uint32_t count);
+	uint32_t ReadFrame(char *pData, uint32_t frameCount);
 	void EndRead();
 
-	uint32_t GetDataChunkSize();
+	inline uint32_t FrameCount();
+	inline uint32_t BytesPerSample();
+	inline uint32_t BytesPerFrame();
 
 	bool SetFormat(FormatChunk fmt);
 	const FormatChunk* GetFormat();
@@ -72,12 +76,32 @@ protected:
 	bool ReadHead(std::fstream &file);
 	bool WriteHead(std::fstream &file);
 
+	void UpdateFormat();
 	void SetDataChunkSize(uint32_t size);
 
 protected:
 	WaveInfo m_info;
+
 	std::fstream m_inFile;
 	std::fstream m_outFile;
 	bool m_bAppend;
+
+	uint32_t m_nBytesPerSample;
+	uint32_t m_nBytesPerFrame;
 };
 
+
+inline uint32_t WaveFile::BytesPerSample()
+{
+	return m_nBytesPerSample;
+}
+
+inline uint32_t WaveFile::BytesPerFrame()
+{
+	return m_nBytesPerFrame;
+}
+
+inline uint32_t WaveFile::FrameCount()
+{
+	return m_info.data.chunkSize / BytesPerFrame();
+}

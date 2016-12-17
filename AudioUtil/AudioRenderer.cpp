@@ -137,16 +137,10 @@ HRESULT AudioRenderer::LoadDataFromStorage(BYTE *pData, UINT32 *pFrameCount, DWO
 
 HRESULT AudioRenderer::LoadDataFromFile(BYTE *pData, UINT32 *pFrameCount, DWORD *pFlags)
 {
-	UINT32 nDataLen = (*pFrameCount) * m_nBytesPerFrame;
-
-	int readCount = m_pWaveFile->ReadData((char*)pData, nDataLen);
-	if (readCount < 0)
-		readCount = 0;
-
-	*pFrameCount = readCount / m_nBytesPerFrame;
-
-	if ((uint32_t)readCount < nDataLen)
+	uint32_t readCount = m_pWaveFile->ReadFrame((char*)pData, *pFrameCount);
+	if (readCount < *pFrameCount)
 	{
+		*pFrameCount = readCount;
 		*pFlags = AUDCLNT_BUFFERFLAGS_SILENT;
 		m_bDone = true;
 	}

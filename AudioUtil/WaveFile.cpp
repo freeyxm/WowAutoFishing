@@ -121,10 +121,16 @@ bool WaveFile::ReadHead(std::fstream &file)
 
 	// many wave file's data chunk size invalid, so here just correct it.
 	uint32_t dataSize = m_info.riff.chunkSize - m_info.fmt.chunkSize - 20;
-	if (m_info.data.chunkSize != dataSize)
+	if (m_info.data.chunkSize > dataSize)
 	{
 		SetDataChunkSize(dataSize);
 	}
+	else if (m_info.data.chunkSize < dataSize)
+	{
+		SetDataChunkSize(m_info.data.chunkSize);
+	}
+
+	UpdateFormat();
 
 	return true;
 }
@@ -178,13 +184,24 @@ bool WaveFile::BeginRead(const char *fileName)
 	return ReadHead(m_inFile);
 }
 
-int  WaveFile::ReadData(char *pData, uint32_t count)
+uint32_t WaveFile::ReadData(char *pData, uint32_t count)
 {
 	m_inFile.read(pData, count);
 	if (m_inFile)
 		return count;
 	else
-		return (int)m_inFile.gcount();
+		return (uint32_t)m_inFile.gcount();
+}
+
+uint32_t WaveFile::ReadFrame(char *pData, uint32_t frameCount)
+{
+	uint32_t count = frameCount * m_nBytesPerFrame;
+
+	m_inFile.read(pData, count);
+	if (m_inFile)
+		return frameCount;
+	else
+		return (uint32_t)(m_inFile.gcount() / m_nBytesPerFrame);
 }
 
 void WaveFile::EndRead()
@@ -227,13 +244,18 @@ bool WaveFile::WriteData(const char *pData, uint32_t count)
 	return true;
 }
 
+bool WaveFile::WriteFrame(const char *pData, uint32_t frameCount)
+{
+	return WriteData(pData, frameCount * m_nBytesPerFrame);
+}
+
 void WaveFile::EndWrite()
 {
 	if (m_bAppend)
 	{
 		m_outFile.seekp(4, std::ios::beg);
 		m_outFile.write((char*)&m_info.riff.chunkSize, 4);
-		m_outFile.seekp(20 + m_info.fmt.chunkSize, std::ios::beg);
+		m_outFile.seekp(24 + m_info.fmt.chunkSize, std::ios::beg);
 		m_outFile.write((char*)&m_info.data.chunkSize, 4);
 	}
 	m_outFile.close();
@@ -241,15 +263,17 @@ void WaveFile::EndWrite()
 
 bool WaveFile::SetFormat(FormatChunk fmt)
 {
-	if (fmt.chunkSize != fmt.extParamSize + 18)
+	if (fmt.chunkSize != 16 && fmt.chunkSize != fmt.extParamSize + 18)
 		return false;
-	if (fmt.extParamSize > 0 && fmt.pExtParam == NULL)
+
+	if (fmt.chunkSize > 18 && fmt.pExtParam == NULL)
 		return false;
 
 	memcpy_s(&m_info.fmt, sizeof(m_info.fmt), &fmt, sizeof(fmt));
 	memcpy_s(m_info.fmt.chunkId, 4, "fmt ", 4);
 	fmt.pExtParam = NULL; // !!!
 
+	UpdateFormat();
 	return true;
 }
 
@@ -258,15 +282,16 @@ const WaveFile::FormatChunk* WaveFile::GetFormat()
 	return &m_info.fmt;
 }
 
+void WaveFile::UpdateFormat()
+{
+	m_nBytesPerSample = m_info.fmt.bitsPerSample / 8;
+	m_nBytesPerFrame = m_info.fmt.numChannels * m_nBytesPerSample;
+}
+
 void WaveFile::SetDataChunkSize(uint32_t size)
 {
 	m_info.data.chunkSize = size;
 	m_info.riff.chunkSize = m_info.fmt.chunkSize + m_info.data.chunkSize + 20;
-}
-
-uint32_t WaveFile::GetDataChunkSize()
-{
-	return m_info.data.chunkSize;
 }
 
 void WaveFile::TakeData(char **ppData, uint32_t *pDataLen)
