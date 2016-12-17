@@ -277,7 +277,7 @@ bool WaveFile::SetFormat(FormatChunk fmt)
 	return true;
 }
 
-const WaveFile::FormatChunk* WaveFile::GetFormat()
+const WaveFile::FormatChunk* WaveFile::GetFormat() const
 {
 	return &m_info.fmt;
 }

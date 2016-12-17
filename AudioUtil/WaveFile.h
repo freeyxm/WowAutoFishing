@@ -62,12 +62,12 @@ public:
 	uint32_t ReadFrame(char *pData, uint32_t frameCount);
 	void EndRead();
 
-	inline uint32_t FrameCount();
-	inline uint32_t BytesPerSample();
-	inline uint32_t BytesPerFrame();
+	inline uint32_t FrameCount() const;
+	inline uint32_t BytesPerSample() const;
+	inline uint32_t BytesPerFrame() const;
 
 	bool SetFormat(FormatChunk fmt);
-	const FormatChunk* GetFormat();
+	const FormatChunk* GetFormat() const;
 
 	void TakeData(char **ppData, uint32_t *pDataLen);
 	void GiveData(char *pData, uint32_t dataLen);
@@ -91,17 +91,17 @@ protected:
 };
 
 
-inline uint32_t WaveFile::BytesPerSample()
+inline uint32_t WaveFile::BytesPerSample() const
 {
 	return m_nBytesPerSample;
 }
 
-inline uint32_t WaveFile::BytesPerFrame()
+inline uint32_t WaveFile::BytesPerFrame() const
 {
 	return m_nBytesPerFrame;
 }
 
-inline uint32_t WaveFile::FrameCount()
+inline uint32_t WaveFile::FrameCount() const
 {
 	return m_info.data.chunkSize / BytesPerFrame();
 }
