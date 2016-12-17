@@ -19,12 +19,12 @@ private:
 	const WAVEFORMATEX *m_pwfxSrc;
 	const WAVEFORMATEX *m_pwfxDst;
 	float m_sampleRateRatio;
+	uint32_t m_srcFrameCount;
 	uint32_t m_srcFrameIndex;
 	uint32_t m_dstFrameIndex;
 	uint32_t m_srcBytesPerSample;
 	uint32_t m_dstBytesPerSample;
 	uint32_t m_srcBytesPerFrame;
 	uint32_t m_dstBytesPerFrame;
-	uint32_t m_srcFrameCount;
 };
 

@@ -3,11 +3,6 @@
 #include <cmath>
 #include <assert.h>
 
-#define MAX_U8 255U
-#define MAX_U16 65535U
-#define MAX_U24 16777215U
-#define MAX_U32 4294967295U
-
 WaveConverter::WaveConverter()
 {
 }
@@ -42,14 +37,17 @@ uint32_t WaveConverter::Convert(const char *pDataSrc, char *pDataDst, uint32_t f
 	for (; index < frameCount; ++index)
 	{
 		// 跳转到采样帧
-		uint32_t srcFrameIndex = (uint32_t)::roundf(m_dstFrameIndex * m_sampleRateRatio);
-		if (srcFrameIndex > m_srcFrameIndex)
+		if (m_pwfxSrc->nSamplesPerSec != m_pwfxDst->nSamplesPerSec)
 		{
-			pDataSrc += m_srcBytesPerFrame * (srcFrameIndex - m_srcFrameIndex);
+			uint32_t srcFrameIndex = (uint32_t)::roundf(m_dstFrameIndex * m_sampleRateRatio);
+			if (srcFrameIndex > m_srcFrameIndex)
+			{
+				pDataSrc += m_srcBytesPerFrame * (srcFrameIndex - m_srcFrameIndex);
+			}
+			m_srcFrameIndex = srcFrameIndex;
 		}
-		m_dstFrameIndex++;
-		m_srcFrameIndex = srcFrameIndex;
-		if (m_srcFrameIndex >= m_srcFrameIndex)
+
+		if (m_srcFrameIndex >= m_srcFrameCount)
 			break;
 
 		// 转换每帧数据
@@ -57,7 +55,7 @@ uint32_t WaveConverter::Convert(const char *pDataSrc, char *pDataDst, uint32_t f
 		{
 			if (c >= m_pwfxDst->nChannels)
 				break;
-			ConvertSample(pDataSrc + c * m_srcBytesPerFrame, pDataDst + c * m_dstBytesPerSample);
+			ConvertSample(pDataSrc + c * m_srcBytesPerSample, pDataDst + c * m_dstBytesPerSample);
 		}
 
 		// 填充空声道
@@ -68,6 +66,8 @@ uint32_t WaveConverter::Convert(const char *pDataSrc, char *pDataDst, uint32_t f
 
 		pDataSrc += m_srcBytesPerFrame;
 		pDataDst += m_dstBytesPerFrame;
+		m_srcFrameIndex++;
+		m_dstFrameIndex++;
 	}
 	return index;
 }
@@ -85,26 +85,30 @@ void WaveConverter::ConvertSample(const char *pDataSrc, char *pDataDst)
 		{
 		case 8:
 			{
-				uint8_t src = *(uint8_t*)pDataSrc;
+				uint32_t src = *(int8_t*)pDataSrc + 128;
 				switch (m_pwfxDst->wBitsPerSample)
 				{
 				case 16:
 					{
-						uint16_t dst = src * (uint16_t)(MAX_U16 / MAX_U8);
+						uint16_t dst = src << 8;
 						*(uint16_t*)pDataDst = dst;
 					}
 					break;
 				case 24:
 					{
-						uint32_t dst = src * (uint32_t)(MAX_U24 / MAX_U8);
+						uint32_t dst = src << 16;
 						*(uint8_t*)(pDataDst + 0) = (dst) & 0xFF;
 						*(uint8_t*)(pDataDst + 1) = (dst >> 8) & 0xFF;
 						*(uint8_t*)(pDataDst + 2) = (dst >> 16) & 0xFF;
 					}
+					break;
 				case 32:
 					{
-						uint32_t dst = src * (uint32_t)(MAX_U32 / MAX_U8);
-						*(uint32_t*)pDataDst = dst;
+						uint32_t dst = src << 24;
+						if (m_pwfxDst->wFormatTag == 3)
+							*(float*)pDataDst = (float)dst / (1U << 31);
+						else
+							*(uint32_t*)pDataDst = dst;
 					}
 					break;
 				default:
@@ -115,18 +119,18 @@ void WaveConverter::ConvertSample(const char *pDataSrc, char *pDataDst)
 			break;
 		case 16:
 			{
-				uint16_t src = *(uint16_t*)pDataSrc;
+				uint32_t src = *(uint16_t*)pDataSrc;
 				switch (m_pwfxDst->wBitsPerSample)
 				{
 				case 8:
 					{
-						uint8_t dst = (src * (uint32_t)MAX_U8) & ~MAX_U16;
-						*(uint8_t*)pDataDst = dst;
+						int8_t dst = (src >> 8) - 128;
+						*(int8_t*)pDataDst = dst;
 					}
 					break;
 				case 24:
 					{
-						uint32_t dst = (uint32_t)::roundf(src * (float)MAX_U24 / MAX_U16);
+						uint32_t dst = src << 8;
 						*(uint8_t*)(pDataDst + 0) = (dst) & 0xFF;
 						*(uint8_t*)(pDataDst + 1) = (dst >> 8) & 0xFF;
 						*(uint8_t*)(pDataDst + 2) = (dst >> 16) & 0xFF;
@@ -134,8 +138,11 @@ void WaveConverter::ConvertSample(const char *pDataSrc, char *pDataDst)
 					break;
 				case 32:
 					{
-						uint32_t dst = src * (uint32_t)(MAX_U32 / MAX_U16);
-						*(uint32_t*)pDataDst = dst;
+						uint32_t dst = src << 16;
+						if (m_pwfxDst->wFormatTag == 3)
+							*(float*)pDataDst = (float)dst / (1U << 31);
+						else
+							*(uint32_t*)pDataDst = dst;
 					}
 					break;
 				default:
@@ -147,29 +154,30 @@ void WaveConverter::ConvertSample(const char *pDataSrc, char *pDataDst)
 		case 24:
 			{
 				uint32_t src = *(uint8_t*)pDataSrc;
-				src <<= 8;
-				src |= *(uint8_t*)(pDataSrc + 1);
-				src <<= 8;
-				src |= *(uint8_t*)(pDataSrc + 2);
+				src |= (uint32_t)(*(uint8_t*)(pDataSrc + 1)) << 8;
+				src |= (uint32_t)(*(uint8_t*)(pDataSrc + 2)) << 16;
 
 				switch (m_pwfxDst->wBitsPerSample)
 				{
 				case 8:
 					{
-						uint8_t dst = (src * MAX_U8) & ~MAX_U24;
-						*(uint8_t*)pDataDst = dst;
+						int8_t dst = (src >> 16) - 128;
+						*(int8_t*)pDataDst = dst;
 					}
 					break;
 				case 16:
 					{
-						uint16_t dst = (uint16_t)::roundf(src * (float)MAX_U16 / MAX_U24);
+						uint16_t dst = src >> 8;
 						*(uint16_t*)pDataDst = dst;
 					}
 					break;
 				case 32:
 					{
-						uint32_t dst = (uint32_t)::roundf(src * (float)MAX_U32 / MAX_U24);
-						*(uint32_t*)pDataDst = dst;
+						uint32_t dst = src << 8;
+						if (m_pwfxDst->wFormatTag == 3)
+							*(float*)pDataDst = (float)dst / (1U << 31);
+						else
+							*(uint32_t*)pDataDst = dst;
 					}
 					break;
 				default:
@@ -180,24 +188,29 @@ void WaveConverter::ConvertSample(const char *pDataSrc, char *pDataDst)
 			break;
 		case 32:
 			{
-				uint32_t src = *(uint32_t*)pDataSrc;
+				uint32_t src;
+				if (m_pwfxSrc->wFormatTag == 3)
+					src = (uint32_t)(*(float*)pDataSrc * (1U << 31));
+				else
+					src = *(uint32_t*)pDataSrc;
+
 				switch (m_pwfxDst->wBitsPerSample)
 				{
 				case 8:
 					{
-						uint8_t dst = src / (MAX_U32 / MAX_U8);
-						*(uint8_t*)pDataDst = dst;
+						int8_t dst = (src >> 24) - 128;
+						*(int8_t*)pDataDst = dst;
 					}
 					break;
 				case 16:
 					{
-						uint16_t dst = src / (MAX_U32 / MAX_U16);
+						uint16_t dst = src >> 16;
 						*(uint16_t*)pDataDst = dst;
 					}
 					break;
 				case 24:
 					{
-						uint32_t dst = (uint32_t)::roundf(src * (float)MAX_U24 / MAX_U32);
+						uint32_t dst = src >> 8;
 						*(uint8_t*)(pDataDst + 0) = (dst) & 0xFF;
 						*(uint8_t*)(pDataDst + 1) = (dst >> 8) & 0xFF;
 						*(uint8_t*)(pDataDst + 2) = (dst >> 16) & 0xFF;
@@ -208,6 +221,7 @@ void WaveConverter::ConvertSample(const char *pDataSrc, char *pDataDst)
 					break;
 				}
 			}
+			break;
 		default:
 			assert(false);
 			break;
