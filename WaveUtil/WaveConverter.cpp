@@ -194,10 +194,16 @@ uint32_t WaveConverter::ConvertSampleRate(const char *pDataSrc, uint32_t &srcFra
 		if (srcIndex >= srcFrameCount)
 			break;
 
-		if (step != 0)
+		if (step > 0)
 		{
 			m_srcFrameIndex += step;
 			pDataSrc += step * m_srcBytesPerFrame;
+		}
+		else if (step < 0)
+		{
+			step = -step;
+			m_srcFrameIndex -= step;
+			pDataSrc -= step * m_srcBytesPerFrame;
 		}
 
 		if (usePreFrame)
