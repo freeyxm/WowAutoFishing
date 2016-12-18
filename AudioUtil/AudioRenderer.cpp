@@ -106,22 +106,31 @@ bool AudioRenderer::UseFormat(WAVEFORMATEX *pwfx)
 			WaveUtil::ConvertFormat(m_pWaveFile->GetFormat(), &srcWfx);
 
 			WAVEFORMATEX dstWfx = srcWfx;
-			WaveUtil::SetFormat(&dstWfx, pwfx->nSamplesPerSec, srcWfx.wBitsPerSample, srcWfx.nChannels);
-			if (IsFormatSupported(&dstWfx))
+			do
 			{
-				memcpy(pwfx, &dstWfx, sizeof(dstWfx));
-			}
-			else
-			{
+				WaveUtil::SetFormat(&dstWfx, pwfx->nSamplesPerSec, srcWfx.wBitsPerSample, srcWfx.nChannels);
+				if (IsFormatSupported(&dstWfx))
+					break;
+
+				WaveUtil::SetFormat(&dstWfx, pwfx->nSamplesPerSec, pwfx->wBitsPerSample, srcWfx.nChannels);
+				if (IsFormatSupported(&dstWfx))
+					break;
+
+				WaveUtil::SetFormat(&dstWfx, pwfx->nSamplesPerSec, pwfx->wBitsPerSample, pwfx->nChannels);
+				if (IsFormatSupported(&dstWfx))
+					break;
+
 				return false;
-			}
+			} while (false);
+
+			memcpy(pwfx, &dstWfx, sizeof(dstWfx));
 
 			if (m_pConverter == NULL)
 			{
 				m_pConverter = new WaveStreamConverter(NULL);
 			}
 			m_pConverter->SetStream(&m_pWaveFile->InStream());
-			m_pConverter->SetFormat(&srcWfx, pwfx, m_nBufferFrameCount);
+			m_pConverter->SetFormat(&srcWfx, pwfx, pwfx->nSamplesPerSec);
 		}
 	}
 	return AudioRender::UseFormat(pwfx);
