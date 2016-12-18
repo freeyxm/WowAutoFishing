@@ -22,7 +22,7 @@ public:
 	friend UINT __stdcall RenderTheadProc(LPVOID param);
 
 protected:
-	virtual bool SetFormat(WAVEFORMATEX *pwfx);
+	virtual bool UseFormat(WAVEFORMATEX *pwfx);
 	virtual HRESULT OnLoadData(BYTE *pData, UINT32 *pFrameCount, DWORD *pFlags);
 
 	HRESULT LoadDataFromStorage(BYTE *pData, UINT32 *pFrameCount, DWORD *pFlags);

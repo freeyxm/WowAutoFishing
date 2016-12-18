@@ -95,7 +95,7 @@ static UINT __stdcall RenderTheadProc(LPVOID param)
 	return hr;
 }
 
-bool AudioRenderer::SetFormat(WAVEFORMATEX *pwfx)
+bool AudioRenderer::UseFormat(WAVEFORMATEX *pwfx)
 {
 	if (m_srcType == SourceType::Wave)
 	{
@@ -124,7 +124,7 @@ bool AudioRenderer::SetFormat(WAVEFORMATEX *pwfx)
 			m_pConverter->SetFormat(&srcWfx, pwfx, m_nBufferFrameCount);
 		}
 	}
-	return AudioRender::SetFormat(pwfx);
+	return AudioRender::UseFormat(pwfx);
 }
 
 HRESULT AudioRenderer::OnLoadData(BYTE *pData, UINT32 *pFrameCount, DWORD *pFlags)

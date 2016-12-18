@@ -98,7 +98,7 @@ bool AudioRender::InitRenderClient(WAVEFORMATEX *pwfx)
 		}
 
 		// Tell the audio source which format to use.
-		if (!this->SetFormat(pwfx))
+		if (!this->UseFormat(pwfx))
 			break;
 
 		hr = m_pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, 0, hnsRequestedDuration, 0, pwfx, NULL);
@@ -272,20 +272,16 @@ const WAVEFORMATEX* AudioRender::GetFormat() const
 
 bool AudioRender::SetFormat(WAVEFORMATEX *pwfx)
 {
+	return InitRenderClient(pwfx);
+}
+
+bool AudioRender::UseFormat(WAVEFORMATEX *pwfx)
+{
 	memcpy(&m_wfx, pwfx, sizeof(m_wfx));
 
 	m_nBytesPerSample = pwfx->wBitsPerSample / 8;
 	m_nBytesPerFrame = m_nBytesPerSample * pwfx->nChannels;
 
-	return true;
-}
-
-bool AudioRender::TryFormat(WAVEFORMATEX *pwfx)
-{
-	if (InitRenderClient(pwfx))
-	{
-		return SetFormat(pwfx);
-	}
 	return true;
 }
 

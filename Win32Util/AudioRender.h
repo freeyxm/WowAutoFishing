@@ -12,7 +12,7 @@ public:
 
 	virtual bool Init(WAVEFORMATEX *pwfx = NULL);
 
-	virtual bool TryFormat(WAVEFORMATEX *pwfx);
+	virtual bool SetFormat(WAVEFORMATEX *pwfx);
 	virtual const WAVEFORMATEX* GetFormat() const;
 
 	virtual HRESULT Render();
@@ -27,7 +27,7 @@ protected:
 	virtual bool InitRenderClient(WAVEFORMATEX *pwfx);
 	virtual void ReleaseRenderClient();
 
-	virtual bool SetFormat(WAVEFORMATEX *pwfx);
+	virtual bool UseFormat(WAVEFORMATEX *pwfx);
 	virtual bool IsFormatSupported(WAVEFORMATEX *pwfx);
 
 	virtual bool StartRender();
