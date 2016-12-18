@@ -36,6 +36,9 @@
     <ClInclude Include="Util\FFT.h">
       <Filter>Util</Filter>
     </ClInclude>
+    <ClInclude Include="WaveGraph.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

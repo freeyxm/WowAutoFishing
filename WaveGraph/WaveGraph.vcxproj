@@ -170,6 +170,7 @@
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Util\FastFourierTransform.h" />
     <ClInclude Include="Util\FFT.h" />
+    <ClInclude Include="WaveGraph.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

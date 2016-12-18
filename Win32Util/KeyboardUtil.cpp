@@ -57,7 +57,7 @@ e.g. "C+A" is Ctrl + Alt.
 */
 void KeyboardUtil::PressKey(int key, const char *modifiers, int interval)
 {
-	const int len = modifiers != NULL ? ::strlen(modifiers) : 0;
+	const int len = modifiers != NULL ? (int)::strlen(modifiers) : 0;
 	for (int i = 0; i < len; ++i)
 	{
 		KeyEvent(modifiers[i], interval, &KeyboardUtil::KeyDown);
