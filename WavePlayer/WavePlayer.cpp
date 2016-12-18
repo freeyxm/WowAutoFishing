@@ -22,16 +22,11 @@ int main(int argc, char *argv[])
 
 void PlayWave(const char *file)
 {
-	WaveFile waveFile;
-	if (waveFile.BeginRead(file))
+	AudioRenderer render;
+	if (render.Init())
 	{
-		WAVEFORMATEX wfmx;
-		WaveUtil::ConvertFormat(waveFile.GetFormat(), &wfmx);
-
-		AudioRenderer render;
-		if (render.Init(&wfmx))
+		if (render.SetSourceFile(file))
 		{
-			render.SetSource(&waveFile);
 			render.Start();
 			while (!render.IsDone())
 			{

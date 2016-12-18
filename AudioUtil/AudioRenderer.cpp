@@ -1,5 +1,6 @@
 ﻿#include "stdafx.h"
 #include "AudioRenderer.h"
+#include "CommUtil/CommUtil.hpp"
 #include <process.h>
 
 static UINT __stdcall RenderTheadProc(LPVOID param);
@@ -7,12 +8,15 @@ static UINT __stdcall RenderTheadProc(LPVOID param);
 AudioRenderer::AudioRenderer(bool bDefaultDevice)
 	: AudioRender(bDefaultDevice)
 	, m_bPlaying(false), m_hThreadRenderer(NULL)
+	, m_pWaveFile(NULL), m_pConverter(NULL)
 {
 }
 
 
 AudioRenderer::~AudioRenderer()
 {
+	SAFE_DELETE(m_pWaveFile);
+	SAFE_DELETE(m_pConverter);
 }
 
 void AudioRenderer::SetSource(const AudioFrameStorage *pStorage)
@@ -21,10 +25,21 @@ void AudioRenderer::SetSource(const AudioFrameStorage *pStorage)
 	m_pStorage = pStorage;
 }
 
-void AudioRenderer::SetSource(WaveFile *pWaveFile)
+bool AudioRenderer::SetSourceFile(const char *pWaveFile)
 {
 	m_srcType = SourceType::Wave;
-	m_pWaveFile = pWaveFile;
+	if (m_pWaveFile == NULL)
+	{
+		m_pWaveFile = new WaveFile();
+	}
+	if (!m_pWaveFile->BeginRead(pWaveFile))
+	{
+		return false;
+	}
+
+	WAVEFORMATEX wfx;
+	WaveUtil::ConvertFormat(m_pWaveFile->GetFormat(), &wfx);
+	return Init(&wfx);
 }
 
 bool AudioRenderer::Start()
@@ -60,6 +75,11 @@ void AudioRenderer::Stop()
 	}
 
 	StopRender();
+
+	if (m_srcType == SourceType::Wave)
+	{
+		m_pWaveFile->EndRead();
+	}
 }
 
 static UINT __stdcall RenderTheadProc(LPVOID param)
@@ -75,11 +95,36 @@ static UINT __stdcall RenderTheadProc(LPVOID param)
 	return hr;
 }
 
-HRESULT AudioRenderer::SetFormat(WAVEFORMATEX *pwfx)
+bool AudioRenderer::SetFormat(WAVEFORMATEX *pwfx)
 {
-	AudioRender::SetFormat(pwfx);
+	if (m_srcType == SourceType::Wave)
+	{
+		m_bConvert = !WaveUtil::IsSameFormat(pwfx, m_pWaveFile->GetFormat());
+		if (m_bConvert)
+		{
+			WAVEFORMATEX srcWfx;
+			WaveUtil::ConvertFormat(m_pWaveFile->GetFormat(), &srcWfx);
 
-	return S_OK;
+			WAVEFORMATEX dstWfx = srcWfx;
+			WaveUtil::SetFormat(&dstWfx, pwfx->nSamplesPerSec, srcWfx.wBitsPerSample, srcWfx.nChannels);
+			if (IsFormatSupported(&dstWfx))
+			{
+				memcpy(pwfx, &dstWfx, sizeof(dstWfx));
+			}
+			else
+			{
+				return false;
+			}
+
+			if (m_pConverter == NULL)
+			{
+				m_pConverter = new WaveStreamConverter(NULL);
+			}
+			m_pConverter->SetStream(&m_pWaveFile->InStream());
+			m_pConverter->SetFormat(&srcWfx, pwfx, m_nBufferFrameCount);
+		}
+	}
+	return AudioRender::SetFormat(pwfx);
 }
 
 HRESULT AudioRenderer::OnLoadData(BYTE *pData, UINT32 *pFrameCount, DWORD *pFlags)
@@ -137,7 +182,16 @@ HRESULT AudioRenderer::LoadDataFromStorage(BYTE *pData, UINT32 *pFrameCount, DWO
 
 HRESULT AudioRenderer::LoadDataFromFile(BYTE *pData, UINT32 *pFrameCount, DWORD *pFlags)
 {
-	uint32_t readCount = m_pWaveFile->ReadFrame((char*)pData, *pFrameCount);
+	uint32_t readCount;
+	if (m_bConvert)
+	{
+		readCount = m_pConverter->ReadFrame((char*)pData, *pFrameCount);
+	}
+	else
+	{
+		readCount = m_pWaveFile->ReadFrame((char*)pData, *pFrameCount);
+	}
+
 	if (readCount < *pFrameCount)
 	{
 		*pFrameCount = readCount;

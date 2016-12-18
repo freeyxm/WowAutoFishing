@@ -9,12 +9,11 @@ AudioRender::AudioRender(bool bDefaultDevice)
 	, m_bInited(false), m_bDone(true)
 	, m_bDefaultDevice(bDefaultDevice)
 {
-	::memset(&m_srcWfx, 0, sizeof(m_srcWfx));
 }
 
 AudioRender::~AudioRender()
 {
-	Release();
+	ReleaseAudioClient();
 }
 
 //-----------------------------------------------------------
@@ -29,9 +28,9 @@ AudioRender::~AudioRender()
 #define REFTIMES_PER_SEC  10000000
 #define REFTIMES_PER_MILLISEC  10000
 
-bool AudioRender::Init()
+bool AudioRender::InitAudioClient()
 {
-	if (m_bInited)
+	if (m_pAudioClient != NULL)
 		return true;
 
 	HRESULT hr = S_FALSE;
@@ -43,7 +42,6 @@ bool AudioRender::Init()
 		const CLSID CLSID_MMDeviceEnumerator = __uuidof(MMDeviceEnumerator);
 		const IID IID_IMMDeviceEnumerator = __uuidof(IMMDeviceEnumerator);
 		const IID IID_IAudioClient = __uuidof(IAudioClient);
-		const IID IID_IAudioRenderClient = __uuidof(IAudioRenderClient);
 
 		hr = ::CoCreateInstance(CLSID_MMDeviceEnumerator, NULL, CLSCTX_ALL, IID_IMMDeviceEnumerator, (void**)&pEnumerator);
 		BREAK_ON_ERROR(hr);
@@ -54,19 +52,43 @@ bool AudioRender::Init()
 		hr = m_pDevice->Activate(IID_IAudioClient, CLSCTX_ALL, NULL, (void**)&m_pAudioClient);
 		BREAK_ON_ERROR(hr);
 
-		WAVEFORMATEX *pwfx = NULL;
-		if (m_srcWfx.wFormatTag)
+		hr = S_OK;
+	} while (false);
+
+	SAFE_RELEASE(pEnumerator);
+
+	if (FAILED(hr))
+	{
+		ReleaseAudioClient();
+		::printf("InitAudioClient failed, error code: 0x%x\n", hr);
+		return false;
+	}
+	else
+	{
+		return true;
+	}
+}
+
+bool AudioRender::InitRenderClient(WAVEFORMATEX *pwfx)
+{
+	HRESULT hr = S_FALSE;
+	REFERENCE_TIME hnsRequestedDuration = REFTIMES_PER_SEC;
+
+	do
+	{
+		if (m_pAudioClient == NULL)
+			break;
+
+		if (m_pRenderClient != NULL)
+			ReleaseRenderClient();
+
+		if (pwfx != NULL)
 		{
-			hr = m_pAudioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED, &m_srcWfx, &m_pwfx);
-			BREAK_ON_ERROR(hr);
-			if (hr != S_OK)
-			{
-				if (hr == S_FALSE)
-					hr = E_FAIL;
-				printf("source format not support!\n"); // need to repair!!!
+			hr = m_pAudioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED, pwfx, &m_pwfx);
+			if (hr == S_FALSE)
+				pwfx = m_pwfx;
+			else if (hr != S_OK)
 				break;
-			}
-			pwfx = &m_srcWfx;
 		}
 		else
 		{
@@ -75,33 +97,31 @@ bool AudioRender::Init()
 			pwfx = m_pwfx;
 		}
 
+		// Tell the audio source which format to use.
+		if (!this->SetFormat(pwfx))
+			break;
+
 		hr = m_pAudioClient->Initialize(AUDCLNT_SHAREMODE_SHARED, 0, hnsRequestedDuration, 0, pwfx, NULL);
 		BREAK_ON_ERROR(hr);
 
-		// Tell the audio source which format to use.
-		hr = this->SetFormat(pwfx);
-		BREAK_ON_ERROR(hr);
-
 		// Get the actual size of the allocated buffer.
-		hr = m_pAudioClient->GetBufferSize(&m_bufferFrameCount);
+		hr = m_pAudioClient->GetBufferSize(&m_nBufferFrameCount);
 		BREAK_ON_ERROR(hr);
 
+		const IID IID_IAudioRenderClient = __uuidof(IAudioRenderClient);
 		hr = m_pAudioClient->GetService(IID_IAudioRenderClient, (void**)&m_pRenderClient);
 		BREAK_ON_ERROR(hr);
 
 		// Calculate the actual duration of the allocated buffer.
-		m_hnsActualDuration = (REFERENCE_TIME)((double)REFTIMES_PER_SEC * m_bufferFrameCount / pwfx->nSamplesPerSec);
+		m_hnsActualDuration = (REFERENCE_TIME)((double)REFTIMES_PER_SEC * m_nBufferFrameCount / pwfx->nSamplesPerSec);
 
 		hr = S_OK;
-
 	} while (false);
-
-	SAFE_RELEASE(pEnumerator);
 
 	if (FAILED(hr))
 	{
-		Release();
-		::printf("Init failed, error code: 0x%x\n", hr);
+		ReleaseRenderClient();
+		::printf("InitRenderClient failed, error code: 0x%x\n", hr);
 		return false;
 	}
 	else
@@ -113,21 +133,29 @@ bool AudioRender::Init()
 
 bool AudioRender::Init(WAVEFORMATEX *pwfx)
 {
-	SetSourceFormat(pwfx);
-	return Init();
+	if (!InitAudioClient())
+		return false;
+	if (pwfx != NULL && !InitRenderClient(pwfx))
+		return false;
+	return true;
 }
 
-void AudioRender::Release()
+void AudioRender::ReleaseRenderClient()
 {
 	if (m_pwfx != NULL)
 	{
 		CoTaskMemFree(m_pwfx);
 		m_pwfx = NULL;
 	}
-	SAFE_RELEASE(m_pDevice);
-	SAFE_RELEASE(m_pAudioClient);
 	SAFE_RELEASE(m_pRenderClient);
 	m_bInited = false;
+}
+
+void AudioRender::ReleaseAudioClient()
+{
+	ReleaseRenderClient();
+	SAFE_RELEASE(m_pAudioClient);
+	SAFE_RELEASE(m_pDevice);
 	m_bDone = true;
 }
 
@@ -176,7 +204,7 @@ HRESULT AudioRender::Render()
 		while (!m_bDone)
 		{
 			// Sleep for half the buffer duration.
-			DWORD time = (DWORD)(m_hnsActualDuration * frameCount / m_bufferFrameCount / REFTIMES_PER_MILLISEC / 2);
+			DWORD time = (DWORD)(m_hnsActualDuration * frameCount / m_nBufferFrameCount / REFTIMES_PER_MILLISEC / 2);
 			if (time < 10)
 				time = 10; // Sleep at least 10 ms.
 			Sleep(time);
@@ -186,7 +214,7 @@ HRESULT AudioRender::Render()
 		}
 
 		// Wait for last data in buffer to play before stopping.
-		Sleep((DWORD)(m_hnsActualDuration * frameCount / m_bufferFrameCount / REFTIMES_PER_MILLISEC));
+		Sleep((DWORD)(m_hnsActualDuration * frameCount / m_nBufferFrameCount / REFTIMES_PER_MILLISEC));
 
 		hr = this->StopRender();
 		BREAK_ON_ERROR(hr);
@@ -209,7 +237,7 @@ inline HRESULT AudioRender::LoadData(DWORD *pFrameCount, DWORD *pFlags)
 		hr = m_pAudioClient->GetCurrentPadding(&numFramesPadding);
 		BREAK_ON_ERROR(hr);
 
-		numFramesAvailable = m_bufferFrameCount - numFramesPadding;
+		numFramesAvailable = m_nBufferFrameCount - numFramesPadding;
 
 		// Grab the entire buffer for the initial fill operation.
 		hr = m_pRenderClient->GetBuffer(numFramesAvailable, &pData);
@@ -239,22 +267,40 @@ HRESULT AudioRender::OnLoadData(BYTE *pData, UINT32 *pFrameCount, DWORD *pFlags)
 
 const WAVEFORMATEX* AudioRender::GetFormat() const
 {
-	return m_pwfx != NULL ? m_pwfx : &m_srcWfx;
+	return &m_wfx;
 }
 
-HRESULT AudioRender::SetFormat(WAVEFORMATEX *pwfx)
+bool AudioRender::SetFormat(WAVEFORMATEX *pwfx)
 {
+	memcpy(&m_wfx, pwfx, sizeof(m_wfx));
+
 	m_nBytesPerSample = pwfx->wBitsPerSample / 8;
 	m_nBytesPerFrame = m_nBytesPerSample * pwfx->nChannels;
 
-	return S_OK;
+	return true;
 }
 
-HRESULT AudioRender::SetSourceFormat(WAVEFORMATEX *pwfx)
+bool AudioRender::TryFormat(WAVEFORMATEX *pwfx)
 {
-	::memcpy(&m_srcWfx, pwfx, sizeof(WAVEFORMATEX));
+	if (InitRenderClient(pwfx))
+	{
+		return SetFormat(pwfx);
+	}
+	return true;
+}
 
-	return S_OK;
+bool AudioRender::IsFormatSupported(WAVEFORMATEX *pwfx)
+{
+	if (m_pAudioClient == NULL)
+		return false;
+
+	WAVEFORMATEX *pClosestMatch = NULL;
+	auto hr = m_pAudioClient->IsFormatSupported(AUDCLNT_SHAREMODE_SHARED, pwfx, &pClosestMatch);
+	if (pClosestMatch != NULL)
+	{
+		CoTaskMemFree(pClosestMatch);
+	}
+	return hr == S_OK;
 }
 
 bool AudioRender::IsDone() const

@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "Win32Util/AudioRender.h"
 #include "WaveUtil/WaveFile.h"
+#include "WaveUtil/WaveStreamConverter.h"
 #include "AudioFrameStorage.h"
 
 class AudioRenderer :
@@ -11,7 +12,7 @@ public:
 	virtual ~AudioRenderer();
 
 	void SetSource(const AudioFrameStorage *pStorage);
-	void SetSource(WaveFile *pWaveFile);
+	bool SetSourceFile(const char *pWaveFile);
 
 	virtual bool Start();
 	virtual void Stop();
@@ -21,7 +22,7 @@ public:
 	friend UINT __stdcall RenderTheadProc(LPVOID param);
 
 protected:
-	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
+	virtual bool SetFormat(WAVEFORMATEX *pwfx);
 	virtual HRESULT OnLoadData(BYTE *pData, UINT32 *pFrameCount, DWORD *pFlags);
 
 	HRESULT LoadDataFromStorage(BYTE *pData, UINT32 *pFrameCount, DWORD *pFlags);
@@ -35,6 +36,8 @@ private:
 	} m_srcType;
 
 	WaveFile *m_pWaveFile;
+	WaveStreamConverter *m_pConverter;
+	bool m_bConvert;
 
 	const AudioFrameStorage *m_pStorage;
 	AudioFrameStorage::AudioFrameCIter m_dataIter;
