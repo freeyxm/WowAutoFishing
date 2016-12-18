@@ -30,8 +30,8 @@ private:
 	void ConvertSample(const char *pDataSrc, char *pDataDst);
 
 protected:
-	const WAVEFORMATEX *m_pwfxSrc;
-	const WAVEFORMATEX *m_pwfxDst;
+	WAVEFORMATEX m_wfxSrc;
+	WAVEFORMATEX m_wfxDst;
 	float m_sampleRateRatio;
 	uint32_t m_srcBytesPerSample;
 	uint32_t m_dstBytesPerSample;

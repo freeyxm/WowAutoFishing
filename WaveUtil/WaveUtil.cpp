@@ -42,6 +42,20 @@ void WaveUtil::SetFormat(WAVEFORMATEX *pwfx, int sampleRate, int bitsPerSample, 
 	pwfx->nAvgBytesPerSec = sampleRate * channel * bitsPerSample / 8;
 }
 
+bool WaveUtil::IsSameFormat(const WAVEFORMATEX *pwfx, const WaveFile::FormatChunk *pfmt)
+{
+	return pwfx->nSamplesPerSec == pfmt->sampleRate
+		&& pwfx->wBitsPerSample == pfmt->bitsPerSample
+		&& pwfx->nChannels == pfmt->numChannels;
+}
+
+bool WaveUtil::IsSameFormat(const WAVEFORMATEX *pwfx, const WAVEFORMATEX *pwfx2)
+{
+	return pwfx->nSamplesPerSec == pwfx2->nSamplesPerSec
+		&& pwfx->wBitsPerSample == pwfx2->wBitsPerSample
+		&& pwfx->nChannels == pwfx2->nChannels;
+}
+
 bool WaveUtil::LoadWave(const char *path, WAVEFORMATEX *pwfx, char **ppData, uint32_t *pDataLen)
 {
 	WaveUtil wave;

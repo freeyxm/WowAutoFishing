@@ -3,12 +3,12 @@
 #include "CommUtil/CommUtil.hpp"
 #include <cmath>
 #include <assert.h>
+#include <memory>
 
 using namespace comm_util;
 
 WaveConverter::WaveConverter()
-	: m_pwfxSrc(NULL), m_pwfxDst(NULL)
-	, m_pSrcBuffer(NULL), m_pSrcPreFrame(NULL)
+	: m_pSrcBuffer(NULL), m_pSrcPreFrame(NULL)
 	, m_srcBufferFrameCount(0)
 {
 }
@@ -21,18 +21,18 @@ WaveConverter::~WaveConverter()
 
 void WaveConverter::SetFormat(const WAVEFORMATEX *pwfxSrc, const WAVEFORMATEX *pwfxDst, uint32_t bufferFrameCount)
 {
-	m_pwfxSrc = pwfxSrc;
-	m_pwfxDst = pwfxDst;
-	m_sampleRateRatio = (float)m_pwfxSrc->nSamplesPerSec / m_pwfxDst->nSamplesPerSec;
+	memcpy(&m_wfxSrc, pwfxSrc, sizeof(m_wfxSrc));
+	memcpy(&m_wfxDst, pwfxDst, sizeof(m_wfxDst));
+	m_sampleRateRatio = (float)m_wfxSrc.nSamplesPerSec / m_wfxDst.nSamplesPerSec;
 
-	m_srcBytesPerSample = m_pwfxSrc->wBitsPerSample / 8;
-	m_dstBytesPerSample = m_pwfxDst->wBitsPerSample / 8;
-	m_srcBytesPerFrame = m_srcBytesPerSample * m_pwfxSrc->nChannels;
-	m_dstBytesPerFrame = m_dstBytesPerSample * m_pwfxDst->nChannels;
+	m_srcBytesPerSample = m_wfxSrc.wBitsPerSample / 8;
+	m_dstBytesPerSample = m_wfxDst.wBitsPerSample / 8;
+	m_srcBytesPerFrame = m_srcBytesPerSample * m_wfxSrc.nChannels;
+	m_dstBytesPerFrame = m_dstBytesPerSample * m_wfxDst.nChannels;
 
 	if (bufferFrameCount == 0)
 	{
-		bufferFrameCount = m_pwfxSrc->nSamplesPerSec / 2;
+		bufferFrameCount = m_wfxSrc.nSamplesPerSec / 2;
 	}
 	else
 	{
@@ -74,7 +74,7 @@ uint32_t WaveConverter::DstToSrcFrameIndex(uint32_t dstFrameIndex)
 
 uint32_t WaveConverter::ReadFrame(char *pDataDst, uint32_t dstFrameCount)
 {
-	if (m_pwfxSrc->nSamplesPerSec != m_pwfxDst->nSamplesPerSec)
+	if (m_wfxSrc.nSamplesPerSec != m_wfxDst.nSamplesPerSec)
 	{
 		return ReadFrameSampleRate(pDataDst, dstFrameCount);
 	}
@@ -240,18 +240,18 @@ uint32_t WaveConverter::ConvertNormal(const char *pDataSrc, char *pDataDst, uint
 
 void WaveConverter::ConvertFrame(const char *pDataSrc, char *pDataDst)
 {
-	if (m_pwfxSrc->nChannels >= m_pwfxDst->nChannels)
+	if (m_wfxSrc.nChannels >= m_wfxDst.nChannels)
 	{
-		for (int c = 0; c < m_pwfxDst->nChannels; ++c)
+		for (int c = 0; c < m_wfxDst.nChannels; ++c)
 		{
 			ConvertSample(pDataSrc + c * m_srcBytesPerSample, pDataDst + c * m_dstBytesPerSample);
 		}
 	}
 	else
 	{
-		for (int index = 0; index < m_pwfxDst->nChannels; index += m_pwfxSrc->nChannels)
+		for (int index = 0; index < m_wfxDst.nChannels; index += m_wfxSrc.nChannels)
 		{
-			for (int c = 0; c < m_pwfxSrc->nChannels; ++c)
+			for (int c = 0; c < m_wfxSrc.nChannels; ++c)
 			{
 				ConvertSample(pDataSrc + c * m_srcBytesPerSample, pDataDst + (index + c) * m_dstBytesPerSample);
 			}
@@ -262,18 +262,18 @@ void WaveConverter::ConvertFrame(const char *pDataSrc, char *pDataDst)
 // little-endian !!!
 void WaveConverter::ConvertSample(const char *pDataSrc, char *pDataDst)
 {
-	if (m_pwfxSrc->wBitsPerSample == m_pwfxDst->wBitsPerSample)
+	if (m_wfxSrc.wBitsPerSample == m_wfxDst.wBitsPerSample)
 	{
 		memcpy(pDataDst, pDataSrc, m_srcBytesPerSample);
 	}
 	else
 	{
-		switch (m_pwfxSrc->wBitsPerSample)
+		switch (m_wfxSrc.wBitsPerSample)
 		{
 		case 8:
 			{
 				uint32_t src = *(int8_t*)pDataSrc + 128;
-				switch (m_pwfxDst->wBitsPerSample)
+				switch (m_wfxDst.wBitsPerSample)
 				{
 				case 16:
 					{
@@ -292,7 +292,7 @@ void WaveConverter::ConvertSample(const char *pDataSrc, char *pDataDst)
 				case 32:
 					{
 						uint32_t dst = src << 24;
-						if (m_pwfxDst->wFormatTag == 3)
+						if (m_wfxDst.wFormatTag == 3)
 							*(float*)pDataDst = (float)dst / (1U << 31);
 						else
 							*(uint32_t*)pDataDst = dst;
@@ -307,7 +307,7 @@ void WaveConverter::ConvertSample(const char *pDataSrc, char *pDataDst)
 		case 16:
 			{
 				uint32_t src = *(uint16_t*)pDataSrc;
-				switch (m_pwfxDst->wBitsPerSample)
+				switch (m_wfxDst.wBitsPerSample)
 				{
 				case 8:
 					{
@@ -326,7 +326,7 @@ void WaveConverter::ConvertSample(const char *pDataSrc, char *pDataDst)
 				case 32:
 					{
 						uint32_t dst = src << 16;
-						if (m_pwfxDst->wFormatTag == 3)
+						if (m_wfxDst.wFormatTag == 3)
 							*(float*)pDataDst = (float)dst / (1U << 31);
 						else
 							*(uint32_t*)pDataDst = dst;
@@ -344,7 +344,7 @@ void WaveConverter::ConvertSample(const char *pDataSrc, char *pDataDst)
 				src |= (uint32_t)(*(uint8_t*)(pDataSrc + 1)) << 8;
 				src |= (uint32_t)(*(uint8_t*)(pDataSrc + 2)) << 16;
 
-				switch (m_pwfxDst->wBitsPerSample)
+				switch (m_wfxDst.wBitsPerSample)
 				{
 				case 8:
 					{
@@ -361,7 +361,7 @@ void WaveConverter::ConvertSample(const char *pDataSrc, char *pDataDst)
 				case 32:
 					{
 						uint32_t dst = src << 8;
-						if (m_pwfxDst->wFormatTag == 3)
+						if (m_wfxDst.wFormatTag == 3)
 							*(float*)pDataDst = (float)dst / (1U << 31);
 						else
 							*(uint32_t*)pDataDst = dst;
@@ -376,12 +376,12 @@ void WaveConverter::ConvertSample(const char *pDataSrc, char *pDataDst)
 		case 32:
 			{
 				uint32_t src;
-				if (m_pwfxSrc->wFormatTag == 3)
+				if (m_wfxSrc.wFormatTag == 3)
 					src = (uint32_t)(*(float*)pDataSrc * (1U << 31));
 				else
 					src = *(uint32_t*)pDataSrc;
 
-				switch (m_pwfxDst->wBitsPerSample)
+				switch (m_wfxDst.wBitsPerSample)
 				{
 				case 8:
 					{

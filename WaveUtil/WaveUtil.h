@@ -15,5 +15,8 @@ public:
 	static void ConvertFormat(const WAVEFORMATEX *pwfx, WaveFile::FormatChunk *pfmt);
 
 	static void SetFormat(WAVEFORMATEX *pwfx, int sampleRate, int bitsPerSample, int channel);
+
+	static bool IsSameFormat(const WAVEFORMATEX *pwfx, const WaveFile::FormatChunk *pfmt);
+	static bool IsSameFormat(const WAVEFORMATEX *pwfx, const WAVEFORMATEX *pwfx2);
 };
 
