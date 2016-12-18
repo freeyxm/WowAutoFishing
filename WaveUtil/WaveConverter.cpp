@@ -129,6 +129,9 @@ uint32_t WaveConverter::ReadFrameSampleRate(char *pDataDst, uint32_t dstFrameCou
 		{
 			m_srcBufferFrameIndex = 0;
 		}
+
+		if (wcount == 0)
+			break;
 	}
 	return dstFrameCount - dstCount;
 }

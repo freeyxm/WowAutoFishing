@@ -50,7 +50,7 @@ int ConvertWave(std::string fileName, int sampleRate, int bitsPerSample, int cha
 	std::string inFileName = fileName;
 	std::string outFileName;
 
-	printf("process: %s\n\n", inFileName.c_str());
+	printf("process: %s\n", inFileName.c_str());
 
 	WaveFile inFile;
 	if (!inFile.BeginRead(inFileName.c_str()))
@@ -69,7 +69,8 @@ int ConvertWave(std::string fileName, int sampleRate, int bitsPerSample, int cha
 	if (channel == 0)
 		channel = fwxIn.nChannels;
 
-	printf("convert: %d, %d, %d\n\n", sampleRate, bitsPerSample, channel);
+	printf("src fmt: %d, %d, %d\n", fwxIn.nSamplesPerSec, fwxIn.wBitsPerSample, fwxIn.nChannels);
+	printf("dst fmt: %d, %d, %d\n", sampleRate, bitsPerSample, channel);
 
 	std::stringstream stream;
 	stream << fileName.substr(0, fileName.find_last_of('.'));
@@ -85,7 +86,7 @@ int ConvertWave(std::string fileName, int sampleRate, int bitsPerSample, int cha
 	WaveFile outFile;
 	if (!outFile.SetFormat(fmtOut))
 	{
-		printf("Error: Out file format error.");
+		printf("Error: Out file format error.\n");
 		return -1;
 	}
 	if (!outFile.BeginWrite(outFileName.c_str(), true))
