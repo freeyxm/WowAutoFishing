@@ -310,3 +310,8 @@ void WaveFile::GiveData(char *pData, uint32_t dataLen)
 	m_info.data.pData = pData;
 	SetDataChunkSize(dataLen);
 }
+
+std::fstream& WaveFile::InStream()
+{
+	return m_inFile;
+}

@@ -72,6 +72,8 @@ public:
 	void TakeData(char **ppData, uint32_t *pDataLen);
 	void GiveData(char *pData, uint32_t dataLen);
 
+	std::fstream& InStream();
+
 protected:
 	bool ReadHead(std::fstream &file);
 	bool WriteHead(std::fstream &file);
