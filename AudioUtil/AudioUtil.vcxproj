@@ -159,9 +159,6 @@
     <ClInclude Include="AudioRenderer.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="WaveConverter.h" />
-    <ClInclude Include="WaveFile.h" />
-    <ClInclude Include="WaveUtil.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AudioExtractor.cpp" />
@@ -176,9 +173,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="WaveConverter.cpp" />
-    <ClCompile Include="WaveFile.cpp" />
-    <ClCompile Include="WaveUtil.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

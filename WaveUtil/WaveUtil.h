@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include <Audioclient.h>
 #include "WaveFile.h"
-#include "AudioFrameStorage.h"
 
 class WaveUtil : public WaveFile
 {

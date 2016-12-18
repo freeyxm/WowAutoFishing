@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "Win32Util/AudioRender.h"
+#include "WaveUtil/WaveFile.h"
 #include "AudioFrameStorage.h"
-#include "WaveFile.h"
 
 class AudioRenderer :
 	public AudioRender

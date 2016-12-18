@@ -2,8 +2,8 @@
 //
 
 #include "stdafx.h"
-#include "AudioUtil/WaveFile.h"
-#include "AudioUtil/WaveUtil.h"
+#include "WaveUtil/WaveFile.h"
+#include "WaveUtil/WaveUtil.h"
 #include "AudioUtil/AudioRenderer.h"
 
 void PlayWave(const char *file);
