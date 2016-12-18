@@ -45,6 +45,7 @@ void WaveConverter::SetFormat(const WAVEFORMATEX *pwfxSrc, const WAVEFORMATEX *p
 
 	SAFE_DELETE_A(m_pSrcPreFrame);
 	m_pSrcPreFrame = new char[m_srcBytesPerFrame];
+	memset(m_pSrcPreFrame, 0, m_srcBytesPerFrame);
 }
 
 void WaveConverter::Reset()
@@ -95,6 +96,7 @@ uint32_t WaveConverter::ReadFrameSampleRate(char *pDataDst, uint32_t dstFrameCou
 			{
 				srcCount -= m_srcBufferFrameIndex;
 				rcount = LoadSrcFrame(m_pSrcBuffer + m_srcBufferFrameIndex * m_srcBytesPerFrame, srcCount);
+				rcount += m_srcBufferFrameIndex;
 			}
 			else
 			{
@@ -106,6 +108,9 @@ uint32_t WaveConverter::ReadFrameSampleRate(char *pDataDst, uint32_t dstFrameCou
 			rcount = LoadSrcFrame(m_pSrcBuffer, srcCount);
 		}
 
+		if (rcount == 0)
+			break;
+
 		uint32_t _srcCount = rcount;
 		uint32_t wcount = ConvertSampleRate(m_pSrcBuffer, _srcCount, pDataDst, dstCount);
 		dstCount -= wcount;
@@ -113,7 +118,12 @@ uint32_t WaveConverter::ReadFrameSampleRate(char *pDataDst, uint32_t dstFrameCou
 
 		if (_srcCount < rcount)
 		{
-			memcpy(m_pSrcBuffer, m_pSrcBuffer + _srcCount * m_srcBytesPerFrame, (rcount - _srcCount) * m_srcBytesPerFrame);
+			m_srcBufferFrameIndex = rcount - _srcCount;
+			memcpy(m_pSrcBuffer, m_pSrcBuffer + _srcCount * m_srcBytesPerFrame, m_srcBufferFrameIndex * m_srcBytesPerFrame);
+		}
+		else
+		{
+			m_srcBufferFrameIndex = 0;
 		}
 	}
 	return dstFrameCount - dstCount;
@@ -205,10 +215,6 @@ uint32_t WaveConverter::ConvertSampleRate(const char *pDataSrc, uint32_t &srcFra
 	if (srcFrameCount > 0)
 	{
 		memcpy(m_pSrcPreFrame, pDataSrc - m_srcBytesPerFrame, m_srcBytesPerFrame);
-	}
-	else
-	{
-		memcpy(m_pSrcPreFrame, pDataSrc, m_srcBytesPerFrame);
 	}
 
 	return dstIndex;
