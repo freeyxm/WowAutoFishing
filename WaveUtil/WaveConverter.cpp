@@ -32,7 +32,11 @@ void WaveConverter::SetFormat(const WAVEFORMATEX *pwfxSrc, const WAVEFORMATEX *p
 
 	if (bufferFrameCount == 0)
 	{
-		bufferFrameCount = m_pwfxSrc->nSamplesPerSec;
+		bufferFrameCount = m_pwfxSrc->nSamplesPerSec / 2;
+	}
+	else
+	{
+		bufferFrameCount = (uint32_t)::roundf(bufferFrameCount * m_sampleRateRatio) + 1;
 	}
 
 	if (m_srcBufferFrameCount != bufferFrameCount)

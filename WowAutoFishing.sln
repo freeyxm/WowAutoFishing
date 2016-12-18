@@ -45,6 +45,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WavePlayer", "WavePlayer\Wa
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WaveUtil", "WaveUtil\WaveUtil.vcxproj", "{67493328-FEFE-4D0C-B747-AEBAF569E29D}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WaveConverter", "WaveConverter\WaveConverter.vcxproj", "{C23F0DA0-1DB4-4D73-B380-08DF35F5752C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{67493328-FEFE-4D0C-B747-AEBAF569E29D} = {67493328-FEFE-4D0C-B747-AEBAF569E29D}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -136,6 +141,16 @@ Global
 		{67493328-FEFE-4D0C-B747-AEBAF569E29D}.Release|Win32.Build.0 = Release|Win32
 		{67493328-FEFE-4D0C-B747-AEBAF569E29D}.Release|x64.ActiveCfg = Release|x64
 		{67493328-FEFE-4D0C-B747-AEBAF569E29D}.Release|x64.Build.0 = Release|x64
+		{C23F0DA0-1DB4-4D73-B380-08DF35F5752C}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{C23F0DA0-1DB4-4D73-B380-08DF35F5752C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C23F0DA0-1DB4-4D73-B380-08DF35F5752C}.Debug|Win32.Build.0 = Debug|Win32
+		{C23F0DA0-1DB4-4D73-B380-08DF35F5752C}.Debug|x64.ActiveCfg = Debug|x64
+		{C23F0DA0-1DB4-4D73-B380-08DF35F5752C}.Debug|x64.Build.0 = Debug|x64
+		{C23F0DA0-1DB4-4D73-B380-08DF35F5752C}.Release|Any CPU.ActiveCfg = Release|Win32
+		{C23F0DA0-1DB4-4D73-B380-08DF35F5752C}.Release|Win32.ActiveCfg = Release|Win32
+		{C23F0DA0-1DB4-4D73-B380-08DF35F5752C}.Release|Win32.Build.0 = Release|Win32
+		{C23F0DA0-1DB4-4D73-B380-08DF35F5752C}.Release|x64.ActiveCfg = Release|x64
+		{C23F0DA0-1DB4-4D73-B380-08DF35F5752C}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
