@@ -49,18 +49,22 @@ private:
 	enum class BitsConvertType
 	{
 		Bit_Equal,
+		Bit_08_08,
 		Bit_08_16,
 		Bit_08_24,
 		Bit_08_32,
 		Bit_16_08,
+		Bit_16_16,
 		Bit_16_24,
 		Bit_16_32,
 		Bit_24_08,
 		Bit_24_16,
+		Bit_24_24,
 		Bit_24_32,
 		Bit_32_08,
 		Bit_32_16,
 		Bit_32_24,
+		Bit_32_32,
 		Bit_Undefined,
 	};
 

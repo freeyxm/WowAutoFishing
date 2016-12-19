@@ -357,6 +357,12 @@ void WaveConverter::ConvertSample(const char *pDataSrc, char *pDataDst)
 			memcpy(pDataDst, pDataSrc, m_srcBytesPerSample);
 		}
 		break;
+	case WaveConverter::BitsConvertType::Bit_08_08:
+		{
+			uint8_t src = Parse08BitsValue(pDataSrc);
+			Write08BitsValue(pDataDst, src);
+		}
+		break;
 	case WaveConverter::BitsConvertType::Bit_08_16:
 		{
 			uint32_t src = Parse08BitsValue(pDataSrc);
@@ -383,6 +389,12 @@ void WaveConverter::ConvertSample(const char *pDataSrc, char *pDataDst)
 			uint32_t src = Parse16BitsValue(pDataSrc);
 			int8_t dst = (src >> 8) - 128;
 			Write08BitsValue(pDataDst, dst);
+		}
+		break;
+	case WaveConverter::BitsConvertType::Bit_16_16:
+		{
+			uint16_t src = Parse16BitsValue(pDataSrc);
+			Write16BitsValue(pDataDst, src);
 		}
 		break;
 	case WaveConverter::BitsConvertType::Bit_16_24:
@@ -413,6 +425,12 @@ void WaveConverter::ConvertSample(const char *pDataSrc, char *pDataDst)
 			Write16BitsValue(pDataDst, dst);
 		}
 		break;
+	case WaveConverter::BitsConvertType::Bit_24_24:
+		{
+			uint32_t src = Parse24BitsValue(pDataSrc);
+			Write24BitsValue(pDataDst, src);
+		}
+		break;
 	case WaveConverter::BitsConvertType::Bit_24_32:
 		{
 			uint32_t src = Parse24BitsValue(pDataSrc);
@@ -441,6 +459,12 @@ void WaveConverter::ConvertSample(const char *pDataSrc, char *pDataDst)
 			Write24BitsValue(pDataDst, dst);
 		}
 		break;
+	case WaveConverter::BitsConvertType::Bit_32_32:
+		{
+			uint32_t src = Parse32BitsValue(pDataSrc, m_wfxSrc.wFormatTag);
+			Write32BitsValue(pDataDst, src, m_wfxDst.wFormatTag);
+		}
+		break;
 	case WaveConverter::BitsConvertType::Bit_Undefined:
 	default:
 		assert(false);
@@ -450,61 +474,67 @@ void WaveConverter::ConvertSample(const char *pDataSrc, char *pDataDst)
 
 WaveConverter::BitsConvertType WaveConverter::GetBitsConvertType(const WAVEFORMATEX *pwfxSrc, const WAVEFORMATEX *pwfxDst)
 {
-	if (pwfxSrc->wBitsPerSample == pwfxDst->wBitsPerSample)
+	switch (pwfxSrc->wBitsPerSample)
 	{
-		return BitsConvertType::Bit_Equal;
-	}
-	else
-	{
-		switch (pwfxSrc->wBitsPerSample)
+	case 8:
+		switch (pwfxDst->wBitsPerSample)
 		{
 		case 8:
-			switch (pwfxDst->wBitsPerSample)
-			{
-			case 16:
-				return BitsConvertType::Bit_08_16;
-			case 24:
-				return BitsConvertType::Bit_08_24;
-			case 32:
-				return BitsConvertType::Bit_08_32;
-			}
-			break;
+			return BitsConvertType::Bit_08_08;
 		case 16:
-			switch (pwfxDst->wBitsPerSample)
-			{
-			case 8:
-				return BitsConvertType::Bit_16_08;
-			case 24:
-				return BitsConvertType::Bit_16_24;
-			case 32:
-				return BitsConvertType::Bit_16_32;
-			}
-			break;
+			return BitsConvertType::Bit_08_16;
 		case 24:
-			switch (pwfxDst->wBitsPerSample)
-			{
-			case 8:
-				return BitsConvertType::Bit_24_08;
-			case 16:
-				return BitsConvertType::Bit_24_16;
-			case 32:
-				return BitsConvertType::Bit_24_32;
-			}
-			break;
+			return BitsConvertType::Bit_08_24;
 		case 32:
-			switch (pwfxDst->wBitsPerSample)
-			{
-			case 8:
-				return BitsConvertType::Bit_32_08;
-			case 16:
-				return BitsConvertType::Bit_32_16;
-			case 24:
-				return BitsConvertType::Bit_32_24;
-			}
-			break;
+			return BitsConvertType::Bit_08_32;
 		}
-		return BitsConvertType::Bit_Undefined;
+		break;
+	case 16:
+		switch (pwfxDst->wBitsPerSample)
+		{
+		case 8:
+			return BitsConvertType::Bit_16_08;
+		case 16:
+			return BitsConvertType::Bit_16_16;
+		case 24:
+			return BitsConvertType::Bit_16_24;
+		case 32:
+			return BitsConvertType::Bit_16_32;
+		}
+		break;
+	case 24:
+		switch (pwfxDst->wBitsPerSample)
+		{
+		case 8:
+			return BitsConvertType::Bit_24_08;
+		case 16:
+			return BitsConvertType::Bit_24_16;
+		case 24:
+			return BitsConvertType::Bit_24_24;
+		case 32:
+			return BitsConvertType::Bit_24_32;
+		}
+		break;
+	case 32:
+		switch (pwfxDst->wBitsPerSample)
+		{
+		case 8:
+			return BitsConvertType::Bit_32_08;
+		case 16:
+			return BitsConvertType::Bit_32_16;
+		case 24:
+			return BitsConvertType::Bit_32_24;
+		case 32:
+			return BitsConvertType::Bit_32_32;
+		}
+		break;
 	}
+
+	if (pwfxSrc->wBitsPerSample == pwfxDst->wBitsPerSample &&
+	    pwfxSrc->wFormatTag == pwfxDst->wFormatTag)
+		return BitsConvertType::Bit_Equal;
+	else
+		return BitsConvertType::Bit_Undefined;
 }
 
 WaveConverter::ChannelConvertType WaveConverter::GetChannelConvertType(const WAVEFORMATEX *pwfxSrc, const WAVEFORMATEX *pwfxDst)
