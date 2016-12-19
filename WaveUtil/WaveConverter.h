@@ -44,5 +44,41 @@ private:
 	uint32_t m_srcBufferFrameCount;
 	char *m_pSrcBuffer;
 	char *m_pSrcPreFrame;
+
+private:
+	enum class BitsConvertType
+	{
+		Bit_Equal,
+		Bit_08_16,
+		Bit_08_24,
+		Bit_08_32,
+		Bit_16_08,
+		Bit_16_24,
+		Bit_16_32,
+		Bit_24_08,
+		Bit_24_16,
+		Bit_24_32,
+		Bit_32_08,
+		Bit_32_16,
+		Bit_32_24,
+		Bit_Undefined,
+	};
+
+	enum class ChannelConvertType
+	{
+		CCT_1_1,
+		CCT_1_2,
+		CCT_2_2,
+		CCT_2_1,
+		CCT_EQ,
+		CCT_LT,
+		CCT_GT,
+	};
+
+	BitsConvertType GetBitsConvertType(const WAVEFORMATEX *pwfxSrc, const WAVEFORMATEX *pwfxDst);
+	ChannelConvertType GetChannelConvertType(const WAVEFORMATEX *pwfxSrc, const WAVEFORMATEX *pwfxDst);
+
+	BitsConvertType m_bitsConvertType;
+	ChannelConvertType m_channelConvertType;
 };
 

@@ -24,6 +24,8 @@ void WaveConverter::SetFormat(const WAVEFORMATEX *pwfxSrc, const WAVEFORMATEX *p
 	memcpy(&m_wfxSrc, pwfxSrc, sizeof(m_wfxSrc));
 	memcpy(&m_wfxDst, pwfxDst, sizeof(m_wfxDst));
 	m_sampleRateRatio = (float)m_wfxSrc.nSamplesPerSec / m_wfxDst.nSamplesPerSec;
+	m_bitsConvertType = GetBitsConvertType(pwfxSrc, pwfxDst);
+	m_channelConvertType = GetChannelConvertType(pwfxSrc, pwfxDst);
 
 	m_srcBytesPerSample = m_wfxSrc.wBitsPerSample / 8;
 	m_dstBytesPerSample = m_wfxDst.wBitsPerSample / 8;
@@ -246,179 +248,297 @@ uint32_t WaveConverter::ConvertNormal(const char *pDataSrc, char *pDataDst, uint
 
 void WaveConverter::ConvertFrame(const char *pDataSrc, char *pDataDst)
 {
-	if (m_wfxSrc.nChannels >= m_wfxDst.nChannels)
+	switch (m_channelConvertType)
 	{
-		for (int c = 0; c < m_wfxDst.nChannels; ++c)
+	case WaveConverter::ChannelConvertType::CCT_1_1:
+	case WaveConverter::ChannelConvertType::CCT_2_1:
 		{
-			ConvertSample(pDataSrc + c * m_srcBytesPerSample, pDataDst + c * m_dstBytesPerSample);
+			ConvertSample(pDataSrc, pDataDst);
 		}
-	}
-	else
-	{
-		for (int index = 0; index < m_wfxDst.nChannels; index += m_wfxSrc.nChannels)
+		break;
+	case WaveConverter::ChannelConvertType::CCT_1_2:
 		{
-			for (int c = 0; c < m_wfxSrc.nChannels; ++c)
+			ConvertSample(pDataSrc, pDataDst);
+			ConvertSample(pDataSrc, pDataDst + m_dstBytesPerSample);
+		}
+		break;
+	case WaveConverter::ChannelConvertType::CCT_2_2:
+		{
+			ConvertSample(pDataSrc, pDataDst);
+			ConvertSample(pDataSrc + m_srcBytesPerSample, pDataDst + m_dstBytesPerSample);
+		}
+		break;
+	case WaveConverter::ChannelConvertType::CCT_EQ:
+	case WaveConverter::ChannelConvertType::CCT_GT:
+		{
+			for (int c = 0; c < m_wfxDst.nChannels; ++c)
 			{
-				ConvertSample(pDataSrc + c * m_srcBytesPerSample, pDataDst + (index + c) * m_dstBytesPerSample);
+				ConvertSample(pDataSrc + c * m_srcBytesPerSample, pDataDst + c * m_dstBytesPerSample);
 			}
 		}
+		break;
+	case WaveConverter::ChannelConvertType::CCT_LT:
+		{
+			for (int index = 0; index < m_wfxDst.nChannels; index += m_wfxSrc.nChannels)
+			{
+				for (int c = 0; c < m_wfxSrc.nChannels; ++c)
+				{
+					ConvertSample(pDataSrc + c * m_srcBytesPerSample, pDataDst + (index + c) * m_dstBytesPerSample);
+				}
+			}
+		}
+		break;
+	default:
+		assert(false);
+		break;
 	}
+}
+
+static inline int8_t Parse08BitsValue(const char *pDataSrc)
+{
+	return *(int8_t*)pDataSrc + 128;
+}
+
+static inline void Write08BitsValue(char *pDataDst, int8_t dst)
+{
+	*(int8_t*)pDataDst = dst;
+}
+
+static inline uint16_t Parse16BitsValue(const char *pDataSrc)
+{
+	return *(uint16_t*)pDataSrc;
+}
+
+static inline void Write16BitsValue(char *pDataDst, uint16_t dst)
+{
+	*(uint16_t*)pDataDst = dst;
+}
+
+static inline uint32_t Parse24BitsValue(const char *pDataSrc)
+{
+	uint32_t src = *(uint8_t*)pDataSrc;
+	src |= (uint32_t)(*(uint8_t*)(pDataSrc + 1)) << 8;
+	src |= (uint32_t)(*(uint8_t*)(pDataSrc + 2)) << 16;
+	return src;
+}
+
+static inline void Write24BitsValue(char *pDataDst, uint32_t dst)
+{
+	*(uint8_t*)(pDataDst + 0) = (dst) & 0xFF;
+	*(uint8_t*)(pDataDst + 1) = (dst >> 8) & 0xFF;
+	*(uint8_t*)(pDataDst + 2) = (dst >> 16) & 0xFF;
+}
+
+static inline uint32_t Parse32BitsValue(const char *pDataSrc, WORD formatTag)
+{
+	uint32_t src;
+	if (formatTag == 3)
+		src = (uint32_t)(*(float*)pDataSrc * (1U << 31));
+	else
+		src = *(uint32_t*)pDataSrc;
+	return src;
+}
+
+static inline void Write32BitsValue(char *pDataDst, uint32_t dst, WORD formatTag)
+{
+	if (formatTag == 3)
+		*(float*)pDataDst = (float)dst / (1U << 31);
+	else
+		*(uint32_t*)pDataDst = dst;
 }
 
 // little-endian !!!
 void WaveConverter::ConvertSample(const char *pDataSrc, char *pDataDst)
 {
-	if (m_wfxSrc.wBitsPerSample == m_wfxDst.wBitsPerSample)
+	switch (m_bitsConvertType)
 	{
-		memcpy(pDataDst, pDataSrc, m_srcBytesPerSample);
-	}
-	else
-	{
-		switch (m_wfxSrc.wBitsPerSample)
+	case WaveConverter::BitsConvertType::Bit_Equal:
 		{
-		case 8:
-			{
-				uint32_t src = *(int8_t*)pDataSrc + 128;
-				switch (m_wfxDst.wBitsPerSample)
-				{
-				case 16:
-					{
-						uint16_t dst = src << 8;
-						*(uint16_t*)pDataDst = dst;
-					}
-					break;
-				case 24:
-					{
-						uint32_t dst = src << 16;
-						*(uint8_t*)(pDataDst + 0) = (dst) & 0xFF;
-						*(uint8_t*)(pDataDst + 1) = (dst >> 8) & 0xFF;
-						*(uint8_t*)(pDataDst + 2) = (dst >> 16) & 0xFF;
-					}
-					break;
-				case 32:
-					{
-						uint32_t dst = src << 24;
-						if (m_wfxDst.wFormatTag == 3)
-							*(float*)pDataDst = (float)dst / (1U << 31);
-						else
-							*(uint32_t*)pDataDst = dst;
-					}
-					break;
-				default:
-					assert(false);
-					break;
-				}
-			}
-			break;
-		case 16:
-			{
-				uint32_t src = *(uint16_t*)pDataSrc;
-				switch (m_wfxDst.wBitsPerSample)
-				{
-				case 8:
-					{
-						int8_t dst = (src >> 8) - 128;
-						*(int8_t*)pDataDst = dst;
-					}
-					break;
-				case 24:
-					{
-						uint32_t dst = src << 8;
-						*(uint8_t*)(pDataDst + 0) = (dst) & 0xFF;
-						*(uint8_t*)(pDataDst + 1) = (dst >> 8) & 0xFF;
-						*(uint8_t*)(pDataDst + 2) = (dst >> 16) & 0xFF;
-					}
-					break;
-				case 32:
-					{
-						uint32_t dst = src << 16;
-						if (m_wfxDst.wFormatTag == 3)
-							*(float*)pDataDst = (float)dst / (1U << 31);
-						else
-							*(uint32_t*)pDataDst = dst;
-					}
-					break;
-				default:
-					assert(false);
-					break;
-				}
-			}
-			break;
-		case 24:
-			{
-				uint32_t src = *(uint8_t*)pDataSrc;
-				src |= (uint32_t)(*(uint8_t*)(pDataSrc + 1)) << 8;
-				src |= (uint32_t)(*(uint8_t*)(pDataSrc + 2)) << 16;
-
-				switch (m_wfxDst.wBitsPerSample)
-				{
-				case 8:
-					{
-						int8_t dst = (src >> 16) - 128;
-						*(int8_t*)pDataDst = dst;
-					}
-					break;
-				case 16:
-					{
-						uint16_t dst = src >> 8;
-						*(uint16_t*)pDataDst = dst;
-					}
-					break;
-				case 32:
-					{
-						uint32_t dst = src << 8;
-						if (m_wfxDst.wFormatTag == 3)
-							*(float*)pDataDst = (float)dst / (1U << 31);
-						else
-							*(uint32_t*)pDataDst = dst;
-					}
-					break;
-				default:
-					assert(false);
-					break;
-				}
-			}
-			break;
-		case 32:
-			{
-				uint32_t src;
-				if (m_wfxSrc.wFormatTag == 3)
-					src = (uint32_t)(*(float*)pDataSrc * (1U << 31));
-				else
-					src = *(uint32_t*)pDataSrc;
-
-				switch (m_wfxDst.wBitsPerSample)
-				{
-				case 8:
-					{
-						int8_t dst = (src >> 24) - 128;
-						*(int8_t*)pDataDst = dst;
-					}
-					break;
-				case 16:
-					{
-						uint16_t dst = src >> 16;
-						*(uint16_t*)pDataDst = dst;
-					}
-					break;
-				case 24:
-					{
-						uint32_t dst = src >> 8;
-						*(uint8_t*)(pDataDst + 0) = (dst) & 0xFF;
-						*(uint8_t*)(pDataDst + 1) = (dst >> 8) & 0xFF;
-						*(uint8_t*)(pDataDst + 2) = (dst >> 16) & 0xFF;
-					}
-					break;
-				default:
-					assert(false);
-					break;
-				}
-			}
-			break;
-		default:
-			assert(false);
-			break;
+			memcpy(pDataDst, pDataSrc, m_srcBytesPerSample);
 		}
+		break;
+	case WaveConverter::BitsConvertType::Bit_08_16:
+		{
+			uint32_t src = Parse08BitsValue(pDataSrc);
+			uint16_t dst = src << 8;
+			Write16BitsValue(pDataDst, dst);
+		}
+		break;
+	case WaveConverter::BitsConvertType::Bit_08_24:
+		{
+			uint32_t src = Parse08BitsValue(pDataSrc);
+			uint32_t dst = src << 16;
+			Write24BitsValue(pDataDst, dst);
+		}
+		break;
+	case WaveConverter::BitsConvertType::Bit_08_32:
+		{
+			uint32_t src = Parse08BitsValue(pDataSrc);
+			uint32_t dst = src << 24;
+			Write32BitsValue(pDataDst, dst, m_wfxDst.wFormatTag);
+		}
+		break;
+	case WaveConverter::BitsConvertType::Bit_16_08:
+		{
+			uint32_t src = Parse16BitsValue(pDataSrc);
+			int8_t dst = (src >> 8) - 128;
+			Write08BitsValue(pDataDst, dst);
+		}
+		break;
+	case WaveConverter::BitsConvertType::Bit_16_24:
+		{
+			uint32_t src = Parse16BitsValue(pDataSrc);
+			uint32_t dst = src << 8;
+			Write24BitsValue(pDataDst, dst);
+		}
+		break;
+	case WaveConverter::BitsConvertType::Bit_16_32:
+		{
+			uint32_t src = Parse16BitsValue(pDataSrc);
+			uint32_t dst = src << 16;
+			Write32BitsValue(pDataDst, dst, m_wfxDst.wFormatTag);
+		}
+		break;
+	case WaveConverter::BitsConvertType::Bit_24_08:
+		{
+			uint32_t src = Parse24BitsValue(pDataSrc);
+			int8_t dst = (src >> 16) - 128;
+			Write08BitsValue(pDataDst, dst);
+		}
+		break;
+	case WaveConverter::BitsConvertType::Bit_24_16:
+		{
+			uint32_t src = Parse24BitsValue(pDataSrc);
+			uint16_t dst = src >> 8;
+			Write16BitsValue(pDataDst, dst);
+		}
+		break;
+	case WaveConverter::BitsConvertType::Bit_24_32:
+		{
+			uint32_t src = Parse24BitsValue(pDataSrc);
+			uint32_t dst = src << 8;
+			Write32BitsValue(pDataDst, dst, m_wfxDst.wFormatTag);
+		}
+		break;
+	case WaveConverter::BitsConvertType::Bit_32_08:
+		{
+			uint32_t src = Parse32BitsValue(pDataSrc, m_wfxSrc.wFormatTag);
+			int8_t dst = (src >> 24) - 128;
+			Write08BitsValue(pDataDst, dst);
+		}
+		break;
+	case WaveConverter::BitsConvertType::Bit_32_16:
+		{
+			uint32_t src = Parse32BitsValue(pDataSrc, m_wfxSrc.wFormatTag);
+			uint16_t dst = src >> 16;
+			Write16BitsValue(pDataDst, dst);
+		}
+		break;
+	case WaveConverter::BitsConvertType::Bit_32_24:
+		{
+			uint32_t src = Parse32BitsValue(pDataSrc, m_wfxSrc.wFormatTag);
+			uint32_t dst = src >> 8;
+			Write24BitsValue(pDataDst, dst);
+		}
+		break;
+	case WaveConverter::BitsConvertType::Bit_Undefined:
+	default:
+		assert(false);
+		break;
 	}
 }
 
+WaveConverter::BitsConvertType WaveConverter::GetBitsConvertType(const WAVEFORMATEX *pwfxSrc, const WAVEFORMATEX *pwfxDst)
+{
+	if (pwfxSrc->wBitsPerSample == pwfxDst->wBitsPerSample)
+	{
+		return BitsConvertType::Bit_Equal;
+	}
+	else
+	{
+		switch (pwfxSrc->wBitsPerSample)
+		{
+		case 8:
+			switch (pwfxDst->wBitsPerSample)
+			{
+			case 16:
+				return BitsConvertType::Bit_08_16;
+			case 24:
+				return BitsConvertType::Bit_08_24;
+			case 32:
+				return BitsConvertType::Bit_08_32;
+			}
+			break;
+		case 16:
+			switch (pwfxDst->wBitsPerSample)
+			{
+			case 8:
+				return BitsConvertType::Bit_16_08;
+			case 24:
+				return BitsConvertType::Bit_16_24;
+			case 32:
+				return BitsConvertType::Bit_16_32;
+			}
+			break;
+		case 24:
+			switch (pwfxDst->wBitsPerSample)
+			{
+			case 8:
+				return BitsConvertType::Bit_24_08;
+			case 16:
+				return BitsConvertType::Bit_24_16;
+			case 32:
+				return BitsConvertType::Bit_24_32;
+			}
+			break;
+		case 32:
+			switch (pwfxDst->wBitsPerSample)
+			{
+			case 8:
+				return BitsConvertType::Bit_32_08;
+			case 16:
+				return BitsConvertType::Bit_32_16;
+			case 24:
+				return BitsConvertType::Bit_32_24;
+			}
+			break;
+		}
+		return BitsConvertType::Bit_Undefined;
+	}
+}
+
+WaveConverter::ChannelConvertType WaveConverter::GetChannelConvertType(const WAVEFORMATEX *pwfxSrc, const WAVEFORMATEX *pwfxDst)
+{
+	switch (pwfxSrc->nChannels)
+	{
+	case 1:
+		{
+			switch (pwfxDst->nChannels)
+			{
+			case 1:
+				return ChannelConvertType::CCT_1_1;
+			case 2:
+				return ChannelConvertType::CCT_1_2;
+			}
+		}
+		break;
+	case 2:
+		{
+			switch (pwfxDst->nChannels)
+			{
+			case 1:
+				return ChannelConvertType::CCT_2_1;
+			case 2:
+				return ChannelConvertType::CCT_2_2;
+			}
+		}
+		break;
+	}
+
+	if (pwfxSrc->nChannels == pwfxDst->nChannels)
+		return ChannelConvertType::CCT_EQ;
+	else if (pwfxSrc->nChannels < pwfxDst->nChannels)
+		return ChannelConvertType::CCT_LT;
+	else
+		return ChannelConvertType::CCT_GT;
+}
