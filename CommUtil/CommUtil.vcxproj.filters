@@ -27,6 +27,9 @@
     <ClInclude Include="StringUtil.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="FTimer.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="VectorUtil.cpp">
@@ -39,6 +42,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="ImageUtil.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="FTimer.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
