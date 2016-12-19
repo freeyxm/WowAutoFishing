@@ -5,9 +5,12 @@
 #include "WaveUtil/WaveFile.h"
 #include "WaveUtil/WaveUtil.h"
 #include "WaveUtil/WaveStreamConverter.h"
+#include "CommUtil/FTimer.h"
 #include <string>
 #include <sstream>
 #include <memory>
+
+using namespace comm_util;
 
 int ConvertWave(std::string fileName, int sampleRate, int bitsPerSample, int channel);
 
@@ -51,6 +54,9 @@ int ConvertWave(std::string fileName, int sampleRate, int bitsPerSample, int cha
 	std::string outFileName;
 
 	printf("process: %s\n", inFileName.c_str());
+
+	FTimer timer;
+	timer.Start();
 
 	WaveFile inFile;
 	if (!inFile.BeginRead(inFileName.c_str()))
@@ -103,6 +109,8 @@ int ConvertWave(std::string fileName, int sampleRate, int bitsPerSample, int cha
 
 	float sampleRateRadio = ((float)outFile.GetFormat()->sampleRate / inFile.GetFormat()->sampleRate);
 	uint32_t frameCount = (uint32_t)(inFile.FrameCount() * sampleRateRadio);
+
+
 	for (uint32_t i = 0; i < frameCount; ++i)
 	{
 		uint32_t rcount = converter.ReadFrame(outBuffer.get(), bufferFrameCount);
@@ -116,7 +124,9 @@ int ConvertWave(std::string fileName, int sampleRate, int bitsPerSample, int cha
 	inFile.EndRead();
 	outFile.EndWrite();
 
+	timer.Stop();
 	printf(" output: %s\n", outFileName.c_str());
+	printf("   time: %f\n", timer.Seconds());
 
 	return 0;
 }
