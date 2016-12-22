@@ -137,6 +137,7 @@
     <ClInclude Include="CommUtil.hpp" />
     <ClInclude Include="FTimer.h" />
     <ClInclude Include="ImageUtil.hpp" />
+    <ClInclude Include="Logger.h" />
     <ClInclude Include="StringUtil.hpp" />
     <ClInclude Include="VectorUtil.hpp" />
   </ItemGroup>
@@ -144,6 +145,7 @@
     <ClCompile Include="CommUtil.cpp" />
     <ClCompile Include="FTimer.cpp" />
     <ClCompile Include="ImageUtil.cpp" />
+    <ClCompile Include="Logger.cpp" />
     <ClCompile Include="StringUtil.cpp" />
     <ClCompile Include="VectorUtil.cpp" />
   </ItemGroup>
