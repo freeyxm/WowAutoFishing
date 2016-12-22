@@ -7,16 +7,20 @@
 
 using namespace comm_util;
 
+#define PI 3.14159265358979323846
+#define PI_2 (PI * 2)
+
 WaveConverter::WaveConverter()
-	: m_pSrcBuffer(NULL), m_pSrcPreFrame(NULL)
-	, m_srcBufferFrameCount(0)
+	: m_srcBufferFrameCount(0)
 {
+	m_buffer1.pData = NULL;
+	m_buffer2.pData = NULL;
 }
 
 WaveConverter::~WaveConverter()
 {
-	SAFE_DELETE_A(m_pSrcBuffer);
-	SAFE_DELETE_A(m_pSrcPreFrame);
+	SAFE_DELETE_A(m_buffer1.pData);
+	SAFE_DELETE_A(m_buffer2.pData);
 }
 
 void WaveConverter::SetFormat(const WAVEFORMATEX *pwfxSrc, const WAVEFORMATEX *pwfxDst, uint32_t bufferFrameCount)
@@ -32,53 +36,45 @@ void WaveConverter::SetFormat(const WAVEFORMATEX *pwfxSrc, const WAVEFORMATEX *p
 	m_srcBytesPerFrame = m_srcBytesPerSample * m_wfxSrc.nChannels;
 	m_dstBytesPerFrame = m_dstBytesPerSample * m_wfxDst.nChannels;
 
+	// Quality is half the window width
+	m_wndWidth2 = 1;
+	m_wndWidth = m_wndWidth2 * 2 + 1;
+
 	if (bufferFrameCount == 0)
 	{
 		bufferFrameCount = m_wfxSrc.nSamplesPerSec / 2;
 	}
-	else
+	else if (m_wfxSrc.nSamplesPerSec != m_wfxDst.nSamplesPerSec)
 	{
-		bufferFrameCount = (uint32_t)::roundf(bufferFrameCount * m_sampleRateRatio) + 1;
+		bufferFrameCount = bufferFrameCount * m_wfxSrc.nSamplesPerSec / m_wfxDst.nSamplesPerSec + m_wndWidth;
 	}
 
 	if (m_srcBufferFrameCount != bufferFrameCount)
 	{
 		m_srcBufferFrameCount = bufferFrameCount;
-		SAFE_DELETE_A(m_pSrcBuffer);
-		m_pSrcBuffer = new char[m_srcBufferFrameCount * m_srcBytesPerFrame];
+		SAFE_DELETE_A(m_buffer1.pData);
+		SAFE_DELETE_A(m_buffer2.pData);
+		m_buffer1.pData = new char[m_srcBufferFrameCount * m_srcBytesPerFrame];
+		m_buffer2.pData = new char[m_srcBufferFrameCount * m_srcBytesPerFrame];
 	}
-	m_srcBufferFrameIndex = 0;
-
-	SAFE_DELETE_A(m_pSrcPreFrame);
-	m_pSrcPreFrame = new char[m_srcBytesPerFrame];
-	memset(m_pSrcPreFrame, 0, m_srcBytesPerFrame);
+	m_buffer1.index = 0;
+	m_buffer1.count = 0;
+	m_buffer2.index = 0;
+	m_buffer2.count = 0;
 }
 
 void WaveConverter::Reset()
 {
-	m_srcBufferFrameIndex = 0;
+	m_srcFrameIndexFloat = 0;
 	m_srcFrameIndex = 0;
 	m_dstFrameIndex = 0;
-}
-
-uint32_t WaveConverter::DstToSrcFrameCount(uint32_t dstFrameCount)
-{
-	if (dstFrameCount == 0)
-		return 0;
-	else
-		return DstToSrcFrameIndex(m_dstFrameIndex + dstFrameCount - 1) - m_srcFrameIndex + 1;
-}
-
-uint32_t WaveConverter::DstToSrcFrameIndex(uint32_t dstFrameIndex)
-{
-	return (uint32_t)::roundf(dstFrameIndex * m_sampleRateRatio);
 }
 
 uint32_t WaveConverter::ReadFrame(char *pDataDst, uint32_t dstFrameCount)
 {
 	if (m_wfxSrc.nSamplesPerSec != m_wfxDst.nSamplesPerSec)
 	{
-		return ReadFrameSampleRate(pDataDst, dstFrameCount);
+		return ReadFrameResample(pDataDst, dstFrameCount);
 	}
 	else
 	{
@@ -86,54 +82,27 @@ uint32_t WaveConverter::ReadFrame(char *pDataDst, uint32_t dstFrameCount)
 	}
 }
 
-uint32_t WaveConverter::ReadFrameSampleRate(char *pDataDst, uint32_t dstFrameCount)
+uint32_t WaveConverter::ReadFrameResample(char *pDataDst, uint32_t dstFrameCount)
 {
 	uint32_t dstCount = dstFrameCount;
 	while (dstCount > 0)
 	{
-		uint32_t srcCount = DstToSrcFrameCount(dstCount);
-		if (srcCount > m_srcBufferFrameCount)
-			srcCount = m_srcBufferFrameCount;
-
-		uint32_t rcount;
-		if (m_srcBufferFrameIndex > 0)
+		if (m_srcFrameIndex + m_wndWidth2 < m_buffer1.index + m_buffer1.count)
 		{
-			if (srcCount > m_srcBufferFrameIndex)
-			{
-				srcCount -= m_srcBufferFrameIndex;
-				rcount = LoadSrcFrame(m_pSrcBuffer + m_srcBufferFrameIndex * m_srcBytesPerFrame, srcCount);
-				rcount += m_srcBufferFrameIndex;
-			}
-			else
-			{
-				rcount = m_srcBufferFrameIndex;
-			}
+			uint32_t nwrite = ResampleSingle(pDataDst, dstCount);
+			if (nwrite == 0)
+				break;
+			dstCount -= nwrite;
+			pDataDst += nwrite * m_dstBytesPerFrame;
 		}
 		else
 		{
-			rcount = LoadSrcFrame(m_pSrcBuffer, srcCount);
+			swap(m_buffer1, m_buffer2);
+			m_buffer1.index = m_buffer2.index + m_buffer2.count;
+			m_buffer1.count = LoadSrcFrame(m_buffer1.pData, m_srcBufferFrameCount);
+			if (m_buffer1.count == 0)
+				break;
 		}
-
-		if (rcount == 0)
-			break;
-
-		uint32_t _srcCount = rcount;
-		uint32_t wcount = ConvertSampleRate(m_pSrcBuffer, _srcCount, pDataDst, dstCount);
-		dstCount -= wcount;
-		pDataDst += wcount * m_dstBytesPerFrame;
-
-		if (_srcCount < rcount)
-		{
-			m_srcBufferFrameIndex = rcount - _srcCount;
-			memcpy(m_pSrcBuffer, m_pSrcBuffer + _srcCount * m_srcBytesPerFrame, m_srcBufferFrameIndex * m_srcBytesPerFrame);
-		}
-		else
-		{
-			m_srcBufferFrameIndex = 0;
-		}
-
-		if (wcount == 0)
-			break;
 	}
 	return dstFrameCount - dstCount;
 }
@@ -142,8 +111,8 @@ uint32_t WaveConverter::ReadFrameNormal(char *pDataDst, uint32_t frameCount)
 {
 	if (frameCount <= m_srcBufferFrameCount)
 	{
-		uint32_t rcount = LoadSrcFrame(m_pSrcBuffer, frameCount);
-		uint32_t wcount = ConvertNormal(m_pSrcBuffer, pDataDst, rcount);
+		uint32_t rcount = LoadSrcFrame(m_buffer1.pData, frameCount);
+		uint32_t wcount = ConvertNormal(m_buffer1.pData, pDataDst, rcount);
 		return wcount;
 	}
 	else
@@ -151,10 +120,10 @@ uint32_t WaveConverter::ReadFrameNormal(char *pDataDst, uint32_t frameCount)
 		uint32_t count = frameCount;
 		while (count > 0)
 		{
-			uint32_t rcount = LoadSrcFrame(m_pSrcBuffer, min(count, m_srcBufferFrameCount));
+			uint32_t rcount = LoadSrcFrame(m_buffer1.pData, min(count, m_srcBufferFrameCount));
 			if (rcount == 0)
 				break;
-			uint32_t wcount = ConvertNormal(m_pSrcBuffer, pDataDst, rcount);
+			uint32_t wcount = ConvertNormal(m_buffer1.pData, pDataDst, rcount);
 			count -= wcount;
 			pDataDst += wcount * m_dstBytesPerFrame;
 		}
@@ -162,77 +131,94 @@ uint32_t WaveConverter::ReadFrameNormal(char *pDataDst, uint32_t frameCount)
 	}
 }
 
-uint32_t WaveConverter::ConvertSampleRate(const char *pDataSrc, uint32_t &srcFrameCount, char *pDataDst, uint32_t dstFrameCount)
+// need to repair!!!
+uint32_t WaveConverter::Resample(char *pDataDst, uint32_t frameCount)
 {
-	uint32_t srcIndex = 0;
-	uint32_t dstIndex = 0;
-	uint32_t srcFrameIndexBak = m_srcFrameIndex;
-	bool usePreFrame = false;
+	// fmax : nyqist half of destination sampleRate
+	// fmax / fsr = 0.5;
+	float fmaxDivSR = 0.5;
+	float r_g = 2 * fmaxDivSR;
 
-	while (dstIndex < dstFrameCount)
+	const uint32_t maxSrcIndex = m_buffer1.index + m_buffer1.count - m_wndWidth2;
+	uint32_t index = 0;
+	for (; index < frameCount; ++index)
 	{
-		// jump to target frame
-		int step = 0;
-		uint32_t srcFrameIndex = DstToSrcFrameIndex(m_dstFrameIndex);
-		if (srcFrameIndex > m_srcFrameIndex)
-		{
-			step = srcFrameIndex - m_srcFrameIndex;
-		}
-		else if (srcFrameIndex < m_srcFrameIndex)
-		{
-			assert(srcFrameIndex == m_srcFrameIndex - 1);
-			if (srcIndex > 0)
-			{
-				step = -1;
-			}
-			else
-			{
-				step = 0;
-				usePreFrame = true;
-			}
-		}
-
-		srcIndex += step;
-		if (srcIndex >= srcFrameCount)
+		if (m_srcFrameIndex >= maxSrcIndex)
 			break;
 
-		if (step > 0)
+		for (int c = 0; c < m_wfxDst.nChannels; ++c)
 		{
-			m_srcFrameIndex += step;
-			pDataSrc += step * m_srcBytesPerFrame;
-		}
-		else if (step < 0)
-		{
-			step = -step;
-			m_srcFrameIndex -= step;
-			pDataSrc -= step * m_srcBytesPerFrame;
+			float r_y = 0;
+			for (int tau = -m_wndWidth2; tau <= m_wndWidth2; ++tau)
+			{
+				// input sample index
+				int j = (int)(m_srcFrameIndexFloat + tau);
+				if (j < 0)
+					continue;
+
+				// Hann Window. Scale and calculate sinc
+				//float r_w = 0.5 * (1 - cosf(PI_2 * (tau + m_wndWidth2) / m_wndWidth));
+				float r_w = (float)(0.5 - 0.5 * cos(PI_2 *(0.5 + (j - m_srcFrameIndexFloat) / m_wndWidth)));
+				float r_a = (float)(PI_2 * (j - m_srcFrameIndexFloat) * fmaxDivSR);
+				float r_snc = 1.0;
+				if (r_a != 0)
+				{
+					r_snc = sinf(r_a) / r_a;
+				}
+
+				int32_t value;
+				if ((uint32_t)j < m_buffer1.index)
+				{
+					value = ParseSample(m_buffer2.pData + (j - m_buffer2.index) * m_srcBytesPerFrame + c * m_srcBytesPerSample);
+				}
+				else
+				{
+					value = ParseSample(m_buffer1.pData + (j - m_buffer1.index) * m_srcBytesPerFrame + c * m_srcBytesPerSample);
+				}
+
+				r_y += r_g * r_w * r_snc * value;
+			}
+
+			WriteSample(pDataDst, (uint32_t)abs(r_y));
+			pDataDst += m_dstBytesPerSample;
 		}
 
-		if (usePreFrame)
+		m_dstFrameIndex++;
+		m_srcFrameIndexFloat = m_dstFrameIndex * m_sampleRateRatio;
+		m_srcFrameIndex = (int)m_srcFrameIndexFloat;
+	}
+
+	return index;
+}
+
+uint32_t WaveConverter::ResampleSingle(char *pDataDst, uint32_t frameCount)
+{
+	const uint32_t maxSrcIndex = m_buffer1.index + m_buffer1.count;
+	uint32_t index = 0;
+	for (; index < frameCount; ++index)
+	{
+		const char *pDataSrc = NULL;
+		if (m_srcFrameIndex < m_buffer1.index)
 		{
-			usePreFrame = false;
-			ConvertFrame(m_pSrcPreFrame, pDataDst);
+			pDataSrc = m_buffer2.pData + (m_srcFrameIndex - m_buffer2.index) * m_srcBytesPerFrame;
+		}
+		else if (m_srcFrameIndex < maxSrcIndex)
+		{
+			pDataSrc = m_buffer1.pData + (m_srcFrameIndex - m_buffer1.index) * m_srcBytesPerFrame;
 		}
 		else
 		{
-			ConvertFrame(pDataSrc, pDataDst);
-			pDataSrc += m_srcBytesPerFrame;
-			srcIndex++;
-			m_srcFrameIndex++;
+			break;
 		}
 
+		ConvertFrame(pDataSrc, pDataDst);
+
 		pDataDst += m_dstBytesPerFrame;
-		dstIndex++;
+
 		m_dstFrameIndex++;
+		m_srcFrameIndex = (uint32_t)roundf(m_dstFrameIndex * m_sampleRateRatio);
 	}
-
-	srcFrameCount = m_srcFrameIndex - srcFrameIndexBak;
-	if (srcFrameCount > 0)
-	{
-		memcpy(m_pSrcPreFrame, pDataSrc - m_srcBytesPerFrame, m_srcBytesPerFrame);
-	}
-
-	return dstIndex;
+	return index;
 }
 
 uint32_t WaveConverter::ConvertNormal(const char *pDataSrc, char *pDataDst, uint32_t frameCount)
@@ -461,6 +447,12 @@ void WaveConverter::ConvertSample(const char *pDataSrc, char *pDataDst)
 		break;
 	case WaveConverter::BitsConvertType::Bit_32_32:
 		{
+			uint32_t src = *(uint32_t*)pDataSrc;
+			*(uint32_t*)pDataDst = src;
+		}
+		break;
+	case WaveConverter::BitsConvertType::Bit_32_32f:
+		{
 			uint32_t src = Parse32BitsValue(pDataSrc, m_wfxSrc.wFormatTag);
 			Write32BitsValue(pDataDst, src, m_wfxDst.wFormatTag);
 		}
@@ -525,13 +517,16 @@ WaveConverter::BitsConvertType WaveConverter::GetBitsConvertType(const WAVEFORMA
 		case 24:
 			return BitsConvertType::Bit_32_24;
 		case 32:
-			return BitsConvertType::Bit_32_32;
+			if (m_wfxSrc.wFormatTag == m_wfxDst.wFormatTag)
+				return BitsConvertType::Bit_32_32;
+			else
+				return BitsConvertType::Bit_32_32f;
 		}
 		break;
 	}
 
 	if (pwfxSrc->wBitsPerSample == pwfxDst->wBitsPerSample &&
-	    pwfxSrc->wFormatTag == pwfxDst->wFormatTag)
+		pwfxSrc->wFormatTag == pwfxDst->wFormatTag)
 		return BitsConvertType::Bit_Equal;
 	else
 		return BitsConvertType::Bit_Undefined;
@@ -572,3 +567,96 @@ WaveConverter::ChannelConvertType WaveConverter::GetChannelConvertType(const WAV
 	else
 		return ChannelConvertType::CCT_GT;
 }
+
+uint32_t WaveConverter::ParseSample(const char *pDataSrc)
+{
+	switch (m_bitsConvertType)
+	{
+	case WaveConverter::BitsConvertType::Bit_08_08:
+	case WaveConverter::BitsConvertType::Bit_08_16:
+	case WaveConverter::BitsConvertType::Bit_08_24:
+	case WaveConverter::BitsConvertType::Bit_08_32:
+		return Parse08BitsValue(pDataSrc);
+	case WaveConverter::BitsConvertType::Bit_16_08:
+	case WaveConverter::BitsConvertType::Bit_16_16:
+	case WaveConverter::BitsConvertType::Bit_16_24:
+	case WaveConverter::BitsConvertType::Bit_16_32:
+		return Parse16BitsValue(pDataSrc);
+	case WaveConverter::BitsConvertType::Bit_24_08:
+	case WaveConverter::BitsConvertType::Bit_24_16:
+	case WaveConverter::BitsConvertType::Bit_24_24:
+	case WaveConverter::BitsConvertType::Bit_24_32:
+		return Parse24BitsValue(pDataSrc);
+	case WaveConverter::BitsConvertType::Bit_32_08:
+	case WaveConverter::BitsConvertType::Bit_32_16:
+	case WaveConverter::BitsConvertType::Bit_32_24:
+	case WaveConverter::BitsConvertType::Bit_32_32:
+	case WaveConverter::BitsConvertType::Bit_32_32f:
+		return Parse32BitsValue(pDataSrc, m_wfxSrc.wFormatTag);
+	default:
+		assert(false);
+		return 0;
+	}
+}
+
+void WaveConverter::WriteSample(char *pDataDst, uint32_t dst)
+{
+	switch (m_bitsConvertType)
+	{
+	case WaveConverter::BitsConvertType::Bit_08_08:
+		Write08BitsValue(pDataDst, dst);
+		break;
+	case WaveConverter::BitsConvertType::Bit_08_16:
+		Write16BitsValue(pDataDst, dst << 8);
+		break;
+	case WaveConverter::BitsConvertType::Bit_08_24:
+		Write24BitsValue(pDataDst, dst << 16);
+		break;
+	case WaveConverter::BitsConvertType::Bit_08_32:
+		Write32BitsValue(pDataDst, dst << 24, m_wfxDst.wFormatTag);
+		break;
+	case WaveConverter::BitsConvertType::Bit_16_08:
+		Write08BitsValue(pDataDst, dst >> 8);
+		break;
+	case WaveConverter::BitsConvertType::Bit_16_16:
+		Write16BitsValue(pDataDst, dst);
+		break;
+	case WaveConverter::BitsConvertType::Bit_16_24:
+		Write24BitsValue(pDataDst, dst << 8);
+		break;
+	case WaveConverter::BitsConvertType::Bit_16_32:
+		Write32BitsValue(pDataDst, dst << 16, m_wfxDst.wFormatTag);
+		break;
+	case WaveConverter::BitsConvertType::Bit_24_08:
+		Write08BitsValue(pDataDst, dst >> 16);
+		break;
+	case WaveConverter::BitsConvertType::Bit_24_16:
+		Write16BitsValue(pDataDst, dst >> 8);
+		break;
+	case WaveConverter::BitsConvertType::Bit_24_24:
+		Write24BitsValue(pDataDst, dst);
+		break;
+	case WaveConverter::BitsConvertType::Bit_24_32:
+		Write32BitsValue(pDataDst, dst << 8, m_wfxDst.wFormatTag);
+		break;
+	case WaveConverter::BitsConvertType::Bit_32_08:
+		Write08BitsValue(pDataDst, dst >> 24);
+		break;
+	case WaveConverter::BitsConvertType::Bit_32_16:
+		Write16BitsValue(pDataDst, dst >> 16);
+		break;
+	case WaveConverter::BitsConvertType::Bit_32_24:
+		Write24BitsValue(pDataDst, dst >> 8);
+		break;
+	case WaveConverter::BitsConvertType::Bit_32_32:
+	case WaveConverter::BitsConvertType::Bit_32_32f:
+		Write32BitsValue(pDataDst, dst, m_wfxDst.wFormatTag);
+		break;
+	default:
+		assert(false);
+		memset(pDataDst, 0, m_dstBytesPerSample);
+		break;
+	}
+}
+
+

@@ -110,10 +110,10 @@ int ConvertWave(std::string fileName, int sampleRate, int bitsPerSample, int cha
 	float sampleRateRadio = ((float)outFile.GetFormat()->sampleRate / inFile.GetFormat()->sampleRate);
 	uint32_t frameCount = (uint32_t)(inFile.FrameCount() * sampleRateRadio);
 
-
-	for (uint32_t i = 0; i < frameCount; ++i)
+	for (uint32_t i = 0; i < frameCount;)
 	{
-		uint32_t rcount = converter.ReadFrame(outBuffer.get(), bufferFrameCount);
+		uint32_t count = min(frameCount - i, bufferFrameCount);
+		uint32_t rcount = converter.ReadFrame(outBuffer.get(), count);
 		if (rcount > 0)
 			outFile.WriteFrame(outBuffer.get(), rcount);
 		else

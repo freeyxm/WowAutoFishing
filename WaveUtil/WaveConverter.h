@@ -17,17 +17,18 @@ protected:
 	virtual uint32_t LoadSrcFrame(char *pData, uint32_t frameCount) = 0;
 
 private:
-	uint32_t DstToSrcFrameCount(uint32_t dstFrameCount);
-	uint32_t DstToSrcFrameIndex(uint32_t dstFrameIndex);
+	uint32_t ReadFrameResample(char *pDataDst, uint32_t frameCount);
+	uint32_t ReadFrameNormal(char *pDataDst, uint32_t frameCount);
 
-	uint32_t ReadFrameSampleRate(char *pData, uint32_t frameCount);
-	uint32_t ReadFrameNormal(char *pData, uint32_t frameCount);
-
-	uint32_t ConvertSampleRate(const char *pDataSrc, uint32_t &srcFrameCount, char *pDataDst, uint32_t dstFrameCount);
+	uint32_t Resample(char *pDataDst, uint32_t frameCount);
+	uint32_t ResampleSingle(char *pDataDst, uint32_t frameCount);
 	uint32_t ConvertNormal(const char *pDataSrc, char *pDataDst, uint32_t frameCount);
 
 	void ConvertFrame(const char *pDataSrc, char *pDataDst);
 	void ConvertSample(const char *pDataSrc, char *pDataDst);
+
+	uint32_t ParseSample(const char *pDataSrc);
+	void WriteSample(char *pDataDst, uint32_t value);
 
 protected:
 	WAVEFORMATEX m_wfxSrc;
@@ -40,10 +41,20 @@ protected:
 private:
 	uint32_t m_srcFrameIndex;
 	uint32_t m_dstFrameIndex;
-	uint32_t m_srcBufferFrameIndex;
 	uint32_t m_srcBufferFrameCount;
-	char *m_pSrcBuffer;
-	char *m_pSrcPreFrame;
+	float m_srcFrameIndexFloat;
+	int m_wndWidth;
+	int m_wndWidth2;
+
+	struct Buffer
+	{
+		char *pData;
+		uint32_t index;
+		uint32_t count;
+	};
+
+	Buffer m_buffer1;
+	Buffer m_buffer2;
 
 private:
 	enum class BitsConvertType
@@ -65,6 +76,7 @@ private:
 		Bit_32_16,
 		Bit_32_24,
 		Bit_32_32,
+		Bit_32_32f,
 		Bit_Undefined,
 	};
 
