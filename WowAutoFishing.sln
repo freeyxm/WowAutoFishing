@@ -44,6 +44,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WavePlayer", "WavePlayer\Wa
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WaveUtil", "WaveUtil\WaveUtil.vcxproj", "{67493328-FEFE-4D0C-B747-AEBAF569E29D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{413A4356-BD98-4A7D-A427-BAA93936627F} = {413A4356-BD98-4A7D-A427-BAA93936627F}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WaveConverter", "WaveConverter\WaveConverter.vcxproj", "{C23F0DA0-1DB4-4D73-B380-08DF35F5752C}"
 	ProjectSection(ProjectDependencies) = postProject

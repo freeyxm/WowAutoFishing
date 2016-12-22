@@ -1,6 +1,10 @@
 #include "stdafx.h"
 #include "WaveFile.h"
 #include "CommUtil/CommUtil.hpp"
+#include "CommUtil/Logger.h"
+#include <assert.h>
+
+using namespace comm_util;
 
 WaveFile::WaveFile()
 {
@@ -34,10 +38,17 @@ bool WaveFile::Load(const char *fileName)
 
 		m_info.data.pData = new char[m_info.data.chunkSize];
 		if (!m_info.data.pData)
+		{
+			Logger::LogError("alloc memory failed.\n");
+			assert(false);
 			break;
+		}
 
 		if (ReadData(m_info.data.pData, m_info.data.chunkSize) != m_info.data.chunkSize)
+		{
+			Logger::LogError("Wave data chunk size error.\n");
 			break;
+		}
 
 		bOk = true;
 	} while (false);
@@ -79,29 +90,43 @@ bool WaveFile::ReadHead(std::fstream &file)
 		|| m_info.riff.chunkSize != fileLen - 8
 		|| strncmp(m_info.riff.format, "WAVE", 4) != 0)
 	{
+		Logger::LogError("Wave RIFF chunk format error.\n");
 		return false;
 	}
 
 	// format chunk
 	file.read((char*)&m_info.fmt, 24);
 	if (!file || strncmp(m_info.fmt.chunkId, "fmt ", 4) != 0)
+	{
+		Logger::LogError("Wave fmt chunk format error.\n");
 		return false;
+	}
 
 	if (m_info.fmt.chunkSize > 16)
 	{
 		file.read((char*)&m_info.fmt.extParamSize, 2);
 		if (!file || m_info.fmt.chunkSize != m_info.fmt.extParamSize + 16 + 2)
+		{
+			Logger::LogError("Wave fmt chunk size error.\n");
 			return false;
+		}
 
 		if (m_info.fmt.extParamSize > 0)
 		{
 			m_info.fmt.pExtParam = new char[m_info.fmt.extParamSize];
 			if (!m_info.fmt.pExtParam)
+			{
+				Logger::LogError("alloc memory failed.\n");
+				assert(false);
 				return false;
+			}
 
 			file.read(m_info.fmt.pExtParam, m_info.fmt.extParamSize);
 			if (!file)
+			{
+				Logger::LogError("Wave fmt chunk ext param error.\n");
 				return false;
+			}
 		}
 		else
 		{
@@ -117,7 +142,10 @@ bool WaveFile::ReadHead(std::fstream &file)
 	// data chunk
 	file.read((char*)&m_info.data, 8);
 	if (!file || strncmp(m_info.data.chunkId, "data", 4) != 0)
+	{
+		Logger::LogError("Wave data chunk format error.\n");
 		return false;
+	}
 
 	// many wave file's data chunk size invalid, so here just correct it.
 	uint32_t dataSize = m_info.riff.chunkSize - m_info.fmt.chunkSize - 20;
@@ -138,36 +166,54 @@ bool WaveFile::ReadHead(std::fstream &file)
 bool WaveFile::WriteHead(std::fstream &file)
 {
 	if (m_info.riff.chunkSize != m_info.fmt.chunkSize + m_info.data.chunkSize + 20)
+	{
+		Logger::LogError("Wave chunkSize error.\n");
 		return false;
+	}
 
 	// riff chunk
 	file.write((char*)&m_info.riff, 12);
 	if (!file)
+	{
+		Logger::LogError("Write file error.\n");
 		return false;
+	}
 
 	// format chunk
 	file.write((char*)&m_info.fmt, 24);
 	if (!file)
+	{
+		Logger::LogError("Write file error.\n");
 		return false;
+	}
 
 	if (m_info.fmt.chunkSize > 16)
 	{
 		file.write((char*)&m_info.fmt.extParamSize, 2);
 		if (!file)
+		{
+			Logger::LogError("Write file error.\n");
 			return false;
+		}
 
 		if (m_info.fmt.extParamSize > 0)
 		{
 			file.write(m_info.fmt.pExtParam, m_info.fmt.extParamSize);
 			if (!file)
+			{
+				Logger::LogError("Write file error.\n");
 				return false;
+			}
 		}
 	}
 
 	// data chunk
 	file.write((char*)&m_info.data, 8);
 	if (!file)
+	{
+		Logger::LogError("Write file error.\n");
 		return false;
+	}
 
 	return true;
 }
@@ -179,7 +225,11 @@ bool WaveFile::BeginRead(const char *fileName)
 	m_inFile.close();
 	m_inFile.open(fileName, std::ios::in | std::ios::binary);
 	if (!m_inFile.is_open())
+	{
+		Logger::LogError("Can't open file %s\n", fileName);
 		return false;
+	}
+
 
 	return ReadHead(m_inFile);
 }
@@ -214,7 +264,10 @@ bool WaveFile::BeginWrite(const char *fileName, bool append)
 	m_outFile.close();
 	m_outFile.open(fileName, std::ios::out | std::ios::binary);
 	if (!m_outFile.is_open())
+	{
+		Logger::LogError("Can't open file %s\n", fileName);
 		return false;
+	}
 
 	memcpy_s(m_info.riff.chunkId, 4, "RIFF", 4);
 	memcpy_s(m_info.riff.format, 4, "WAVE", 4);
@@ -234,7 +287,10 @@ bool WaveFile::WriteData(const char *pData, uint32_t count)
 {
 	m_outFile.write(pData, count);
 	if (!m_outFile)
+	{
+		Logger::LogError("Write file error.\n");
 		return false;
+	}
 
 	if (m_bAppend)
 	{
@@ -264,10 +320,16 @@ void WaveFile::EndWrite()
 bool WaveFile::SetFormat(FormatChunk fmt)
 {
 	if (fmt.chunkSize != 16 && fmt.chunkSize != fmt.extParamSize + 18)
+	{
+		Logger::LogError("format chunkSize error.\n");
 		return false;
+	}
 
 	if (fmt.chunkSize > 18 && fmt.pExtParam == NULL)
+	{
+		Logger::LogError("format chunkSize error.\n");
 		return false;
+	}
 
 	memcpy_s(&m_info.fmt, sizeof(m_info.fmt), &fmt, sizeof(fmt));
 	memcpy_s(m_info.fmt.chunkId, 4, "fmt ", 4);

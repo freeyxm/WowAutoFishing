@@ -61,7 +61,6 @@ int ConvertWave(std::string fileName, int sampleRate, int bitsPerSample, int cha
 	WaveFile inFile;
 	if (!inFile.BeginRead(inFileName.c_str()))
 	{
-		printf("Error: Can't open input file %s\n", inFileName.c_str());
 		return -1;
 	}
 
@@ -92,12 +91,10 @@ int ConvertWave(std::string fileName, int sampleRate, int bitsPerSample, int cha
 	WaveFile outFile;
 	if (!outFile.SetFormat(fmtOut))
 	{
-		printf("Error: Out file format error.\n");
 		return -1;
 	}
 	if (!outFile.BeginWrite(outFileName.c_str(), true))
 	{
-		printf("Error: Can't open out file %s\n", outFileName.c_str());
 		return -1;
 	}
 
