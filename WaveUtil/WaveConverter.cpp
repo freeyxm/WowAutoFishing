@@ -35,6 +35,8 @@ void WaveConverter::SetFormat(const WAVEFORMATEX *pwfxSrc, const WAVEFORMATEX *p
 	m_dstBytesPerSample = m_wfxDst.wBitsPerSample / 8;
 	m_srcBytesPerFrame = m_srcBytesPerSample * m_wfxSrc.nChannels;
 	m_dstBytesPerFrame = m_dstBytesPerSample * m_wfxDst.nChannels;
+	m_srcMaxValue = (1UL << m_wfxSrc.wBitsPerSample) - 1;
+	m_dstMaxValue = (1UL << m_wfxDst.wBitsPerSample) - 1;
 
 	// Quality is half the window width
 	m_wndWidth2 = 1;
@@ -219,6 +221,69 @@ uint32_t WaveConverter::ResampleSingle(char *pDataDst, uint32_t frameCount)
 	return index;
 }
 
+uint32_t WaveConverter::ResampleDouble(char *pDataDst, uint32_t frameCount)
+{
+	const uint32_t maxSrcIndex = m_buffer1.index + m_buffer1.count;
+	uint32_t srcIndex1 = m_srcFrameIndex;
+	uint32_t srcIndex2 = (uint32_t)ceilf(m_srcFrameIndexFloat);
+	uint32_t index = 0;
+
+	for (; index < frameCount; ++index)
+	{
+		const char *pDataSrc1 = NULL;
+		if (srcIndex1 < m_buffer1.index) {
+			pDataSrc1 = m_buffer2.pData + (srcIndex1 - m_buffer2.index) * m_srcBytesPerFrame;
+		}
+		else if (srcIndex1 < maxSrcIndex) {
+			pDataSrc1 = m_buffer1.pData + (srcIndex1 - m_buffer1.index) * m_srcBytesPerFrame;
+		}
+		else {
+			break;
+		}
+
+		if (srcIndex1 != srcIndex2 && srcIndex2 < maxSrcIndex)
+		{
+			const char *pDataSrc2 = NULL;
+			if (srcIndex2 < m_buffer1.index) {
+				pDataSrc2 = m_buffer2.pData + (srcIndex2 - m_buffer2.index) * m_srcBytesPerFrame;
+			}
+			else {
+				pDataSrc2 = m_buffer1.pData + (srcIndex2 - m_buffer1.index) * m_srcBytesPerFrame;
+			}
+
+			float factor2 = m_srcFrameIndexFloat - srcIndex1;
+			float factor1 = 1 - factor2;
+
+			if (factor1 > factor2)
+			{
+				factor2 *= 0.01f;
+				factor1 = 1 - factor2;
+			}
+			else
+			{
+				factor1 *= 0.01f;
+				factor2 = 1 - factor1;
+			}
+
+			ConvertFrame(pDataDst, pDataSrc1, factor1, pDataSrc2, factor2);
+		}
+		else
+		{
+			ConvertFrame(pDataSrc1, pDataDst);
+		}
+
+		pDataDst += m_dstBytesPerFrame;
+
+		m_dstFrameIndex++;
+		m_srcFrameIndexFloat = m_dstFrameIndex * m_sampleRateRatio;
+		srcIndex1 = (uint32_t)m_srcFrameIndexFloat;
+		srcIndex2 = (uint32_t)ceilf(m_srcFrameIndexFloat);
+	}
+
+	m_srcFrameIndex = srcIndex1;
+	return index;
+}
+
 uint32_t WaveConverter::ConvertNormal(const char *pDataSrc, char *pDataDst, uint32_t frameCount)
 {
 	for (uint32_t i = 0; i < frameCount; ++i)
@@ -278,6 +343,47 @@ void WaveConverter::ConvertFrame(const char *pDataSrc, char *pDataDst)
 	}
 }
 
+void WaveConverter::ConvertFrame(char *pDataDst, const char *pDataSrc1, float factor1, const char *pDataSrc2, float factor2)
+{
+	switch (m_channelConvertType)
+	{
+	case WaveConverter::ChannelConvertType::CCT_1_1:
+	case WaveConverter::ChannelConvertType::CCT_2_1:
+		{
+			ConvertSample(pDataDst, pDataSrc1, factor1, pDataSrc2, factor2);
+		}
+		break;
+	case WaveConverter::ChannelConvertType::CCT_1_2:
+		{
+			ConvertSample(pDataDst, pDataSrc1, factor1, pDataSrc2, factor2);
+			pDataDst += m_dstBytesPerSample;
+			ConvertSample(pDataDst, pDataSrc1, factor1, pDataSrc2, factor2);
+		}
+		break;
+	case WaveConverter::ChannelConvertType::CCT_2_2:
+		{
+			ConvertSample(pDataDst, pDataSrc1, factor1, pDataSrc2, factor2);
+			pDataSrc1 += m_srcBytesPerSample;
+			pDataSrc2 += m_srcBytesPerSample;
+			pDataDst += m_dstBytesPerSample;
+			ConvertSample(pDataDst, pDataSrc1, factor1, pDataSrc2, factor2);
+		}
+		break;
+	default:
+		break;
+	}
+}
+
+void WaveConverter::ConvertSample(char *pDataDst, const char *pDataSrc1, float factor1, const char *pDataSrc2, float factor2)
+{
+	uint32_t src1 = ParseSample(pDataSrc1);
+	uint32_t src2 = ParseSample(pDataSrc2);
+
+	float value = src1 * factor1 + src2 * factor2;
+	uint32_t dst = value > m_srcMaxValue ? m_srcMaxValue : (uint32_t)value;;
+
+	WriteSample(pDataDst, dst);
+}
 
 static inline uint8_t Parse08BitsValue(const char *pDataSrc)
 {

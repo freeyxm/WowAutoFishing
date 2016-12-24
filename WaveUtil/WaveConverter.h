@@ -24,10 +24,14 @@ private:
 
 	uint32_t Resample(char *pDataDst, uint32_t frameCount);
 	uint32_t ResampleSingle(char *pDataDst, uint32_t frameCount);
+	uint32_t ResampleDouble(char *pDataDst, uint32_t frameCount);
 	uint32_t ConvertNormal(const char *pDataSrc, char *pDataDst, uint32_t frameCount);
 
 	void ConvertFrame(const char *pDataSrc, char *pDataDst);
 	void ConvertSample(const char *pDataSrc, char *pDataDst);
+
+	void ConvertFrame(char *pDataDst, const char *pDataSrc1, float factor1, const char *pDataSrc2, float factor2);
+	void ConvertSample(char *pDataDst, const char *pDataSrc1, float factor1, const char *pDataSrc2, float factor2);
 
 	uint32_t ParseSample(const char *pDataSrc);
 	void WriteSample(char *pDataDst, uint32_t value);
@@ -40,6 +44,8 @@ protected:
 	uint32_t m_dstBytesPerSample;
 	uint32_t m_srcBytesPerFrame;
 	uint32_t m_dstBytesPerFrame;
+	uint32_t m_srcMaxValue;
+	uint32_t m_dstMaxValue;
 private:
 	uint32_t m_srcFrameIndex;
 	uint32_t m_dstFrameIndex;
