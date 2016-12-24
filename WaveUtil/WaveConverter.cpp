@@ -90,8 +90,6 @@ uint32_t WaveConverter::ReadFrameResample(char *pDataDst, uint32_t dstFrameCount
 		if (m_srcFrameIndex + m_wndWidth2 < m_buffer1.index + m_buffer1.count)
 		{
 			uint32_t nwrite = ResampleSingle(pDataDst, dstCount);
-			if (nwrite == 0)
-				break;
 			dstCount -= nwrite;
 			pDataDst += nwrite * m_dstBytesPerFrame;
 		}
@@ -117,17 +115,17 @@ uint32_t WaveConverter::ReadFrameNormal(char *pDataDst, uint32_t frameCount)
 	}
 	else
 	{
-		uint32_t count = frameCount;
-		while (count > 0)
+		uint32_t dstCount = frameCount;
+		while (dstCount > 0)
 		{
-			uint32_t rcount = LoadSrcFrame(m_buffer1.pData, min(count, m_srcBufferFrameCount));
+			uint32_t rcount = LoadSrcFrame(m_buffer1.pData, min(dstCount, m_srcBufferFrameCount));
 			if (rcount == 0)
 				break;
 			uint32_t wcount = ConvertNormal(m_buffer1.pData, pDataDst, rcount);
-			count -= wcount;
+			dstCount -= wcount;
 			pDataDst += wcount * m_dstBytesPerFrame;
 		}
-		return frameCount - count;
+		return frameCount - dstCount;
 	}
 }
 
