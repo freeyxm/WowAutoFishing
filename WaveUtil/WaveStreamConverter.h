@@ -5,7 +5,7 @@
 class WaveStreamConverter : public WaveConverter
 {
 public:
-	WaveStreamConverter(std::istream *stream);
+	WaveStreamConverter(std::istream *stream = NULL);
 	~WaveStreamConverter();
 
 	void SetStream(std::istream *stream);

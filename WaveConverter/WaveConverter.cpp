@@ -88,6 +88,13 @@ int ConvertWave(std::string fileName, int sampleRate, int bitsPerSample, int cha
 	WaveUtil::SetFormat(&fwxOut, sampleRate, bitsPerSample, channel);
 	WaveUtil::ConvertFormat(&fwxOut, &fmtOut);
 
+	WaveStreamConverter converter;
+	if (!converter.IsSupport(&fwxIn, &fwxOut))
+	{
+		printf("Convert format not support.\n");
+		return -1;
+	}
+
 	WaveFile outFile;
 	if (!outFile.SetFormat(fmtOut))
 	{
@@ -101,7 +108,7 @@ int ConvertWave(std::string fileName, int sampleRate, int bitsPerSample, int cha
 	uint32_t bufferFrameCount = 1000;
 	std::shared_ptr<char> outBuffer(new char[bufferFrameCount * outFile.BytesPerFrame()], std::default_delete<char[]>());
 
-	WaveStreamConverter converter(&inFile.InStream());
+	converter.SetStream(&inFile.InStream());
 	converter.SetFormat(&fwxIn, &fwxOut, bufferFrameCount);
 
 	float sampleRateRadio = ((float)outFile.GetFormat()->sampleRate / inFile.GetFormat()->sampleRate);

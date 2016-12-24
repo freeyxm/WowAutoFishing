@@ -13,6 +13,8 @@ public:
 
 	uint32_t ReadFrame(char *pData, uint32_t frameCount);
 
+	bool IsSupport(const WAVEFORMATEX *pwfxSrc, const WAVEFORMATEX *pwfxDst);
+
 protected:
 	virtual uint32_t LoadSrcFrame(char *pData, uint32_t frameCount) = 0;
 
@@ -91,8 +93,8 @@ private:
 		CCT_GT,
 	};
 
-	BitsConvertType GetBitsConvertType(const WAVEFORMATEX *pwfxSrc, const WAVEFORMATEX *pwfxDst);
-	ChannelConvertType GetChannelConvertType(const WAVEFORMATEX *pwfxSrc, const WAVEFORMATEX *pwfxDst);
+	static BitsConvertType GetBitsConvertType(const WAVEFORMATEX *pwfxSrc, const WAVEFORMATEX *pwfxDst);
+	static ChannelConvertType GetChannelConvertType(const WAVEFORMATEX *pwfxSrc, const WAVEFORMATEX *pwfxDst);
 
 	BitsConvertType m_bitsConvertType;
 	ChannelConvertType m_channelConvertType;

@@ -517,7 +517,7 @@ WaveConverter::BitsConvertType WaveConverter::GetBitsConvertType(const WAVEFORMA
 		case 24:
 			return BitsConvertType::Bit_32_24;
 		case 32:
-			if (m_wfxSrc.wFormatTag == m_wfxDst.wFormatTag)
+			if (pwfxSrc->wFormatTag == pwfxDst->wFormatTag)
 				return BitsConvertType::Bit_32_32;
 			else
 				return BitsConvertType::Bit_32_32f;
@@ -659,4 +659,15 @@ void WaveConverter::WriteSample(char *pDataDst, uint32_t dst)
 	}
 }
 
+bool WaveConverter::IsSupport(const WAVEFORMATEX *pwfxSrc, const WAVEFORMATEX *pwfxDst)
+{
+	auto bct = GetBitsConvertType(pwfxSrc, pwfxDst);
+	if (bct == BitsConvertType::Bit_Undefined)
+		return false;
 
+	auto cct = GetChannelConvertType(pwfxSrc, pwfxDst);
+	if (cct == ChannelConvertType::CCT_GT || cct == ChannelConvertType::CCT_LT)
+		return false;
+
+	return true;
+}

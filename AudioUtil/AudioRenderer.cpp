@@ -1,7 +1,10 @@
 ﻿#include "stdafx.h"
 #include "AudioRenderer.h"
 #include "CommUtil/CommUtil.hpp"
+#include "CommUtil/Logger.h"
 #include <process.h>
+
+using namespace comm_util;
 
 static UINT __stdcall RenderTheadProc(LPVOID param);
 
@@ -129,6 +132,13 @@ bool AudioRenderer::UseFormat(WAVEFORMATEX *pwfx)
 			{
 				m_pConverter = new WaveStreamConverter(NULL);
 			}
+
+			if (!m_pConverter->IsSupport(&srcWfx, &dstWfx))
+			{
+				Logger::LogError("Format not support.\n");
+				return false;
+			}
+
 			m_pConverter->SetStream(&m_pWaveFile->InStream());
 			m_pConverter->SetFormat(&srcWfx, pwfx, pwfx->nSamplesPerSec);
 		}
