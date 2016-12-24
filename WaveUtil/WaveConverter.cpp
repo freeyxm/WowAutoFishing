@@ -278,14 +278,15 @@ void WaveConverter::ConvertFrame(const char *pDataSrc, char *pDataDst)
 	}
 }
 
-static inline int8_t Parse08BitsValue(const char *pDataSrc)
+
+static inline uint8_t Parse08BitsValue(const char *pDataSrc)
 {
 	return *(int8_t*)pDataSrc + 128;
 }
 
-static inline void Write08BitsValue(char *pDataDst, int8_t dst)
+static inline void Write08BitsValue(char *pDataDst, uint8_t dst)
 {
-	*(int8_t*)pDataDst = dst;
+	*(int8_t*)pDataDst = dst - 128;
 }
 
 static inline uint16_t Parse16BitsValue(const char *pDataSrc)
@@ -338,13 +339,13 @@ void WaveConverter::ConvertSample(const char *pDataSrc, char *pDataDst)
 	{
 	case WaveConverter::BitsConvertType::Bit_Equal:
 		{
-			memcpy(pDataDst, pDataSrc, m_srcBytesPerSample);
+			memcpy(pDataDst, pDataSrc, m_dstBytesPerFrame);
 		}
 		break;
 	case WaveConverter::BitsConvertType::Bit_08_08:
 		{
-			uint8_t src = Parse08BitsValue(pDataSrc);
-			Write08BitsValue(pDataDst, src);
+			uint8_t src = *(uint8_t*)pDataSrc;
+			*(uint8_t*)pDataDst = src;
 		}
 		break;
 	case WaveConverter::BitsConvertType::Bit_08_16:
@@ -371,7 +372,7 @@ void WaveConverter::ConvertSample(const char *pDataSrc, char *pDataDst)
 	case WaveConverter::BitsConvertType::Bit_16_08:
 		{
 			uint32_t src = Parse16BitsValue(pDataSrc);
-			int8_t dst = (src >> 8) - 128;
+			uint32_t dst = (src >> 8);
 			Write08BitsValue(pDataDst, dst);
 		}
 		break;
@@ -398,7 +399,7 @@ void WaveConverter::ConvertSample(const char *pDataSrc, char *pDataDst)
 	case WaveConverter::BitsConvertType::Bit_24_08:
 		{
 			uint32_t src = Parse24BitsValue(pDataSrc);
-			int8_t dst = (src >> 16) - 128;
+			uint32_t dst = (src >> 16);
 			Write08BitsValue(pDataDst, dst);
 		}
 		break;
@@ -425,7 +426,7 @@ void WaveConverter::ConvertSample(const char *pDataSrc, char *pDataDst)
 	case WaveConverter::BitsConvertType::Bit_32_08:
 		{
 			uint32_t src = Parse32BitsValue(pDataSrc, m_wfxSrc.wFormatTag);
-			int8_t dst = (src >> 24) - 128;
+			uint32_t dst = (src >> 24);
 			Write08BitsValue(pDataDst, dst);
 		}
 		break;
@@ -457,6 +458,7 @@ void WaveConverter::ConvertSample(const char *pDataSrc, char *pDataDst)
 		break;
 	case WaveConverter::BitsConvertType::Bit_Undefined:
 	default:
+		memset(pDataDst, 0, m_dstBytesPerFrame);
 		assert(false);
 		break;
 	}
