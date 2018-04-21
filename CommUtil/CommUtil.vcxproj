@@ -134,6 +134,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="endian.h" />
     <ClInclude Include="CommUtil.hpp" />
     <ClInclude Include="FTimer.h" />
     <ClInclude Include="ImageUtil.hpp" />

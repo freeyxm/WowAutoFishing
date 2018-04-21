@@ -2,9 +2,15 @@
 #include "WaveFile.h"
 #include "CommUtil/CommUtil.hpp"
 #include "CommUtil/Logger.h"
+#include "CommUtil/endian.h"
 #include <assert.h>
 
 using namespace comm_util;
+
+const uint32_t WaveFile::RIFF_CHUNK_ID = little_endian() ? 0x46464952 : 0x52494646; // "RIFF" big-endian
+const uint32_t WaveFile::RIFF_CHUNK_FMT = little_endian() ? 0x45564157 : 0x57415645; // "WAVE" big-endian
+const uint32_t WaveFile::FORMAT_CHUNK_ID = little_endian() ? 0x20746d66 : 0x666d7420; // "fmt " big-endian
+const uint32_t WaveFile::DATA_CHUNK_ID = little_endian() ? 0x61746164 : 0x64617461; // "data" big-endian
 
 WaveFile::WaveFile()
 {
@@ -86,9 +92,9 @@ bool WaveFile::ReadHead(std::fstream &file)
 	// riff chunk
 	file.read((char*)&m_info.riff, 12);
 	if (!file
-		|| strncmp(m_info.riff.chunkId, "RIFF", 4) != 0
+		|| m_info.riff.chunkId != RIFF_CHUNK_ID
 		|| m_info.riff.chunkSize != fileLen - 8
-		|| strncmp(m_info.riff.format, "WAVE", 4) != 0)
+		|| m_info.riff.format != RIFF_CHUNK_FMT)
 	{
 		Logger::LogError("Wave RIFF chunk format error.\n");
 		return false;
@@ -96,7 +102,7 @@ bool WaveFile::ReadHead(std::fstream &file)
 
 	// format chunk
 	file.read((char*)&m_info.fmt, 24);
-	if (!file || strncmp(m_info.fmt.chunkId, "fmt ", 4) != 0)
+	if (!file || m_info.fmt.chunkId != FORMAT_CHUNK_ID)
 	{
 		Logger::LogError("Wave fmt chunk format error.\n");
 		return false;
@@ -141,7 +147,7 @@ bool WaveFile::ReadHead(std::fstream &file)
 
 	// data chunk
 	file.read((char*)&m_info.data, 8);
-	if (!file || strncmp(m_info.data.chunkId, "data", 4) != 0)
+	if (!file || m_info.data.chunkId != DATA_CHUNK_ID)
 	{
 		Logger::LogError("Wave data chunk format error.\n");
 		return false;
@@ -269,10 +275,10 @@ bool WaveFile::BeginWrite(const char *fileName, bool append)
 		return false;
 	}
 
-	memcpy_s(m_info.riff.chunkId, 4, "RIFF", 4);
-	memcpy_s(m_info.riff.format, 4, "WAVE", 4);
-	memcpy_s(m_info.fmt.chunkId, 4, "fmt ", 4);
-	memcpy_s(m_info.data.chunkId, 4, "data", 4);
+	m_info.riff.chunkId = RIFF_CHUNK_ID;
+	m_info.riff.format = RIFF_CHUNK_FMT;
+	m_info.fmt.chunkId = FORMAT_CHUNK_ID;
+	m_info.data.chunkId = DATA_CHUNK_ID;
 
 	m_bAppend = append;
 	if (m_bAppend)
@@ -317,7 +323,7 @@ void WaveFile::EndWrite()
 	m_outFile.close();
 }
 
-bool WaveFile::SetFormat(FormatChunk fmt)
+bool WaveFile::SetFormat(const FormatChunk &fmt)
 {
 	if (fmt.chunkSize != 16 && fmt.chunkSize != fmt.extParamSize + 18)
 	{
@@ -332,8 +338,8 @@ bool WaveFile::SetFormat(FormatChunk fmt)
 	}
 
 	memcpy_s(&m_info.fmt, sizeof(m_info.fmt), &fmt, sizeof(fmt));
-	memcpy_s(m_info.fmt.chunkId, 4, "fmt ", 4);
-	fmt.pExtParam = NULL; // !!!
+	m_info.fmt.chunkId = FORMAT_CHUNK_ID;
+	m_info.fmt.pExtParam = NULL; // !!!
 
 	UpdateFormat();
 	return true;

@@ -7,16 +7,21 @@ class WaveFile
 public:
 #pragma pack(push)
 #pragma pack(2)
+	const static uint32_t RIFF_CHUNK_ID; // "RIFF" big-endian
+	const static uint32_t RIFF_CHUNK_FMT; // "WAVE" big-endian
+	const static uint32_t FORMAT_CHUNK_ID; // "fmt " big-endian
+	const static uint32_t DATA_CHUNK_ID; // "data" big-endian
+
 	struct RiffChunk
 	{
-		char chunkId[4]; // "RIFF"
+		uint32_t chunkId; // "RIFF"
 		uint32_t chunkSize;
-		char format[4]; // "WAVE"
+		uint32_t format; // "WAVE"
 	};
 
 	struct FormatChunk
 	{
-		char chunkId[4]; // "fmt "
+		uint32_t chunkId; // "fmt "
 		uint32_t chunkSize;
 		uint16_t audioFormat;
 		uint16_t numChannels;
@@ -30,7 +35,7 @@ public:
 
 	struct DataChunk
 	{
-		char chunkId[4]; // "data"
+		uint32_t chunkId; // "data"
 		uint32_t chunkSize;
 		char *pData;
 	};
@@ -66,7 +71,7 @@ public:
 	inline uint32_t BytesPerSample() const;
 	inline uint32_t BytesPerFrame() const;
 
-	bool SetFormat(FormatChunk fmt);
+	bool SetFormat(const FormatChunk &fmt);
 	const FormatChunk* GetFormat() const;
 
 	void TakeData(char **ppData, uint32_t *pDataLen);

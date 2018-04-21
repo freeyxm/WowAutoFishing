@@ -2,7 +2,7 @@
 #include <Audioclient.h>
 #include "WaveFile.h"
 
-class WaveUtil : public WaveFile
+class WaveUtil
 {
 public:
 	WaveUtil();

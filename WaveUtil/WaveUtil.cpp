@@ -38,8 +38,8 @@ void WaveUtil::SetFormat(WAVEFORMATEX *pwfx, int sampleRate, int bitsPerSample, 
 	pwfx->nChannels = channel;
 	pwfx->nSamplesPerSec = sampleRate;
 	pwfx->wBitsPerSample = bitsPerSample;
-	pwfx->nBlockAlign = channel * bitsPerSample / 8;
-	pwfx->nAvgBytesPerSec = sampleRate * channel * bitsPerSample / 8;
+	pwfx->nBlockAlign = (channel * bitsPerSample) >> 3;
+	pwfx->nAvgBytesPerSec = (sampleRate * channel * bitsPerSample) >> 3;
 }
 
 bool WaveUtil::IsSameFormat(const WAVEFORMATEX *pwfx, const WaveFile::FormatChunk *pfmt)
@@ -58,10 +58,10 @@ bool WaveUtil::IsSameFormat(const WAVEFORMATEX *pwfx, const WAVEFORMATEX *pwfx2)
 
 bool WaveUtil::LoadWave(const char *path, WAVEFORMATEX *pwfx, char **ppData, uint32_t *pDataLen)
 {
-	WaveUtil wave;
+	WaveFile wave;
 	if (wave.Load(path))
 	{
-		ConvertFormat(&wave.m_info.fmt, pwfx);
+		ConvertFormat(wave.GetFormat(), pwfx);
 		wave.TakeData(ppData, pDataLen);
 		return true;
 	}
@@ -70,9 +70,10 @@ bool WaveUtil::LoadWave(const char *path, WAVEFORMATEX *pwfx, char **ppData, uin
 
 bool WaveUtil::SaveWave(const char *path, WAVEFORMATEX *pwfx, char *pData, uint32_t dataLen)
 {
-	WaveUtil wave;
-	ConvertFormat(pwfx, &wave.m_info.fmt);
-
+	WaveFile wave;
+	WaveFile::FormatChunk format;
+	ConvertFormat(pwfx, &format);
+	wave.SetFormat(format);
 	wave.GiveData(pData, dataLen);
 	bool ret = wave.Save(path);
 	wave.TakeData(&pData, &dataLen);
