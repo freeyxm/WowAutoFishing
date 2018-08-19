@@ -139,6 +139,8 @@
     <ClInclude Include="FTimer.h" />
     <ClInclude Include="ImageUtil.hpp" />
     <ClInclude Include="Logger.h" />
+    <ClInclude Include="StateBase.h" />
+    <ClInclude Include="StateMachine.h" />
     <ClInclude Include="StringUtil.hpp" />
     <ClInclude Include="VectorUtil.hpp" />
   </ItemGroup>
@@ -147,6 +149,8 @@
     <ClCompile Include="FTimer.cpp" />
     <ClCompile Include="ImageUtil.cpp" />
     <ClCompile Include="Logger.cpp" />
+    <ClCompile Include="StateBase.cpp" />
+    <ClCompile Include="StateMachine.cpp" />
     <ClCompile Include="StringUtil.cpp" />
     <ClCompile Include="VectorUtil.cpp" />
   </ItemGroup>
