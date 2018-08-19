@@ -7,20 +7,20 @@ namespace comm_util
 class FTimer
 {
 public:
-	FTimer();
-	~FTimer();
+    FTimer();
+    ~FTimer();
 
-	void Start();
-	void Stop();
-	void Reset();
+    void Start();
+    void Stop();
+    void Reset();
 
-	double Seconds();
-	double Milliseconds();
+    int64_t Seconds();
+    int64_t Milliseconds();
 
 private:
-	std::chrono::steady_clock::time_point m_begin;
-	std::chrono::duration<double> m_duration;
-	bool m_bStart;
+    std::chrono::steady_clock::time_point m_begin;
+    std::chrono::duration<double> m_duration;
+    bool m_bRunning;
 };
 
 }
