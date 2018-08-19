@@ -11,8 +11,8 @@ public:
     StateBase(int state_type);
     virtual ~StateBase();
 
-    virtual void OnEnter(void* param = NULL);
-    virtual void OnLeave(void* param = NULL);
+    virtual void OnEnter(void* param);
+    virtual void OnLeave(void* param);
     virtual void Update(int dt);
 
     int GetStateType() const;
