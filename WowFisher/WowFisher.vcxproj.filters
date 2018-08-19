@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="StateMachine">
+      <UniqueIdentifier>{4b4c42ad-b88c-41a4-8f23-b15c4f5c567f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -39,6 +42,36 @@
     <ClInclude Include="FishingSoundListener.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="FisherStateMachine.h">
+      <Filter>StateMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="FisherStateBase.h">
+      <Filter>StateMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="FisherStateBait.h">
+      <Filter>StateMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="FisherStateCheckBait.h">
+      <Filter>StateMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="FisherStateThrowPole.h">
+      <Filter>StateMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="FisherStateFindFloat.h">
+      <Filter>StateMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="FisherStateShaduf.h">
+      <Filter>StateMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="FisherStateWaitBite.h">
+      <Filter>StateMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="FisherStateWaitFloatHide.h">
+      <Filter>StateMachine</Filter>
+    </ClInclude>
+    <ClInclude Include="FisherStateDefine.h">
+      <Filter>StateMachine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WowFisher.cpp">
@@ -55,6 +88,33 @@
     </ClCompile>
     <ClCompile Include="FishingSoundListener.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FisherStateMachine.cpp">
+      <Filter>StateMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="FisherStateBase.cpp">
+      <Filter>StateMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="FisherStateBait.cpp">
+      <Filter>StateMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="FisherStateCheckBait.cpp">
+      <Filter>StateMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="FisherStateThrowPole.cpp">
+      <Filter>StateMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="FisherStateFindFloat.cpp">
+      <Filter>StateMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="FisherStateShaduf.cpp">
+      <Filter>StateMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="FisherStateWaitBite.cpp">
+      <Filter>StateMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="FisherStateWaitFloatHide.cpp">
+      <Filter>StateMachine</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

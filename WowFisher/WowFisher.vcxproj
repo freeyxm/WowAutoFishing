@@ -210,6 +210,16 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Fisher.h" />
+    <ClInclude Include="FisherStateBait.h" />
+    <ClInclude Include="FisherStateBase.h" />
+    <ClInclude Include="FisherStateCheckBait.h" />
+    <ClInclude Include="FisherStateDefine.h" />
+    <ClInclude Include="FisherStateFindFloat.h" />
+    <ClInclude Include="FisherStateMachine.h" />
+    <ClInclude Include="FisherStateShaduf.h" />
+    <ClInclude Include="FisherStateThrowPole.h" />
+    <ClInclude Include="FisherStateWaitBite.h" />
+    <ClInclude Include="FisherStateWaitFloatHide.h" />
     <ClInclude Include="FishingSoundListener.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -219,6 +229,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Fisher.cpp" />
+    <ClCompile Include="FisherStateBait.cpp" />
+    <ClCompile Include="FisherStateBase.cpp" />
+    <ClCompile Include="FisherStateCheckBait.cpp" />
+    <ClCompile Include="FisherStateFindFloat.cpp" />
+    <ClCompile Include="FisherStateMachine.cpp" />
+    <ClCompile Include="FisherStateShaduf.cpp" />
+    <ClCompile Include="FisherStateThrowPole.cpp" />
+    <ClCompile Include="FisherStateWaitBite.cpp" />
+    <ClCompile Include="FisherStateWaitFloatHide.cpp" />
     <ClCompile Include="FishingSoundListener.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

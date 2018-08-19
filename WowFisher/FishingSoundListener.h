@@ -15,14 +15,12 @@ class FishingSoundListener :
 	};
 
 public:
-	typedef bool (Fisher::*CheckTimeoutProc)(void);
 	typedef void (Fisher::*NotifyBiteProc)(void);
 
 public:
 	FishingSoundListener(Fisher *pFisher);
 	virtual ~FishingSoundListener();
 
-	void SetCheckTimeoutProc(CheckTimeoutProc callback);
 	void SetNotifyBiteProc(NotifyBiteProc callback);
 
 	virtual bool Init();
@@ -49,7 +47,6 @@ private:
 	const WAVEFORMATEX *m_pwfx;
 	Fisher *m_pFisher;
 	FILE *m_pSampleFile;
-	CheckTimeoutProc m_procCheckTimeout;
 	NotifyBiteProc m_procNotifyBite;
 
 	std::list<SampleInfo> m_samples;

@@ -18,7 +18,7 @@ using namespace comm_util;
 
 FishingSoundListener::FishingSoundListener(Fisher *pFisher)
 	: AudioExtractor(true, true)
-	, m_pFisher(pFisher), m_procCheckTimeout(NULL), m_procNotifyBite(NULL)
+	, m_pFisher(pFisher), m_procNotifyBite(NULL)
 	, m_pSampleFile(NULL), m_sampleCount(0)
 {
 }
@@ -52,11 +52,6 @@ bool FishingSoundListener::Init()
 	LoadSamples();
 
 	return AudioExtractor::Init();
-}
-
-void FishingSoundListener::SetCheckTimeoutProc(CheckTimeoutProc callback)
-{
-	m_procCheckTimeout = callback;
 }
 
 void FishingSoundListener::SetNotifyBiteProc(NotifyBiteProc callback)
@@ -106,10 +101,6 @@ void FishingSoundListener::EndSegment()
 
 bool FishingSoundListener::IsDone() const
 {
-	if (!m_bDone && m_pFisher != NULL && m_procCheckTimeout != NULL)
-	{
-		return (m_pFisher->*m_procCheckTimeout)();
-	}
 	return m_bDone;
 }
 
