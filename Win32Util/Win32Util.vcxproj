@@ -156,6 +156,7 @@
     <ClInclude Include="KeyboardBase.h" />
     <ClInclude Include="KeyboardGlobal.h" />
     <ClInclude Include="KeyboardUtil.h" />
+    <ClInclude Include="DLLInjecter.h" />
     <ClInclude Include="MouseBase.h" />
     <ClInclude Include="MouseBackground.h" />
     <ClInclude Include="MouseGlobal.h" />
@@ -175,6 +176,7 @@
     <ClCompile Include="KeyboardBase.cpp" />
     <ClCompile Include="KeyboardGlobal.cpp" />
     <ClCompile Include="KeyboardUtil.cpp" />
+    <ClCompile Include="DLLInjecter.cpp" />
     <ClCompile Include="MouseBase.cpp" />
     <ClCompile Include="MouseBackground.cpp" />
     <ClCompile Include="MouseGlobal.cpp" />

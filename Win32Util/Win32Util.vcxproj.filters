@@ -81,6 +81,9 @@
     <ClInclude Include="KeyboardBackground.h">
       <Filter>Keyboard</Filter>
     </ClInclude>
+    <ClInclude Include="DLLInjecter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -130,6 +133,9 @@
     </ClCompile>
     <ClCompile Include="KeyboardBackground.cpp">
       <Filter>Keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="DLLInjecter.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
