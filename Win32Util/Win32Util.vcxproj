@@ -152,7 +152,13 @@
     <ClInclude Include="AudioUtil.h" />
     <ClInclude Include="DcBuffer.h" />
     <ClInclude Include="ImageUtil.h" />
+    <ClInclude Include="KeyboardBackground.h" />
+    <ClInclude Include="KeyboardBase.h" />
+    <ClInclude Include="KeyboardGlobal.h" />
     <ClInclude Include="KeyboardUtil.h" />
+    <ClInclude Include="MouseBase.h" />
+    <ClInclude Include="MouseBackground.h" />
+    <ClInclude Include="MouseGlobal.h" />
     <ClInclude Include="MouseUtil.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
@@ -165,7 +171,13 @@
     <ClCompile Include="AudioUtil.cpp" />
     <ClCompile Include="DcBuffer.cpp" />
     <ClCompile Include="ImageUtil.cpp" />
+    <ClCompile Include="KeyboardBackground.cpp" />
+    <ClCompile Include="KeyboardBase.cpp" />
+    <ClCompile Include="KeyboardGlobal.cpp" />
     <ClCompile Include="KeyboardUtil.cpp" />
+    <ClCompile Include="MouseBase.cpp" />
+    <ClCompile Include="MouseBackground.cpp" />
+    <ClCompile Include="MouseGlobal.cpp" />
     <ClCompile Include="MouseUtil.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
