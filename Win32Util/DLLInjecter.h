@@ -7,11 +7,11 @@ public:
     DLLInjecter();
     ~DLLInjecter();
 
-    static bool InjectA(int pid, PCSTR dll_path);
-    static bool InjectW(int pid, PCWSTR dll_path);
+    static bool Inject(int pid, PCSTR dll_path);
+    static bool Inject(int pid, PCWSTR dll_path);
 
-    static bool EjectA(int pid, PCSTR dll_path);
-    static bool EjectW(int pid, PCWSTR dll_path);
+    static bool Eject(int pid, PCSTR dll_path);
+    static bool Eject(int pid, PCWSTR dll_path);
 
 private:
     static void PrintError(LPCWSTR msg);

@@ -23,8 +23,11 @@ protected:
     virtual bool AttachFunctions() override;
     virtual bool DetachFunctions() override;
 
+    static bool MyGetCursorPos(LPPOINT lpPoint);
+    static bool MySetCursorPos(int x, int y);
+
 private:
     ShareMemory m_share_memory;
-    PVOID m_fun_get_cursor_pos;
+    static CursorIntercepter* m_instance;
 };
 

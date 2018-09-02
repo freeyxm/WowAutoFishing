@@ -15,15 +15,15 @@ DLLInjecter::~DLLInjecter()
 }
 
 
-bool DLLInjecter::InjectA(int pid, PCSTR dll_path)
+bool DLLInjecter::Inject(int pid, PCSTR dll_path)
 {
     PWSTR wpath = (PWSTR)_alloca((lstrlenA(dll_path) + 1) * sizeof(WCHAR));
     wsprintfW(wpath, L"%S", dll_path);
-    return InjectW(pid, wpath);
+    return Inject(pid, wpath);
 }
 
 
-bool DLLInjecter::InjectW(int pid, PCWSTR dll_path)
+bool DLLInjecter::Inject(int pid, PCWSTR dll_path)
 {
     bool bOk = false;
     HANDLE hProcess = NULL;
@@ -98,15 +98,15 @@ bool DLLInjecter::InjectW(int pid, PCWSTR dll_path)
 }
 
 
-bool DLLInjecter::EjectA(int pid, PCSTR dll_path)
+bool DLLInjecter::Eject(int pid, PCSTR dll_path)
 {
     PWSTR wpath = (PWSTR)_alloca((lstrlenA(dll_path) + 1) * sizeof(WCHAR));
     wsprintfW(wpath, L"%S", dll_path);
-    return EjectW(pid, wpath);
+    return Eject(pid, wpath);
 }
 
 
-bool DLLInjecter::EjectW(int pid, PCWSTR dll_path)
+bool DLLInjecter::Eject(int pid, PCWSTR dll_path)
 {
     bool bOk = false;
     HANDLE hSnapshot = NULL;
