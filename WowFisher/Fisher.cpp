@@ -6,9 +6,8 @@
 #include "FisherStateMachine.h"
 #include <ctime>
 
-static UINT __stdcall FishingTheadProc(LPVOID param);
 
-const POINT FLOAT_OFFSET = { 10, 25 }; // 鱼漂偏移，以便鼠标居中（1024x768窗口模式）
+static UINT __stdcall FishingTheadProc(LPVOID param);
 
 
 Fisher::Fisher(HWND hwnd, int x, int y, int w, int h)
@@ -93,12 +92,20 @@ void Fisher::InActiveWindow()
 void Fisher::PressKeyboard(int key)
 {
     ActiveWindow();
-    m_keyboard.PressKey(key & 0xff, (key >> 8) & 0xff, 0);
+    m_keyboard.PressKey(key & 0xff, (key >> 8) & 0xff);
     InActiveWindow();
 }
 
 bool Fisher::Start()
 {
+    m_mouse.SetHwnd(m_hWndWOW);
+    if (!m_mouse.Init())
+    {
+        return false;
+    }
+
+    m_keyboard.SetHwnd(m_hWndWOW);
+
     m_hThreadFishing = (HANDLE)::_beginthreadex(NULL, 0, &FishingTheadProc, this, 0, NULL);
     if (m_hThreadFishing == NULL)
         return false;
@@ -227,18 +234,15 @@ bool Fisher::FindFloat()
             p.x += m_posX;
             p.y = m_height - p.y + m_posY;
 
-            p.x += FLOAT_OFFSET.x;
-            p.y += FLOAT_OFFSET.y;
-
             wprintf(L"找到鱼漂: %d, %d\n", p.x, p.y);
 
             m_floatPoint = p;
 
-            RECT rect;
-            if (::GetWindowRect(m_hWndWOW, &rect))
-            {
-                m_mouse.SetCursorPos(p.x + rect.left, p.y + rect.top);
-            }
+            ::ClientToScreen(m_hWndWOW, &p);
+            ::SetCursorPos(p.x, p.y); // todo for debug!!!
+
+            m_mouse.SetCursorPos(p.x, p.y);
+
             //InActiveWindow();
             return true;
         }
@@ -282,15 +286,11 @@ bool Fisher::Shaduf()
 
     do
     {
-        RECT rect;
-        if (!::GetWindowRect(m_hWndWOW, &rect))
-        {
-            printf("GetWindowRect has failed.");
-            res = false;
-            break;
-        }
+        POINT p = m_floatPoint;
+        ::ClientToScreen(m_hWndWOW, &p);
+        ::SetCursorPos(p.x, p.y); // todo for debug!!!
 
-        m_mouse.SetCursorPos(m_floatPoint.x + rect.left, m_floatPoint.y + rect.top); // 重新设定鼠标，防止中间移动而在错误的位置。
+        m_mouse.SetCursorPos(p.x, p.y); // 重新设定鼠标，防止中间移动而在错误的位置。
         Sleep(10);
         m_mouse.ClickRightButton();
     } while (false);

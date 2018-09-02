@@ -1,7 +1,7 @@
 ﻿#pragma once
 #pragma execution_character_set("utf-8")
-#include "Win32Util/MouseUtil.h"
-#include "Win32Util/KeyboardUtil.h"
+#include "Win32Util/MouseBackground.h"
+#include "Win32Util/KeyboardBackground.h"
 #include "Win32Util/ImageUtil.h"
 #include "FishingSoundListener.h"
 #include "FisherStateDefine.h"
@@ -98,8 +98,8 @@ private:
     char *m_lpBits; // 窗口位图像素数据
     std::list<POINT> m_points;
 
-    MouseUtil m_mouse;
-    KeyboardUtil m_keyboard;
+    MouseBackground m_mouse;
+    KeyboardBackground m_keyboard;
     FishingSoundListener m_sound;
     FisherStateMachine* m_state_machine;
 

@@ -66,12 +66,6 @@
     <ClInclude Include="WindowPrinter.h">
       <Filter>Screen</Filter>
     </ClInclude>
-    <ClInclude Include="MouseUtil.h">
-      <Filter>Mouse</Filter>
-    </ClInclude>
-    <ClInclude Include="KeyboardUtil.h">
-      <Filter>Keyboard</Filter>
-    </ClInclude>
     <ClInclude Include="KeyboardBase.h">
       <Filter>Keyboard</Filter>
     </ClInclude>
@@ -121,12 +115,6 @@
     </ClCompile>
     <ClCompile Include="WindowPrinter.cpp">
       <Filter>Screen</Filter>
-    </ClCompile>
-    <ClCompile Include="MouseUtil.cpp">
-      <Filter>Mouse</Filter>
-    </ClCompile>
-    <ClCompile Include="KeyboardUtil.cpp">
-      <Filter>Keyboard</Filter>
     </ClCompile>
     <ClCompile Include="KeyboardBase.cpp">
       <Filter>Keyboard</Filter>
