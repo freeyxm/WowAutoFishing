@@ -12,5 +12,9 @@ public:
 
     static bool EjectA(int pid, PCSTR dll_path);
     static bool EjectW(int pid, PCWSTR dll_path);
+
+private:
+    static void PrintError(LPCWSTR msg);
+    static void PrintLastError(LPCWSTR msg);
 };
 

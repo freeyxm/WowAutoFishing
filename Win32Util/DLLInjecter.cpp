@@ -2,6 +2,7 @@
 #include "DLLInjecter.h"
 #include <Tlhelp32.h>
 #include <iostream>
+#include "Utility.h"
 
 
 DLLInjecter::DLLInjecter()
@@ -36,7 +37,7 @@ bool DLLInjecter::InjectW(int pid, PCWSTR dll_path)
             hProcess = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_VM_OPERATION | PROCESS_VM_WRITE, false, pid);
             if (hProcess == NULL)
             {
-                printf("Error: OpenProcess %d failed.\n", pid);
+                PrintLastError(L"Error: OpenProcess failed");
                 break;
             }
 
@@ -45,13 +46,13 @@ bool DLLInjecter::InjectW(int pid, PCWSTR dll_path)
             pRemotePath = VirtualAllocEx(hProcess, NULL, size, MEM_COMMIT, PAGE_READWRITE);
             if (pRemotePath == NULL)
             {
-                printf("Error: VirtualAllocEx failed.\n");
+                PrintLastError(L"Error: VirtualAllocEx failed");
                 break;
             }
 
             if (!WriteProcessMemory(hProcess, pRemotePath, dll_path, size, NULL))
             {
-                printf("Error: WriteProcessMemory failed.\n");
+                PrintLastError(L"Error: WriteProcessMemory failed");
                 break;
             }
 
@@ -59,21 +60,21 @@ bool DLLInjecter::InjectW(int pid, PCWSTR dll_path)
                 GetProcAddress(GetModuleHandle(TEXT("Kernel32")), "LoadLibraryW");
             if (pfnThreadRtn == NULL)
             {
-                printf("Error: GetProcAddress failed.\n");
+                PrintLastError(L"Error: GetProcAddress failed");
                 break;
             }
 
             hThread = CreateRemoteThread(hProcess, NULL, 0, pfnThreadRtn, pRemotePath, 0, NULL);
             if (hThread == NULL)
             {
-                printf("Error: CreateRemoteThread failed.\n");
+                PrintLastError(L"Error: CreateRemoteThread failed");
                 break;
             }
 
             WaitForSingleObject(hThread, INFINITE);
 
             bOk = true;
-            printf("Inject success.\n");
+            wprintf(L"Inject success.\n");
 
         } while (false);
     }
@@ -119,7 +120,7 @@ bool DLLInjecter::EjectW(int pid, PCWSTR dll_path)
             hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pid);
             if (hSnapshot == NULL)
             {
-                printf("Error: CreateToolhelp32Snapshot failed.\n");
+                PrintLastError(L"Error: CreateToolhelp32Snapshot failed");
                 break;
             }
 
@@ -138,14 +139,14 @@ bool DLLInjecter::EjectW(int pid, PCWSTR dll_path)
             }
             if (!bFound)
             {
-                printf("Error: Module not found.\n");
+                PrintError(L"Error: Module not found");
                 break;
             }
 
             hProcess = OpenProcess(PROCESS_CREATE_THREAD | PROCESS_VM_OPERATION, false, pid);
             if (hProcess == NULL)
             {
-                printf("Error: OpenProcess %d failed.\n", pid);
+                PrintLastError(L"Error: OpenProcess failed");
                 break;
             }
 
@@ -153,21 +154,21 @@ bool DLLInjecter::EjectW(int pid, PCWSTR dll_path)
                 GetProcAddress(GetModuleHandle(TEXT("Kernel32")), "FreeLibrary");
             if (pfnThreadRtn == NULL)
             {
-                printf("Error: GetProcAddress failed.\n");
+                PrintLastError(L"Error: GetProcAddress failed");
                 break;
             }
 
             hThread = CreateRemoteThread(hProcess, NULL, 0, pfnThreadRtn, me.modBaseAddr, 0, NULL);
             if (hThread == NULL)
             {
-                printf("Error: CreateRemoteThread failed.\n");
+                PrintLastError(L"Error: CreateRemoteThread failed");
                 break;
             }
 
             WaitForSingleObject(hThread, INFINITE);
 
             bOk = true;
-            printf("Eject success.\n");
+            wprintf(L"Eject success.\n");
 
         } while (false);
     }
@@ -188,4 +189,15 @@ bool DLLInjecter::EjectW(int pid, PCWSTR dll_path)
     }
 
     return bOk;
+}
+
+void DLLInjecter::PrintError(LPCWSTR msg)
+{
+    wprintf(L"%s\n", msg);
+}
+
+void DLLInjecter::PrintLastError(LPCWSTR msg)
+{
+    DWORD error_code = GetLastError();
+    wprintf(L"%s, error [%d] %s\n", msg, error_code, Utility::GetErrorMsg(error_code).c_str());
 }
