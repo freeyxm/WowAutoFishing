@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "MouseBase.h"
 
 class MouseGlobal : public MouseBase
@@ -6,8 +6,6 @@ class MouseGlobal : public MouseBase
 public:
     MouseGlobal();
     virtual ~MouseGlobal();
-
-    virtual bool Init() override;
 
     virtual bool GetCursorPos(POINT &point) override;
     virtual void SetCursorPos(const POINT &point) override;

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "MouseBase.h"
 #include <string>
 
@@ -10,7 +10,11 @@ public:
     MouseBackground(HWND hwnd);
     virtual ~MouseBackground();
 
+    HWND GetHwnd() const { return m_hwnd; }
+    void SetHwnd(HWND hwnd) { m_hwnd = hwnd; }
+
     virtual bool Init() override;
+    virtual void Close() override;
 
     virtual bool GetCursorPos(POINT &point) override;
     virtual void SetCursorPos(const POINT &point) override;

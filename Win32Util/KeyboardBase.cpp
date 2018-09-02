@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "KeyboardBase.h"
 #include <CommCtrl.h>
 
@@ -29,6 +29,23 @@ void KeyboardBase::PressKey(int key, int modifiers)
 }
 
 
+void KeyboardBase::PressKey(int key, const std::string& modifiers)
+{
+    for (size_t i = 0; i < modifiers.size(); ++i)
+    {
+        PressModifier(modifiers[i], true);
+    }
+
+    KeyDown(key);
+    KeyUp(key);
+
+    for (size_t i = modifiers.size(); i > 0; --i)
+    {
+        PressModifier(modifiers[i - 1], false);
+    }
+}
+
+
 void KeyboardBase::PressModifier(int modifiers, bool press)
 {
     if (press)
@@ -48,5 +65,32 @@ void KeyboardBase::PressModifier(int modifiers, bool press)
             KeyUp(VK_MENU); // Alt
         if (modifiers & HOTKEYF_CONTROL)
             KeyUp(VK_CONTROL); // Ctrl
+    }
+}
+
+void KeyboardBase::PressModifier(char modifier, bool press)
+{
+    int key = 0;
+    switch (modifier)
+    {
+    case 'C':
+        key = VK_CONTROL;
+        break;
+    case 'A':
+        key = VK_MENU;
+        break;
+    case 'S':
+        key = VK_SHIFT;
+        break;
+    default:
+        break;
+    }
+
+    if (key != 0)
+    {
+        if (press)
+            KeyDown(key);
+        else
+            KeyUp(key);
     }
 }

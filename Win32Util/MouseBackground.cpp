@@ -18,22 +18,14 @@ MouseBackground::MouseBackground(HWND hwnd)
 
 MouseBackground::~MouseBackground()
 {
-    if (m_share_memory)
-    {
-        delete m_share_memory;
-        m_share_memory = NULL;
-    }
-
-    if (m_pid)
-    {
-        DLLInjecter::Eject(m_pid, m_dll_path.c_str());
-        m_pid = 0;
-    }
+    Close();
 }
 
 
 bool MouseBackground::Init()
 {
+    Close();
+
     m_pid = 0;
     GetWindowThreadProcessId(m_hwnd, &m_pid);
     if (m_pid == 0)
@@ -78,6 +70,22 @@ bool MouseBackground::Init()
 }
 
 
+void MouseBackground::Close()
+{
+    if (m_share_memory)
+    {
+        delete m_share_memory;
+        m_share_memory = NULL;
+    }
+
+    if (m_pid)
+    {
+        DLLInjecter::Eject(m_pid, m_dll_path.c_str());
+        m_pid = 0;
+    }
+}
+
+
 bool MouseBackground::GetCursorPos(POINT &point)
 {
     point = m_cursor_pos;
@@ -96,7 +104,7 @@ void MouseBackground::SetCursorPos(int x, int y)
     m_cursor_pos.x = x;
     m_cursor_pos.y = y;
 
-    if (m_share_memory->Lock())
+    if (m_share_memory && m_share_memory->Lock())
     {
         POINT* cursor_pos = &((CursorIntercepter::ShareData*)m_share_memory->GetBuf())->cursor_pos;
         cursor_pos->x = x;

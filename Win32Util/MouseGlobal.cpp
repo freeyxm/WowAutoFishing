@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "MouseGlobal.h"
 
 
@@ -9,12 +9,6 @@ MouseGlobal::MouseGlobal()
 
 MouseGlobal::~MouseGlobal()
 {
-}
-
-
-bool MouseGlobal::Init()
-{
-    return true;
 }
 
 

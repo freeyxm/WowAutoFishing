@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <Windows.h>
 
 class MouseBase
@@ -7,7 +7,8 @@ public:
     MouseBase();
     virtual ~MouseBase() = 0;
 
-    virtual bool Init() = 0;
+    virtual bool Init() { return true; }
+    virtual void Close() {}
 
     virtual bool GetCursorPos(POINT &point) = 0;
     virtual void SetCursorPos(const POINT &point) = 0;
