@@ -15,8 +15,12 @@ CursorIntercepter::CursorIntercepter(const std::string& name)
     {
         if (lpPoint)
         {
-            ShareData* data = (ShareData*)m_share_memory.GetBuf();
-            *lpPoint = data->cursor_pos;
+            if (m_share_memory.Lock())
+            {
+                ShareData* data = (ShareData*)m_share_memory.GetBuf();
+                *lpPoint = data->cursor_pos;
+                m_share_memory.Unlock();
+            }
         }
         return true;
     };
@@ -31,7 +35,13 @@ CursorIntercepter::~CursorIntercepter()
 
 bool CursorIntercepter::Attach()
 {
-    m_share_memory.Create(sizeof(ShareData));
+    OpenLog(m_share_memory.GetName() + ".log");
+
+    if (!m_share_memory.Create(sizeof(ShareData)))
+    {
+        PrintLog(std::string("[Attach] Create share memory failed, code = ").append(std::to_string(GetLastError())));
+        return false;
+    }
 
     ShareData *data = (ShareData*)m_share_memory.GetBuf();
     data->cursor_pos.x = 0;
@@ -48,12 +58,11 @@ bool CursorIntercepter::Attach()
 
 bool CursorIntercepter::Detach()
 {
-    if (!IntercepterBase::Detach())
-    {
-        return false;
-    }
+    IntercepterBase::Detach();
 
     m_share_memory.Close();
+
+    CloseLog();
 
     return true;
 }
