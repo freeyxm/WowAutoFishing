@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2000
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Win32Util", "Win32Util\Win32Util.vcxproj", "{82597547-3A6D-4E82-9979-32D4CDAD7AB1}"
 EndProject
@@ -51,6 +51,11 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "WaveConverter", "WaveConverter\WaveConverter.vcxproj", "{C23F0DA0-1DB4-4D73-B380-08DF35F5752C}"
 	ProjectSection(ProjectDependencies) = postProject
 		{67493328-FEFE-4D0C-B747-AEBAF569E29D} = {67493328-FEFE-4D0C-B747-AEBAF569E29D}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DLLInjecter", "DllInjecter\DllInjecter.vcxproj", "{FBD85DFD-8E2E-445E-99CB-03B1886BA959}"
+	ProjectSection(ProjectDependencies) = postProject
+		{82597547-3A6D-4E82-9979-32D4CDAD7AB1} = {82597547-3A6D-4E82-9979-32D4CDAD7AB1}
 	EndProjectSection
 EndProject
 Global
@@ -154,8 +159,21 @@ Global
 		{C23F0DA0-1DB4-4D73-B380-08DF35F5752C}.Release|Win32.Build.0 = Release|Win32
 		{C23F0DA0-1DB4-4D73-B380-08DF35F5752C}.Release|x64.ActiveCfg = Release|x64
 		{C23F0DA0-1DB4-4D73-B380-08DF35F5752C}.Release|x64.Build.0 = Release|x64
+		{FBD85DFD-8E2E-445E-99CB-03B1886BA959}.Debug|Any CPU.ActiveCfg = Debug|Win32
+		{FBD85DFD-8E2E-445E-99CB-03B1886BA959}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FBD85DFD-8E2E-445E-99CB-03B1886BA959}.Debug|Win32.Build.0 = Debug|Win32
+		{FBD85DFD-8E2E-445E-99CB-03B1886BA959}.Debug|x64.ActiveCfg = Debug|x64
+		{FBD85DFD-8E2E-445E-99CB-03B1886BA959}.Debug|x64.Build.0 = Debug|x64
+		{FBD85DFD-8E2E-445E-99CB-03B1886BA959}.Release|Any CPU.ActiveCfg = Release|Win32
+		{FBD85DFD-8E2E-445E-99CB-03B1886BA959}.Release|Win32.ActiveCfg = Release|Win32
+		{FBD85DFD-8E2E-445E-99CB-03B1886BA959}.Release|Win32.Build.0 = Release|Win32
+		{FBD85DFD-8E2E-445E-99CB-03B1886BA959}.Release|x64.ActiveCfg = Release|x64
+		{FBD85DFD-8E2E-445E-99CB-03B1886BA959}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A8E819A5-D073-4E38-96A9-8972A53858C9}
 	EndGlobalSection
 EndGlobal
