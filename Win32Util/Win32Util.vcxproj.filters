@@ -84,6 +84,9 @@
     <ClInclude Include="DLLInjecter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ShareMemory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -135,6 +138,9 @@
       <Filter>Keyboard</Filter>
     </ClCompile>
     <ClCompile Include="DLLInjecter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ShareMemory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
