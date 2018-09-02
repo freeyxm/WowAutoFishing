@@ -96,6 +96,11 @@ void ShareMemory::UnMap()
     }
 }
 
+const std::string& ShareMemory::GetName() const
+{
+    return m_name;
+}
+
 size_t ShareMemory::GetSize() const
 {
     return m_size;

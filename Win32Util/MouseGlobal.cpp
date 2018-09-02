@@ -12,6 +12,12 @@ MouseGlobal::~MouseGlobal()
 }
 
 
+bool MouseGlobal::Init()
+{
+    return true;
+}
+
+
 bool MouseGlobal::GetCursorPos(POINT &point)
 {
     return ::GetCursorPos(&point);

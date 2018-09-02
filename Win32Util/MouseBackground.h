@@ -1,11 +1,16 @@
 #pragma once
 #include "MouseBase.h"
+#include <string>
+
+class ShareMemory;
 
 class MouseBackground : public MouseBase
 {
 public:
     MouseBackground(HWND hwnd);
     virtual ~MouseBackground();
+
+    virtual bool Init() override;
 
     virtual bool GetCursorPos(POINT &point) override;
     virtual void SetCursorPos(const POINT &point) override;
@@ -16,6 +21,9 @@ public:
 
 private:
     HWND m_hwnd;
+    DWORD m_pid;
     POINT m_cursor_pos;
+    ShareMemory* m_share_memory;
+    std::wstring m_dll_path;
 };
 

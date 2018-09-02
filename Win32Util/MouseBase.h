@@ -7,6 +7,8 @@ public:
     MouseBase();
     virtual ~MouseBase() = 0;
 
+    virtual bool Init() = 0;
+
     virtual bool GetCursorPos(POINT &point) = 0;
     virtual void SetCursorPos(const POINT &point) = 0;
     virtual void SetCursorPos(int x, int y) = 0;

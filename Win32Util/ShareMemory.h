@@ -15,6 +15,7 @@ public:
     bool Lock(DWORD dwMilliseconds = INFINITE);
     void Unlock();
 
+    const std::string& GetName() const;
     size_t GetSize() const;
     LPVOID GetBuf();
 
