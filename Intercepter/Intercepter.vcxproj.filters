@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="CursorIntercepter.cpp">
+      <Filter>Intercepter</Filter>
+    </ClCompile>
+    <ClCompile Include="IntercepterBase.cpp">
+      <Filter>Intercepter</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="CursorIntercepter.h">
+      <Filter>Intercepter</Filter>
+    </ClInclude>
+    <ClInclude Include="IntercepterBase.h">
+      <Filter>Intercepter</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Intercepter">
+      <UniqueIdentifier>{cbaa26b7-c57f-4780-8f80-b78144213deb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

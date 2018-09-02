@@ -2,6 +2,7 @@ Debug/
 Release/
 ipch/
 Test/
+lib/
 *.sdf
 *.suo
 *.opensdf
