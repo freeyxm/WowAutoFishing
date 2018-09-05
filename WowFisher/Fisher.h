@@ -1,15 +1,15 @@
 ﻿#pragma once
 #pragma execution_character_set("utf-8")
-#include "Win32Util/MouseBackground.h"
-#include "Win32Util/KeyboardBackground.h"
-#include "Win32Util/ImageUtil.h"
-#include "FishingSoundListener.h"
 #include "FisherStateDefine.h"
+#include <Windows.h>
+#include <list>
 
-const int SECOND_PER_MINUTE = 60;
-const int MAX_BAIT_TIME = 10 * SECOND_PER_MINUTE; // 鱼饵持续时间，单位秒
+const int MAX_BAIT_TIME = 10 * 60; // 鱼饵持续时间，单位秒
 const int MAX_BITE_TIME = 23; // 最长等待咬钩时间，单位秒
 
+class MouseBackground;
+class KeyboardBackground;
+class FishingSoundListener;
 class FisherStateMachine;
 
 class Fisher
@@ -53,10 +53,8 @@ public:
     void SetTimeoutCount(int count);
 
 private:
-    void ActiveWindow();
-    void InActiveWindow();
-
     void PressKeyboard(int key);
+    void PressKey(int key);
 
     FisherStateMachine& GetStateMachine();
 
@@ -77,10 +75,6 @@ private:
 private:
     HWND m_hWndWOW; // 魔兽世界窗口句柄
     HWND m_hWndMain;
-    HWND m_hWndLast;
-
-    int m_posX, m_posY;
-    int m_width, m_height;
 
     time_t m_baitTime; // 上饵时间
     bool m_bHasBite; // 是否已咬钩
@@ -95,17 +89,19 @@ private:
     int m_findFloatFailCount;
     int m_timeoutCount;
 
-    char *m_lpBits; // 窗口位图像素数据
     std::list<POINT> m_points;
 
-    MouseBackground m_mouse;
-    KeyboardBackground m_keyboard;
-    FishingSoundListener m_sound;
+    MouseBackground* m_mouse;
+    KeyboardBackground* m_keyboard;
+    FishingSoundListener* m_sound;
     FisherStateMachine* m_state_machine;
 
     HANDLE m_hThreadFishing;
 
     bool m_bInited;
     BOOL m_bFishing;
+
+    std::wstring m_wowPath;
+    std::wstring m_screenshotPath;
 };
 

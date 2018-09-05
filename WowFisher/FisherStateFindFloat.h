@@ -12,6 +12,7 @@ public:
     virtual void Update(int dt) override;
 
 private:
+    bool m_has_find_start;
     bool m_has_find_float;
 };
 

@@ -2,8 +2,14 @@
 #include "stdafx.h"
 #include "Fisher.h"
 #include "WowFisherDlg.h"
-#include "CommUtil/FTimer.h"
 #include "FisherStateMachine.h"
+#include "FishingSoundListener.h"
+#include "CommUtil/CommUtil.hpp"
+#include "CommUtil/FTimer.h"
+#include "Win32Util/Utility.h"
+#include "Win32Util/MouseBackground.h"
+#include "Win32Util/KeyboardBackground.h"
+#include "Win32Util/ImageUtil.h"
 #include <ctime>
 
 
@@ -11,30 +17,25 @@ static UINT __stdcall FishingTheadProc(LPVOID param);
 
 
 Fisher::Fisher(HWND hwnd, int x, int y, int w, int h)
-    : m_hWndWOW(hwnd), m_keyboard(hwnd), m_mouse(hwnd), m_hWndMain(0)
-    , m_posX(x), m_posY(y), m_width(w), m_height(h), m_sound(this)
+    : m_hWndWOW(hwnd), m_hWndMain(0)
     , m_bInited(false), m_hThreadFishing(NULL)
 {
     m_throwCount = m_timeoutCount = m_findFloatFailCount = 0;
     m_baitTime = 0;
     m_state_machine = new FisherStateMachine(this);
+    m_sound = new FishingSoundListener(this);
+    m_keyboard = new KeyboardBackground(m_hWndWOW);
+    m_mouse = new MouseBackground(m_hWndWOW);
 }
 
 Fisher::~Fisher()
 {
     Stop();
 
-    if (m_state_machine != NULL)
-    {
-        delete m_state_machine;
-        m_state_machine = NULL;
-    }
-
-    if (m_lpBits != NULL)
-    {
-        ::free(m_lpBits);
-        m_lpBits = NULL;
-    }
+    SAFE_DELETE(m_state_machine);
+    SAFE_DELETE(m_sound);
+    SAFE_DELETE(m_keyboard);
+    SAFE_DELETE(m_mouse);
 }
 
 bool Fisher::Init()
@@ -42,14 +43,8 @@ bool Fisher::Init()
     if (m_bInited)
         return true;
 
-    m_lpBits = (char*)malloc(m_width * m_height * 4);
-    if (!m_lpBits)
-    {
-        return false;
-    }
-
-    m_sound.SetNotifyBiteProc(&Fisher::NotifyBite);
-    if (!m_sound.Init())
+    m_sound->SetNotifyBiteProc(&Fisher::NotifyBite);
+    if (!m_sound->Init())
     {
         return false;
     }
@@ -70,45 +65,58 @@ void Fisher::SetMainHWnd(HWND hwnd)
     m_hWndMain = hwnd;
 }
 
-void Fisher::ActiveWindow()
-{
-    m_hWndLast = ::GetForegroundWindow();
-    if (m_hWndLast != m_hWndWOW)
-    {
-        ::SetForegroundWindow(m_hWndWOW);
-        ::SetActiveWindow(m_hWndWOW);
-    }
-}
-
-void Fisher::InActiveWindow()
-{
-    if (m_hWndLast != m_hWndWOW)
-    {
-        ::SetForegroundWindow(m_hWndLast);
-        ::SetActiveWindow(m_hWndLast);
-    }
-}
-
 void Fisher::PressKeyboard(int key)
 {
-    ActiveWindow();
-    m_keyboard.PressKey(key & 0xff, (key >> 8) & 0xff);
-    InActiveWindow();
+    m_keyboard->PressKey(key & 0xff, (key >> 8) & 0xff);
+}
+
+void Fisher::PressKey(int key)
+{
+    m_keyboard->PressKey(key);
 }
 
 bool Fisher::Start()
 {
-    m_mouse.SetHwnd(m_hWndWOW);
-    if (!m_mouse.Init())
+    if (m_mouse->GetHwnd() != m_hWndWOW)
     {
+        m_mouse->SetHwnd(m_hWndWOW);
+        if (!m_mouse->Init())
+        {
+            wprintf(L"初始化鼠标失败！\n");
+            return false;
+        }
+    }
+
+    if (m_keyboard->GetHwnd() != m_hWndWOW)
+    {
+        m_keyboard->SetHwnd(m_hWndWOW);
+        if (!m_keyboard->Init())
+        {
+            wprintf(L"初始化键盘失败！\n");
+            return false;
+        }
+    }
+
+    if (Utility::GetWndExePath(m_hWndWOW, m_wowPath))
+    {
+        size_t pos = m_wowPath.find_last_of('\\');
+        if (pos != std::string::npos)
+            m_screenshotPath = m_wowPath.substr(0, pos) + L"\\Screenshots";
+        else
+            m_screenshotPath = m_wowPath;
+    }
+    else
+    {
+        wprintf(L"查找安装路径失败！\n");
         return false;
     }
 
-    m_keyboard.SetHwnd(m_hWndWOW);
-
     m_hThreadFishing = (HANDLE)::_beginthreadex(NULL, 0, &FishingTheadProc, this, 0, NULL);
     if (m_hThreadFishing == NULL)
+    {
+        wprintf(L"创建线程失败！\n");
         return false;
+    }
 
     m_bFishing = true;
     return true;
@@ -211,39 +219,44 @@ static bool MatchFloatColor(char _r, char _g, char _b)
 // 寻找鱼漂
 bool Fisher::FindFloat()
 {
-    ActiveWindow();
-
-    BITMAPINFOHEADER bi;
-    if (ImageUtil::GetWindowSnapshot(m_hWndWOW, m_posX, m_posY, m_width, m_height, m_lpBits, &bi))
+    std::wstring path;
+    if (!Utility::FindLatestFile(m_screenshotPath, path))
     {
-        m_points.clear();
-        unsigned int maxCount = 10000;
-        //ImageUtil::FindGray((char*)m_lpBits, m_width, m_height, 20, 3, m_points, maxCount); // 用灰度图寻找鱼漂
-        //ImageUtil::FindColor((char*)m_lpBits, m_width, m_height, RGB(180, 55, 40), RGB(20, 15, 10), m_points); // 砮皂寺
-        //ImageUtil::FindColor((char*)m_lpBits, m_width, m_height, RGB(60, 10, 10), RGB(10, 10, 10), m_points); // AG
-        ImageUtil::FindColor((char*)m_lpBits, m_width, m_height, MatchFloatColor, m_points);
+        wprintf(L"未找到截图: %s\n", m_screenshotPath.c_str());
+        return false;
+    }
 
-        if (m_points.size() >= maxCount) // 找多太多点，可能是UI开着或水域不合适，无法定位鱼漂
+    CImage image;
+    HRESULT res = image.Load(path.c_str());
+    if (res != S_OK)
+    {
+        wprintf(L"图片读取失败: %s\n", path.c_str());
+        return false;
+    }
+
+    ::DeleteFileW(path.c_str());
+
+    m_points.clear();
+    ImageUtil::FindColor(image, MatchFloatColor, m_points);
+    image.Destroy();
+
+    {
+        if (m_points.size() >= 2000) // 找多太多点，可能是UI开着或水域不合适，无法定位鱼漂
             m_points.clear();
-        else if (m_points.size() == 0)
+
+        if (m_points.size() == 0)
             wprintf(L"寻找鱼漂失败。\n");
 
         POINT p;
         if (ImageUtil::SelectBestPoint(m_points, 30, p)) // 根据鱼漂的大概半径选择最优的点
         {
-            p.x += m_posX;
-            p.y = m_height - p.y + m_posY;
-
             wprintf(L"找到鱼漂: %d, %d\n", p.x, p.y);
 
             m_floatPoint = p;
 
             ::ClientToScreen(m_hWndWOW, &p);
-            ::SetCursorPos(p.x, p.y); // todo for debug!!!
+            m_mouse->SetCursorPos(p.x, p.y);
 
-            m_mouse.SetCursorPos(p.x, p.y);
-
-            //InActiveWindow();
             return true;
         }
     }
@@ -251,7 +264,6 @@ bool Fisher::FindFloat()
     ++m_findFloatFailCount;
     ::SendMessage(m_hWndMain, WMU_UPDATE_STATISTICS, 0, 0);
 
-    //InActiveWindow();
     return false;
 }
 
@@ -259,12 +271,12 @@ bool Fisher::FindFloat()
 bool Fisher::StartListenBite()
 {
     m_bHasBite = false;
-    return m_sound.Start();
+    return m_sound->Start();
 }
 
 void Fisher::StopListenBite()
 {
-    m_sound.Stop();
+    m_sound->Stop();
 
     if (!m_bHasBite)
     {
@@ -282,20 +294,13 @@ bool Fisher::HasBite() const
 bool Fisher::Shaduf()
 {
     bool res = true;
-    ActiveWindow();
 
-    do
-    {
-        POINT p = m_floatPoint;
-        ::ClientToScreen(m_hWndWOW, &p);
-        ::SetCursorPos(p.x, p.y); // todo for debug!!!
+    POINT p = m_floatPoint;
+    ::ClientToScreen(m_hWndWOW, &p);
 
-        m_mouse.SetCursorPos(p.x, p.y); // 重新设定鼠标，防止中间移动而在错误的位置。
-        Sleep(10);
-        m_mouse.ClickRightButton();
-    } while (false);
+    m_mouse->SetCursorPos(p.x, p.y); // 重新设定鼠标，防止中间移动而在错误的位置。
+    m_mouse->ClickRightButton();
 
-    //InActiveWindow();
     return res;
 }
 
@@ -319,22 +324,22 @@ void Fisher::PrintStatus(LPCWSTR msg)
 
 void Fisher::SetAmpL(float ampL)
 {
-    m_sound.SetAmpL(ampL);
+    m_sound->SetAmpL(ampL);
 }
 
 void Fisher::SetAmpH(float ampH)
 {
-    m_sound.SetAmpH(ampH);
+    m_sound->SetAmpH(ampH);
 }
 
 void Fisher::SetSilentMax(int count)
 {
-    m_sound.SetSilentMaxCount(count);
+    m_sound->SetSilentMaxCount(count);
 }
 
 void Fisher::SetSoundMin(int count)
 {
-    m_sound.SetSoundMinCount(count);
+    m_sound->SetSoundMinCount(count);
 }
 
 void Fisher::SetHotkeyThrow(DWORD hotkey)
