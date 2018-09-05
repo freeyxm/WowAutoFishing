@@ -1,4 +1,4 @@
-// WaveConverter.cpp : ¶¨Òå¿ØÖÆÌ¨Ó¦ÓÃ³ÌĞòµÄÈë¿Úµã¡£
+ï»¿// WaveConverter.cpp : å®šä¹‰æ§åˆ¶å°åº”ç”¨ç¨‹åºçš„å…¥å£ç‚¹ã€‚
 //
 
 #include "stdafx.h"
@@ -130,7 +130,7 @@ int ConvertWave(std::string fileName, int sampleRate, int bitsPerSample, int cha
 
 	timer.Stop();
 	printf(" output: %s\n", outFileName.c_str());
-	printf("   time: %f\n", timer.Seconds());
+	printf("   time: %lld\n", timer.Seconds());
 
 	return 0;
 }
