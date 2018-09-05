@@ -48,6 +48,8 @@ bool MouseBackground::Init()
         m_dll_path.append(L"\\Intercepter.dll");
     }
 
+    DLLInjecter::Eject(m_pid, m_dll_path.c_str());
+
     if (!DLLInjecter::Inject(m_pid, m_dll_path.c_str()))
     {
         std::cout << "Error: Inject dll failed! " << std::endl;
