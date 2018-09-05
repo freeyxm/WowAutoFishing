@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "ShareMemory.h"
 #include <mutex>
 
@@ -29,7 +29,7 @@ bool ShareMemory::Create(size_t size)
 
     m_size = size;
 
-    m_hFileMap = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, size, m_name.c_str());
+    m_hFileMap = CreateFileMappingA(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, (DWORD)size, m_name.c_str());
     if (m_hFileMap == NULL)
     {
         return false;

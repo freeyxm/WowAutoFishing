@@ -8,6 +8,9 @@ public:
     KeyboardBase();
     virtual ~KeyboardBase() = 0;
 
+    virtual bool Init() { return true; }
+    virtual void Close() {}
+
     virtual void PressKey(int key);
     virtual void PressKey(int key, int modifiers);
     virtual void PressKey(int key, const std::string& modifiers);
