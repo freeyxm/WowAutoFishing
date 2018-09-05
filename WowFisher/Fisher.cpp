@@ -43,7 +43,6 @@ bool Fisher::Init()
     if (m_bInited)
         return true;
 
-    m_sound->SetNotifyBiteProc(&Fisher::NotifyBite);
     if (!m_sound->Init())
     {
         return false;

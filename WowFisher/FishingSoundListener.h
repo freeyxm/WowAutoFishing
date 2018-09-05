@@ -15,13 +15,8 @@ class FishingSoundListener :
 	};
 
 public:
-	typedef void (Fisher::*NotifyBiteProc)(void);
-
-public:
 	FishingSoundListener(Fisher *pFisher);
 	virtual ~FishingSoundListener();
-
-	void SetNotifyBiteProc(NotifyBiteProc callback);
 
 	virtual bool Init();
 
@@ -47,7 +42,6 @@ private:
 	const WAVEFORMATEX *m_pwfx;
 	Fisher *m_pFisher;
 	FILE *m_pSampleFile;
-	NotifyBiteProc m_procNotifyBite;
 
 	std::list<SampleInfo> m_samples;
 	int m_sampleCount;

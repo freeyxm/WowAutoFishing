@@ -1,5 +1,6 @@
 ﻿#include "stdafx.h"
 #include "FishingSoundListener.h"
+#include "Fisher.h"
 #include "AudioUtil/AudioFingerprint.h"
 #include "CommUtil/StringUtil.hpp"
 #include "CommUtil/VectorUtil.hpp"
@@ -18,7 +19,7 @@ using namespace comm_util;
 
 FishingSoundListener::FishingSoundListener(Fisher *pFisher)
 	: AudioExtractor(true, true)
-	, m_pFisher(pFisher), m_procNotifyBite(NULL)
+	, m_pFisher(pFisher)
 	, m_pSampleFile(NULL), m_sampleCount(0)
 {
 }
@@ -54,11 +55,6 @@ bool FishingSoundListener::Init()
 	return AudioExtractor::Init();
 }
 
-void FishingSoundListener::SetNotifyBiteProc(NotifyBiteProc callback)
-{
-	m_procNotifyBite = callback;
-}
-
 HRESULT FishingSoundListener::SetFormat(WAVEFORMATEX *pwfx)
 {
 	AudioCapture::SetFormat(pwfx);
@@ -92,10 +88,7 @@ void FishingSoundListener::EndSegment()
 
 	if (isMatch)
 	{
-		if (m_procNotifyBite != NULL)
-		{
-			(m_pFisher->*m_procNotifyBite)();
-		}
+        m_pFisher->NotifyBite();
 	}
 }
 
