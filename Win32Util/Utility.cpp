@@ -5,6 +5,7 @@
 #include <cstdarg>
 #include <sstream>
 #include <Windows.h>
+#include <io.h>
 
 
 Utility::Utility()
@@ -75,4 +76,67 @@ size_t Utility::Split(string str, std::list<string> &result)
     } while (true);
 
     return result.size();
+}
+
+bool Utility::GetWndExePath(HWND hwnd, std::wstring &path)
+{
+    DWORD pid = 0;
+    GetWindowThreadProcessId(hwnd, &pid);
+
+    HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION, false, pid);
+    if (!hProcess)
+    {
+        return false;
+    }
+
+    wchar_t buf[MAX_PATH + 1];
+    DWORD size = MAX_PATH;
+    QueryFullProcessImageNameW(hProcess, 0, buf, &size);
+
+    path = buf;
+
+    CloseHandle(hProcess);
+
+    return true;
+}
+
+bool Utility::FindLatestFile(const std::wstring& dir_path, std::wstring& file_path)
+{
+    __time64_t lastest_time = 0;
+    std::wstring lastest_name;
+
+    struct _wfinddata_t fileinfo;
+    std::wstring path(dir_path + L"\\*");
+    intptr_t hFile = 0;
+    if ((hFile = _wfindfirst(path.c_str(), &fileinfo)) != -1)
+    {
+        do
+        {
+            if ((fileinfo.attrib &  _A_SUBDIR) != 0)
+            {
+                continue;
+            }
+            if (lastest_time < fileinfo.time_create)
+            {
+                lastest_time = fileinfo.time_create;
+                lastest_name = fileinfo.name;
+            }
+        } while (_wfindnext(hFile, &fileinfo) == 0);
+        _findclose(hFile);
+    }
+
+    if (lastest_name.empty())
+    {
+        return false;
+    }
+
+    file_path.assign(dir_path).append(L"\\").append(lastest_name);
+    return true;
+}
+
+std::wstring Utility::StrToWStr(const std::string& str)
+{
+    PWSTR wstr = (PWSTR)_alloca((lstrlenA(str.c_str()) + 1) * sizeof(WCHAR));
+    wsprintfW(wstr, L"%S", str.c_str());
+    return std::wstring(wstr);
 }

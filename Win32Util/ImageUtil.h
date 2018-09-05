@@ -2,6 +2,7 @@
 #pragma execution_character_set("utf-8")
 #include <Windows.h>
 #include <list>
+#include <atlimage.h>
 
 #define RGB(r,g,b) ((COLORREF)(((BYTE)(r)|((WORD)((BYTE)(g))<<8))|(((DWORD)(BYTE)(b))<<16)))
 #define RGB_R(color) (color & 0xff)
@@ -11,25 +12,24 @@
 class ImageUtil
 {
 public:
-	typedef bool (*MatchColorProc) (char r, char g, char b);
+    typedef bool (*MatchColorProc) (char r, char g, char b);
 
 public:
-	ImageUtil();
-	~ImageUtil();
+    ImageUtil();
+    ~ImageUtil();
 
-	static bool GetWindowSnapshot(HWND hwnd, int x, int y, int w, int h, char *lpBits, BITMAPINFOHEADER *pbi = NULL);
-	static bool CreateBMPFile(LPTSTR pszFile, PBITMAPINFO pbi, char *lpBits);
+    static bool GetWindowSnapshot(HWND hwnd, int x, int y, int w, int h, char *lpBits, BITMAPINFOHEADER *pbi = NULL);
+    static bool CreateBMPFile(LPTSTR pszFile, PBITMAPINFO pbi, char *lpBits);
 
-	static HBITMAP LoadImage2(LPTSTR pszFile, BITMAP *pBitmap);
+    static bool TransToGray(BITMAP bitmap, LPTSTR pszFile);
 
-	static bool TransToGray(BITMAP bitmap, LPTSTR pszFile);
+    static void FindColor(const CImage& image, MatchColorProc match, std::list<POINT> &points);
+    static void FindColor(char *lpBits, int w, int h, MatchColorProc match, std::list<POINT> &points);
+    static void FindColor(char *lpBits, int w, int h, int color, int range, std::list<POINT> &points);
+    static void FindGray(char *lpBits, int w, int h, int gray, int range, std::list<POINT> &points, unsigned int maxCount = 0);
+    static bool SelectBestPoint(std::list<POINT> points, int radius, POINT &p);
 
-	static void FindColor(char *lpBits, int w, int h, MatchColorProc match, std::list<POINT> &points);
-	static void FindColor(char *lpBits, int w, int h, int color, int range, std::list<POINT> &points);
-	static void FindGray(char *lpBits, int w, int h, int gray, int range, std::list<POINT> &points, unsigned int maxCount = 0);
-	static bool SelectBestPoint(std::list<POINT> points, int radius, POINT &p);
-
-	static int GetColor(char *lpBits, int w, int h, int x, int y);
-	static bool IsColorAlike(int c1, int c2, int range);
+    static int GetColor(char *lpBits, int w, int h, int x, int y);
+    static bool IsColorAlike(int c1, int c2, int range);
 };
 

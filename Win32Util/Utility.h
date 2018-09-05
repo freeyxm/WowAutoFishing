@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <string>
 #include <list>
+#include <Windows.h>
 
 using std::string;
 
@@ -15,5 +16,11 @@ public:
     static std::wstring GetErrorMsg(int error_code);
 
     static size_t Split(string str, std::list<string> &result);
+
+    static bool GetWndExePath(HWND hwnd, std::wstring &path);
+
+    static bool FindLatestFile(const std::wstring& dir_path, std::wstring& file_path);
+
+    static std::wstring StrToWStr(const std::string& src);
 };
 
