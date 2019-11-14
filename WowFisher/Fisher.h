@@ -3,6 +3,7 @@
 #include "FisherStateDefine.h"
 #include <Windows.h>
 #include <list>
+#include <string>
 
 const int MAX_BAIT_TIME = 10 * 60; // 鱼饵持续时间，单位秒
 const int MAX_BITE_TIME = 23; // 最长等待咬钩时间，单位秒

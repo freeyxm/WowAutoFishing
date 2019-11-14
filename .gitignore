@@ -3,6 +3,7 @@ Release/
 ipch/
 Test/
 lib/
+.vs/
 *.sdf
 *.suo
 *.opensdf

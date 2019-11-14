@@ -2,6 +2,7 @@
 #include "AudioUtil/AudioExtractor.h"
 #include <vector>
 #include <list>
+#include <fstream>
 
 class Fisher;
 
