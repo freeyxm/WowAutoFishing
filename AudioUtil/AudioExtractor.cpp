@@ -4,9 +4,16 @@
 static UINT __stdcall CaptureTheadProc(LPVOID param);
 
 AudioExtractor::AudioExtractor(bool bLoopback, bool bDefaultDevice)
-	: AudioCapture(bLoopback, bDefaultDevice)
-	, m_pCurSegment(NULL), m_eSoundState(SoundState::Silent), m_silentCount(0)
-	, m_hThreadCapture(NULL)
+    : AudioCapture(bLoopback, bDefaultDevice)
+    , m_pCurSegment(NULL)
+    , m_eSoundState(SoundState::Silent)
+    , m_silentCount(0)
+    , m_silentMaxCount(0)
+    , m_soundMinCount(0)
+    , m_soundMaxCount(0)
+    , m_segmentMaxCount(0)
+    , m_hThreadCapture(NULL)
+    , m_sAmpZcr()
 {
 	InitializeCriticalSection(&m_segmentSection);
 }

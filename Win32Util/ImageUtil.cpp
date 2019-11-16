@@ -116,8 +116,14 @@ bool ImageUtil::GetWindowSnapshot(HWND hWnd, int x, int y, int w, int h, char *l
         bSuccess = true;
     } while (false);
 
-    ::DeleteObject(hbmWnd);
-    ::DeleteObject(hdcMem);
+    if (hbmWnd)
+    {
+        ::DeleteObject(hbmWnd);
+    }
+    if (hdcMem)
+    {
+        ::DeleteObject(hdcMem);
+    }
     ::ReleaseDC(hWnd, hdcWnd);
 
     return bSuccess;
@@ -204,7 +210,11 @@ bool ImageUtil::TransToGray(BITMAP bitmap, LPTSTR pszFile)
     int w = bitmap.bmWidth;
     int h = bitmap.bmHeight;
     unsigned char *lpBits = (unsigned char *)bitmap.bmBits;
-    unsigned char *buff = (unsigned char *)malloc(bitmap.bmWidth * bitmap.bmHeight * 4);
+    unsigned char *buff = (unsigned char *)malloc(w * h * 4);
+    if (!buff)
+    {
+        return false;
+    }
 
     for (int i = 0; i < h; ++i)
     {
@@ -381,6 +391,10 @@ bool ImageUtil::SelectBestPoint(std::list<POINT> points, int radius, POINT &p)
         bool operator < (PointGroup& b) {
             return points.size() > b.points.size(); // sort size by desc.
         }
+
+        PointGroup()
+            : center()
+        { }
     };
 
     // 按照radius对坐标进行分组

@@ -136,7 +136,14 @@ bool Utility::FindLatestFile(const std::wstring& dir_path, std::wstring& file_pa
 
 std::wstring Utility::StrToWStr(const std::string& str)
 {
-    PWSTR wstr = (PWSTR)_alloca((lstrlenA(str.c_str()) + 1) * sizeof(WCHAR));
-    wsprintfW(wstr, L"%S", str.c_str());
-    return std::wstring(wstr);
+    PWSTR wstr = (PWSTR)_malloca((lstrlenA(str.c_str()) + 1) * sizeof(WCHAR));
+    if (wstr)
+    {
+        wsprintfW(wstr, L"%S", str.c_str());
+        return std::wstring(wstr);
+    }
+    else
+    {
+        return std::wstring();
+    }
 }

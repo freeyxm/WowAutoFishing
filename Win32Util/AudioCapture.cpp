@@ -5,9 +5,18 @@
 #include <cstdio>
 
 AudioCapture::AudioCapture(bool bLoopback, bool bDefaultDevice)
-	: m_pDevice(NULL), m_pAudioClient(NULL), m_pCaptureClient(NULL), m_pwfx(NULL)
-	, m_bInited(false), m_bDone(true)
-	, m_bLoopback(bLoopback), m_bDefaultDevice(bDefaultDevice)
+    : m_pDevice(NULL)
+    , m_pAudioClient(NULL)
+    , m_pCaptureClient(NULL)
+    , m_pwfx(NULL)
+    , m_bInited(false)
+    , m_bDone(true)
+    , m_nBytesPerSample(0)
+    , m_nBytesPerFrame(0)
+    , m_midValue(0)
+    , m_bLoopback(bLoopback)
+    , m_bDefaultDevice(bDefaultDevice)
+    , m_hnsActualDuration(0)
 {
 }
 

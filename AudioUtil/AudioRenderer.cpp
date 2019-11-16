@@ -9,9 +9,15 @@ using namespace comm_util;
 static UINT __stdcall RenderTheadProc(LPVOID param);
 
 AudioRenderer::AudioRenderer(bool bDefaultDevice)
-	: AudioRender(bDefaultDevice)
-	, m_bPlaying(false), m_hThreadRenderer(NULL)
-	, m_pWaveFile(NULL), m_pConverter(NULL)
+    : AudioRender(bDefaultDevice)
+    , m_srcType(SourceType::Wave)
+    , m_bPlaying(false)
+    , m_hThreadRenderer(NULL)
+    , m_pWaveFile(NULL)
+    , m_pConverter(NULL)
+    , m_bConvert(false)
+    , m_pStorage(NULL)
+    , m_dataIndex(0)
 {
 }
 

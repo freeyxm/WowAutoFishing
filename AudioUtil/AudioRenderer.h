@@ -29,7 +29,7 @@ protected:
 	HRESULT LoadDataFromFile(BYTE *pData, UINT32 *pFrameCount, DWORD *pFlags);
 
 private:
-	enum SourceType
+	enum class SourceType
 	{
 		Wave,
 		Storage,

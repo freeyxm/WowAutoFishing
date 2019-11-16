@@ -5,9 +5,18 @@
 #include <cstdio>
 
 AudioRender::AudioRender(bool bDefaultDevice)
-	: m_pDevice(NULL), m_pAudioClient(NULL), m_pRenderClient(NULL), m_pwfx(NULL)
-	, m_bInited(false), m_bDone(true)
-	, m_bDefaultDevice(bDefaultDevice)
+    : m_pDevice(NULL)
+    , m_pAudioClient(NULL)
+    , m_pRenderClient(NULL)
+    , m_pwfx(NULL)
+    , m_wfx()
+    , m_bInited(false)
+    , m_bDone(true)
+    , m_nBytesPerSample(0)
+    , m_nBytesPerFrame(0)
+    , m_nBufferFrameCount(0)
+    , m_bDefaultDevice(bDefaultDevice)
+    , m_hnsActualDuration(0)
 {
 }
 
@@ -198,7 +207,7 @@ HRESULT AudioRender::Render()
 		hr = LoadData(&frameCount, &flags);
 		BREAK_ON_ERROR(hr);
 
-		hr = this->StartRender();
+		hr = this->StartRender() ? S_OK : E_FAIL;
 		BREAK_ON_ERROR(hr);
 
 		while (!m_bDone)
@@ -216,7 +225,7 @@ HRESULT AudioRender::Render()
 		// Wait for last data in buffer to play before stopping.
 		Sleep((DWORD)(m_hnsActualDuration * frameCount / m_nBufferFrameCount / REFTIMES_PER_MILLISEC));
 
-		hr = this->StopRender();
+		hr = this->StopRender() ? S_OK : E_FAIL;
 		BREAK_ON_ERROR(hr);
 
 	} while (false);

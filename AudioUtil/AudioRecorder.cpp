@@ -5,8 +5,9 @@
 static UINT __stdcall CaptureTheadProc(LPVOID param);
 
 AudioRecorder::AudioRecorder(bool bLoopback, bool bDefaultDevice)
-	: AudioCapture(bLoopback, bDefaultDevice)
-	, m_hThreadCapture(NULL)
+    : AudioCapture(bLoopback, bDefaultDevice)
+    , m_hThreadCapture(NULL)
+    , m_dataMaxBytes(0)
 {
 	InitializeCriticalSection(&m_dataSection);
 }

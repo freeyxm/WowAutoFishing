@@ -10,7 +10,11 @@ void PlayWave(const char *file);
 
 int main(int argc, char *argv[])
 {
-	::CoInitialize(NULL);
+    int res = ::CoInitialize(NULL);
+    if (res != S_OK)
+    {
+        return res;
+    }
 
 	if (argc > 1)
 	{

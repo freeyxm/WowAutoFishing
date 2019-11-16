@@ -317,7 +317,7 @@ void WaveFile::EndWrite()
 	{
 		m_outFile.seekp(4, std::ios::beg);
 		m_outFile.write((char*)&m_info.riff.chunkSize, 4);
-		m_outFile.seekp(24 + m_info.fmt.chunkSize, std::ios::beg);
+		m_outFile.seekp(24LL + m_info.fmt.chunkSize, std::ios::beg);
 		m_outFile.write((char*)&m_info.data.chunkSize, 4);
 	}
 	m_outFile.close();
