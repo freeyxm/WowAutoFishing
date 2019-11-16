@@ -66,7 +66,7 @@ bool AudioRecorder::Start()
 	if (m_hThreadCapture != NULL)
 		return false;
 
-	if (!StartCapture())
+	if (FAILED(StartCapture()))
 		return false;
 
 	SetDone(false);

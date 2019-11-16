@@ -37,12 +37,12 @@ AudioRender::~AudioRender()
 #define REFTIMES_PER_SEC  10000000
 #define REFTIMES_PER_MILLISEC  10000
 
-bool AudioRender::InitAudioClient()
+int AudioRender::InitAudioClient()
 {
 	if (m_pAudioClient != NULL)
-		return true;
+		return S_OK;
 
-	HRESULT hr = S_FALSE;
+	HRESULT hr = E_FAIL;
 	IMMDeviceEnumerator *pEnumerator = NULL;
 	REFERENCE_TIME hnsRequestedDuration = REFTIMES_PER_SEC;
 
@@ -70,17 +70,17 @@ bool AudioRender::InitAudioClient()
 	{
 		ReleaseAudioClient();
 		::printf("InitAudioClient failed, error code: 0x%x\n", hr);
-		return false;
+		return hr;
 	}
 	else
 	{
-		return true;
+		return hr;
 	}
 }
 
-bool AudioRender::InitRenderClient(WAVEFORMATEX *pwfx)
+int AudioRender::InitRenderClient(WAVEFORMATEX *pwfx)
 {
-	HRESULT hr = S_FALSE;
+	HRESULT hr = E_FAIL;
 	REFERENCE_TIME hnsRequestedDuration = REFTIMES_PER_SEC;
 
 	do
@@ -140,13 +140,24 @@ bool AudioRender::InitRenderClient(WAVEFORMATEX *pwfx)
 	}
 }
 
-bool AudioRender::Init(WAVEFORMATEX *pwfx)
+int AudioRender::Init(WAVEFORMATEX *pwfx)
 {
-	if (!InitAudioClient())
-		return false;
-	if (pwfx != NULL && !InitRenderClient(pwfx))
-		return false;
-	return true;
+    int ret = S_OK;
+
+    do
+    {
+        if (pwfx == NULL) ret = E_POINTER;
+        BREAK_ON_ERROR(ret);
+
+        ret = InitAudioClient();
+        BREAK_ON_ERROR(ret);
+
+        ret = InitRenderClient(pwfx);
+        BREAK_ON_ERROR(ret);
+
+    } while (false);
+
+    return ret;
 }
 
 void AudioRender::ReleaseRenderClient()
@@ -173,25 +184,27 @@ bool AudioRender::SelectDevice(IMMDeviceEnumerator *pEnumerator)
 	return AudioUtil::SelectDevice(pEnumerator, eRender, m_bDefaultDevice, &m_pDevice);
 }
 
-bool AudioRender::StartRender()
+int AudioRender::StartRender()
 {
-	if (m_bInited && m_pAudioClient)
-	{
-		return SUCCEEDED(m_pAudioClient->Start());
-	}
-	return false;
+    int ret = E_FAIL;
+    if (m_bInited && m_pAudioClient)
+    {
+        ret = m_pAudioClient->Start();
+    }
+    return ret;
 }
 
-bool AudioRender::StopRender()
+int AudioRender::StopRender()
 {
-	if (m_bInited && m_pAudioClient)
-	{
-		return SUCCEEDED(m_pAudioClient->Stop());
-	}
-	return false;
+    int ret = E_FAIL;
+    if (m_bInited && m_pAudioClient)
+    {
+        ret = m_pAudioClient->Stop();
+    }
+    return ret;
 }
 
-HRESULT AudioRender::Render()
+int AudioRender::Render()
 {
 	if (!m_bInited)
 	{
@@ -207,7 +220,7 @@ HRESULT AudioRender::Render()
 		hr = LoadData(&frameCount, &flags);
 		BREAK_ON_ERROR(hr);
 
-		hr = this->StartRender() ? S_OK : E_FAIL;
+		hr = this->StartRender();
 		BREAK_ON_ERROR(hr);
 
 		while (!m_bDone)
@@ -225,7 +238,7 @@ HRESULT AudioRender::Render()
 		// Wait for last data in buffer to play before stopping.
 		Sleep((DWORD)(m_hnsActualDuration * frameCount / m_nBufferFrameCount / REFTIMES_PER_MILLISEC));
 
-		hr = this->StopRender() ? S_OK : E_FAIL;
+		hr = this->StopRender();
 		BREAK_ON_ERROR(hr);
 
 	} while (false);
@@ -279,7 +292,7 @@ const WAVEFORMATEX* AudioRender::GetFormat() const
 	return &m_wfx;
 }
 
-bool AudioRender::SetFormat(WAVEFORMATEX *pwfx)
+int AudioRender::SetFormat(WAVEFORMATEX *pwfx)
 {
 	return InitRenderClient(pwfx);
 }

@@ -48,7 +48,7 @@ bool AudioRenderer::SetSourceFile(const char *pWaveFile)
 
 	WAVEFORMATEX wfx;
 	WaveUtil::ConvertFormat(m_pWaveFile->GetFormat(), &wfx);
-	return Init(&wfx);
+	return SUCCEEDED(Init(&wfx));
 }
 
 bool AudioRenderer::Start()

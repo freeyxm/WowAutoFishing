@@ -11,19 +11,19 @@ public:
 	AudioCapture(bool bLoopback = true, bool bDefaultDevice = true);
 	virtual ~AudioCapture();
 
-	virtual bool Init();
+	virtual int Init();
 
 	virtual const WAVEFORMATEX* GetFormat() const;
 
-	virtual HRESULT Capture();
+	virtual int Capture();
 
 	virtual bool IsDone() const;
 	virtual void SetDone(bool bDone);
 
 protected:
 	virtual void Release();
-	virtual bool StartCapture();
-	virtual bool StopCapture();
+	virtual  int StartCapture();
+	virtual  int StopCapture();
 	virtual bool SelectDevice(IMMDeviceEnumerator *pEnumerator);
 
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);

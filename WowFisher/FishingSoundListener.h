@@ -19,7 +19,7 @@ public:
 	FishingSoundListener(Fisher *pFisher);
 	virtual ~FishingSoundListener();
 
-	virtual bool Init();
+	virtual int Init();
 
 	virtual HRESULT SetFormat(WAVEFORMATEX *pwfx);
 	virtual bool IsDone() const;

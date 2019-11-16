@@ -45,7 +45,7 @@ bool NpcScanAlertorMgr::InitAudioPlayer()
 	m_alarm.PushBack(pFrame);
 	m_audioPlayer.SetSource(&m_alarm);
 
-	if (!m_audioPlayer.Init(&wfx))
+	if (m_audioPlayer.Init(&wfx) != 0)
 	{
 		Utility::printf_t("Init audio player failed.\n");
 		return false;

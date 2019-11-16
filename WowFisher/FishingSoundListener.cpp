@@ -33,7 +33,7 @@ FishingSoundListener::~FishingSoundListener()
 	}
 }
 
-bool FishingSoundListener::Init()
+int FishingSoundListener::Init()
 {
 	if (m_pSampleFile == NULL)
 	{
@@ -52,7 +52,7 @@ bool FishingSoundListener::Init()
 
 	LoadSamples();
 
-	return AudioExtractor::Init();
+	return AudioExtractor::Init() == 0;
 }
 
 HRESULT FishingSoundListener::SetFormat(WAVEFORMATEX *pwfx)

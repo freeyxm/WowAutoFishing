@@ -37,12 +37,12 @@ AudioCapture::~AudioCapture()
 #define REFTIMES_PER_SEC  10000000
 #define REFTIMES_PER_MILLISEC  10000
 
-bool AudioCapture::Init()
+int AudioCapture::Init()
 {
 	if (m_bInited)
-		return true;
+		return S_OK;
 
-	HRESULT hr = S_FALSE;
+	HRESULT hr = E_FAIL;
 	IMMDeviceEnumerator *pEnumerator = NULL;
 	REFERENCE_TIME hnsRequestedDuration = REFTIMES_PER_SEC;
 	UINT32 bufferFrameCount = 0;
@@ -99,12 +99,12 @@ bool AudioCapture::Init()
 	{
 		Release();
 		::printf("Init failed, error code: 0x%x\n", hr);
-		return false;
+		return hr;
 	}
 	else
 	{
 		m_bInited = true;
-		return true;
+		return hr;
 	}
 }
 
@@ -127,27 +127,27 @@ bool AudioCapture::SelectDevice(IMMDeviceEnumerator *pEnumerator)
 	return AudioUtil::SelectDevice(pEnumerator, m_bLoopback ? eRender : eCapture, m_bDefaultDevice, &m_pDevice);
 }
 
-bool AudioCapture::StartCapture()
+int AudioCapture::StartCapture()
 {
-	if (m_bInited && m_pAudioClient)
-	{
-		HRESULT hr = m_pAudioClient->Start();  // Start recording.
-		return SUCCEEDED(hr);
-	}
-	return false;
+    int ret = E_FAIL;
+    if (m_bInited && m_pAudioClient)
+    {
+        ret = m_pAudioClient->Start();  // Start recording.
+    }
+    return ret;
 }
 
-bool AudioCapture::StopCapture()
+int AudioCapture::StopCapture()
 {
-	if (m_bInited && m_pAudioClient)
-	{
-		HRESULT hr = m_pAudioClient->Stop();  // Stop recording.
-		return SUCCEEDED(hr);
-	}
-	return false;
+    int ret = E_FAIL;
+    if (m_bInited && m_pAudioClient)
+    {
+        ret = m_pAudioClient->Stop();  // Stop recording.
+    }
+    return ret;
 }
 
-HRESULT AudioCapture::Capture()
+int AudioCapture::Capture()
 {
 	if (!m_bInited)
 	{

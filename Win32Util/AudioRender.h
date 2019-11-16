@@ -10,31 +10,31 @@ public:
 	AudioRender(bool bDefaultDevice = true);
 	virtual ~AudioRender();
 
-	virtual bool Init(WAVEFORMATEX *pwfx = NULL);
+	virtual int Init(WAVEFORMATEX *pwfx = NULL);
 
-	virtual bool SetFormat(WAVEFORMATEX *pwfx);
+	virtual int SetFormat(WAVEFORMATEX *pwfx);
 	virtual const WAVEFORMATEX* GetFormat() const;
 
-	virtual HRESULT Render();
+	virtual int Render();
 
 	virtual bool IsDone() const;
 	virtual void SetDone(bool bDone);
 
 protected:
-	virtual bool InitAudioClient();
+	virtual  int InitAudioClient();
 	virtual void ReleaseAudioClient();
 
-	virtual bool InitRenderClient(WAVEFORMATEX *pwfx);
+	virtual  int InitRenderClient(WAVEFORMATEX *pwfx);
 	virtual void ReleaseRenderClient();
 
 	virtual bool UseFormat(WAVEFORMATEX *pwfx);
 	virtual bool IsFormatSupported(WAVEFORMATEX *pwfx);
 
-	virtual bool StartRender();
-	virtual bool StopRender();
+	virtual  int StartRender();
+	virtual  int StopRender();
 	virtual bool SelectDevice(IMMDeviceEnumerator *pEnumerator);
 
-	inline HRESULT LoadData(DWORD *pFrameCount, DWORD *pFlags);
+	inline  HRESULT LoadData(DWORD *pFrameCount, DWORD *pFlags);
 	virtual HRESULT OnLoadData(BYTE *pData, UINT32 *pFrameCount, DWORD *pFlags);
 
 protected:

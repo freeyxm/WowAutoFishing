@@ -124,21 +124,21 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	g_pAudioPainter->SetEnable(false);
 
 	g_pAudioRecorder = new AudioRecorder(true, false);
-	if (!g_pAudioRecorder || !g_pAudioRecorder->Init())
+	if (!g_pAudioRecorder || FAILED(g_pAudioRecorder->Init()))
 	{
 		printf("Init AudioRecorder failed!\n");
 		return FALSE;
 	}
 
 	g_pAudioRenderer = new AudioRenderer(false);
-	if (!g_pAudioRenderer || !g_pAudioRenderer->Init())
+	if (!g_pAudioRenderer || FAILED(g_pAudioRenderer->Init()))
 	{
 		printf("Init AudioRenderer failed!\n");
 		return FALSE;
 	}
 
 	g_pAudioExtractor = new AudioExtractor();
-	if(!g_pAudioExtractor || !g_pAudioExtractor->Init())
+	if(!g_pAudioExtractor || FAILED(g_pAudioExtractor->Init()))
 	{
 		printf("Init AudioExtractor failed!\n");
 		return FALSE;

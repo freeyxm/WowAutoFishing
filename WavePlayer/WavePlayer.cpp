@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 void PlayWave(const char *file)
 {
 	AudioRenderer render;
-	if (render.Init())
+	if (render.Init() == 0)
 	{
 		if (render.SetSourceFile(file))
 		{
