@@ -17,7 +17,7 @@ void WaveStreamConverter::SetStream(std::istream *stream)
 
 uint32_t WaveStreamConverter::LoadSrcFrame(char *pData, uint32_t frameCount)
 {
-	m_stream->read(pData, frameCount * m_srcBytesPerFrame);
+	m_stream->read(pData, (std::streamsize)frameCount * m_srcBytesPerFrame);
 	if (*m_stream)
 	{
 		return frameCount;

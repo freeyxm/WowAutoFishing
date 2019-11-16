@@ -4,7 +4,16 @@
 
 
 AudioPainter::AudioPainter()
-	: m_pwfx(NULL), m_scaleY(1.0f), m_bEnable(true)
+    : m_pwfx(NULL)
+    , m_bFloatFormat(0)
+    , m_nBytesPerSample(0)
+    , m_nBytesPerFrame(0)
+    , m_maxValue(0)
+    , m_midValue(0)
+    , m_pCurStorage(NULL)
+    , m_dataIndex(0)
+    , m_scaleY(1.0f)
+    , m_bEnable(true)
 {
 }
 

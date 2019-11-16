@@ -11,7 +11,23 @@ using namespace comm_util;
 #define PI_2 (PI * 2)
 
 WaveConverter::WaveConverter()
-	: m_srcBufferFrameCount(0)
+    : m_sampleRateRatio(0)
+    , m_srcBytesPerSample(0)
+    , m_dstBytesPerSample(0)
+    , m_srcBytesPerFrame(0)
+    , m_dstBytesPerFrame(0)
+    , m_srcMaxValue(0)
+    , m_dstMaxValue(0)
+    , m_srcFrameIndex(0)
+    , m_dstFrameIndex(0)
+    , m_srcBufferFrameCount(0)
+    , m_srcFrameIndexFloat(0)
+    , m_wndWidth(0)
+    , m_wndWidth2(0)
+    , m_bitsConvertType()
+    , m_channelConvertType()
+    , m_wfxSrc()
+    , m_wfxDst()
 {
 	m_buffer1.pData = NULL;
 	m_buffer2.pData = NULL;
@@ -159,7 +175,7 @@ uint32_t WaveConverter::Resample(char *pDataDst, uint32_t frameCount)
 				// Hann Window. Scale and calculate sinc
 				//float r_w = 0.5 * (1 - cosf(PI_2 * (tau + m_wndWidth2) / m_wndWidth));
 				float r_w = (float)(0.5 - 0.5 * cos(PI_2 *(0.5 + (j - m_srcFrameIndexFloat) / m_wndWidth)));
-				float r_a = (float)(PI_2 * (j - m_srcFrameIndexFloat) * fmaxDivSR);
+				float r_a = (float)(PI_2 * ((double)j - m_srcFrameIndexFloat) * fmaxDivSR);
 				float r_snc = 1.0;
 				if (r_a != 0)
 				{

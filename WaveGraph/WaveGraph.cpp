@@ -31,14 +31,14 @@
 UINT_PTR g_soundTimer = 0;
 
 
-enum Mode
+enum class ActionMode
 {
 	Mode_None,
 	Mode_Record,
 	Mode_Play,
 	Mode_Extract,
 };
-static Mode g_mode = Mode_None;
+static ActionMode g_mode = ActionMode::Mode_None;
 
 // 全局变量:
 static HINSTANCE hInst;								// 当前实例
@@ -105,7 +105,11 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WAVEGRAPH));
 
-	::CoInitialize(NULL);
+    int hr = ::CoInitialize(NULL);
+    if (FAILED(hr))
+    {
+        return FALSE;
+    }
 
 	if (::AllocConsole())
 	{
@@ -283,14 +287,14 @@ VOID UpdateButtonStatus()
 	HWND hWndStartExtract = GetDlgItem(g_hWndMain, START_EXTRACT_ID);
 	HWND hWndStopExtract = GetDlgItem(g_hWndMain, STOP_EXTRACT_ID);
 
-	EnableWindow(hWndStartRecord, g_mode == Mode_None);
-	EnableWindow(hWndStopRecord, g_mode == Mode_Record);
+	EnableWindow(hWndStartRecord, g_mode == ActionMode::Mode_None);
+	EnableWindow(hWndStopRecord, g_mode == ActionMode::Mode_Record);
 	
-	EnableWindow(hWndStartPlay, g_mode == Mode_None);
-	EnableWindow(hWndStopPlay,  g_mode == Mode_Play);
+	EnableWindow(hWndStartPlay, g_mode == ActionMode::Mode_None);
+	EnableWindow(hWndStopPlay,  g_mode == ActionMode::Mode_Play);
 
-	EnableWindow(hWndStartExtract, g_mode == Mode_None);
-	EnableWindow(hWndStopExtract, g_mode == Mode_Extract);
+	EnableWindow(hWndStartExtract, g_mode == ActionMode::Mode_None);
+	EnableWindow(hWndStopExtract, g_mode == ActionMode::Mode_Extract);
 }
 
 //
@@ -378,11 +382,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_TIMER:
 		if (g_pAudioPainter->IsEnable())
 		{
-			if (g_mode == Mode::Mode_Extract)
+			if (g_mode == ActionMode::Mode_Extract)
 			{
 				PaintExtractor();
 			}
-			else if (g_mode == Mode::Mode_Record)
+			else if (g_mode == ActionMode::Mode_Record)
 			{
 				PaintRecorder();
 			}
@@ -421,14 +425,14 @@ VOID StartRecord()
 {
 	if (g_pAudioRecorder->Start())
 	{
-		g_mode = Mode_Record;
+		g_mode = ActionMode::Mode_Record;
 		UpdateButtonStatus();
 	}
 }
 
 VOID StopRecord()
 {
-	g_mode = Mode_None;
+	g_mode = ActionMode::Mode_None;
 	g_pAudioRecorder->Stop();
 	UpdateButtonStatus();
 }
@@ -437,14 +441,14 @@ VOID StartExtract()
 {
 	if (g_pAudioExtractor->Start())
 	{
-		g_mode = Mode_Extract;
+		g_mode = ActionMode::Mode_Extract;
 		UpdateButtonStatus();
 	}
 }
 
 VOID StopExtract()
 {
-	g_mode = Mode_None;
+	g_mode = ActionMode::Mode_None;
 	g_pAudioExtractor->Stop();
 	UpdateButtonStatus();
 }
@@ -454,14 +458,14 @@ VOID StartPlay()
 	g_pAudioRenderer->SetSource(g_pAudioRecorder->GetStorage());
 	if (g_pAudioRenderer->Start())
 	{
-		g_mode = Mode_Play;
+		g_mode = ActionMode::Mode_Play;
 		UpdateButtonStatus();
 	}
 }
 
 void StopPlay()
 {
-	g_mode = Mode_None;
+	g_mode = ActionMode::Mode_None;
 	g_pAudioRenderer->Stop();
 	UpdateButtonStatus();
 }

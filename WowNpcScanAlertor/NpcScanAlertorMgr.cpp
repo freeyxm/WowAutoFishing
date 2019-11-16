@@ -7,6 +7,7 @@
 #include <string>
 
 NpcScanAlertorMgr::NpcScanAlertorMgr()
+    : m_bRunning(false)
 {
 }
 
