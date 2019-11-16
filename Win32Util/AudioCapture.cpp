@@ -95,7 +95,7 @@ int AudioCapture::Init()
 
 	SAFE_RELEASE(pEnumerator);
 
-	if (FAILED(hr))
+	if (hr != S_OK)
 	{
 		Release();
 		::printf("Init failed, error code: 0x%x\n", hr);

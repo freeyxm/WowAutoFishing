@@ -66,7 +66,7 @@ int AudioRender::InitAudioClient()
 
 	SAFE_RELEASE(pEnumerator);
 
-	if (FAILED(hr))
+	if (hr != S_OK)
 	{
 		ReleaseAudioClient();
 		::printf("InitAudioClient failed, error code: 0x%x\n", hr);
@@ -127,7 +127,7 @@ int AudioRender::InitRenderClient(WAVEFORMATEX *pwfx)
 		hr = S_OK;
 	} while (false);
 
-	if (FAILED(hr))
+	if (hr != S_OK)
 	{
 		ReleaseRenderClient();
 		::printf("InitRenderClient failed, error code: 0x%x\n", hr);

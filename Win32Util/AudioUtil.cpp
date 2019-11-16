@@ -61,7 +61,7 @@ bool AudioUtil::SelectDevice(IMMDeviceEnumerator *pEnumerator, EDataFlow eDataFl
 	if (bDefault)
 	{
 		hr = pEnumerator->GetDefaultAudioEndpoint(eDataFlow, eConsole, ppDevice);
-		return SUCCEEDED(hr) ? true : false;
+		return hr == S_OK;
 	}
 	else
 	{
@@ -142,7 +142,7 @@ UINT AudioUtil::GetDevices(EDataFlow eDataFlow, IMMDeviceEnumerator *pEnumerator
 				::PropVariantInit(&varName);
 
 				hr = pProps->GetValue(PKEY_Device_FriendlyName, &varName);
-				if (SUCCEEDED(hr))
+				if (hr == S_OK)
 				{
 					wsprintf(devInfo.sName, L"%ls", varName.pwszVal);
 				}

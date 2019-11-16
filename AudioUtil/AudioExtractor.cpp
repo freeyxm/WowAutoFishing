@@ -289,7 +289,7 @@ bool AudioExtractor::Start()
 	if (m_hThreadCapture != NULL)
 		return false;
 
-	if (FAILED(StartCapture()))
+	if (StartCapture() != S_OK)
 		return false;
 
 	SetDone(false);

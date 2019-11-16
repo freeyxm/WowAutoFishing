@@ -7,7 +7,7 @@
 #include <list>
 
 #define BREAK_ON_ERROR(hres)  \
-	if (FAILED(hres)) { break; }
+	if (hres != S_OK) { break; }
 #define SAFE_RELEASE(punk)  \
 	if ((punk) != NULL) { (punk)->Release(); (punk) = NULL; }
 
