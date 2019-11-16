@@ -23,7 +23,7 @@ protected:
     virtual bool AttachFunctions() override;
     virtual bool DetachFunctions() override;
 
-    static bool MyGetCursorPos(LPPOINT lpPoint);
+    static bool MyGetCursorPos(_Out_ LPPOINT lpPoint);
     static bool MySetCursorPos(int x, int y);
 
 private:

@@ -24,13 +24,13 @@ uint32_t WaveStreamConverter::LoadSrcFrame(char *pData, uint32_t frameCount)
 	}
 	else
 	{
-		uint32_t readCount = m_stream->gcount();
-		uint32_t readFrameCount = readCount / m_srcBytesPerFrame;
-		uint32_t count = readFrameCount * m_srcBytesPerFrame;
-		if (count < readCount)
-		{
-			m_stream->seekg(-(int)(readCount - count), std::ios::cur);
-		}
-		return readFrameCount;
+        std::streamsize readCount = m_stream->gcount();
+        std::streamsize readFrameCount = readCount / m_srcBytesPerFrame;
+        std::streamsize count = readFrameCount * m_srcBytesPerFrame;
+        if (count < readCount)
+        {
+            m_stream->seekg(-(std::streamoff)(readCount - count), std::ios::cur);
+        }
+        return (uint32_t)readFrameCount;
 	}
 }

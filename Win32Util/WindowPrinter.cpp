@@ -20,11 +20,14 @@ WindowPrinter::~WindowPrinter()
 HDC WindowPrinter::GetPrinterDC()
 {
 	DWORD dwNeeded, dwReturned;
-	HDC hdc;
+	HDC hdc = 0;
 	::EnumPrinters(PRINTER_ENUM_LOCAL, NULL, 4, NULL, 0, &dwNeeded, &dwReturned);
 	PRINTER_INFO_4* pinfo4 = (PRINTER_INFO_4*)malloc(dwNeeded);
-	::EnumPrinters(PRINTER_ENUM_LOCAL, NULL, 4, (BYTE*)pinfo4, dwNeeded, &dwNeeded, &dwReturned);
-	hdc = ::CreateDC(NULL, pinfo4->pPrinterName, NULL, NULL);
+    if (pinfo4)
+    {
+        ::EnumPrinters(PRINTER_ENUM_LOCAL, NULL, 4, (BYTE*)pinfo4, dwNeeded, &dwNeeded, &dwReturned);
+        hdc = ::CreateDC(NULL, pinfo4->pPrinterName, NULL, NULL);
+    }
 	free(pinfo4);
 	return hdc;
 }
@@ -67,11 +70,7 @@ void WindowPrinter::PrintWindowClientArea(HWND hWnd)
 
 	DWORD dwBmpSize = ((bmpWnd.bmWidth * bi.biBitCount + 31) / 32) * 4 * bmpWnd.bmHeight; // 每一行像素位32对齐
 	char *lpbitmap = (char*)malloc(dwBmpSize); // 像素位指针
-	::GetDIBits(hdcMem, hbmWnd, 0, (UINT)bmpWnd.bmHeight,
-		lpbitmap,
-		(BITMAPINFO*)&bi,
-		DIB_RGB_COLORS);
-
+	::GetDIBits(hdcMem, hbmWnd, 0, (UINT)bmpWnd.bmHeight, lpbitmap, (BITMAPINFO*)&bi, DIB_RGB_COLORS);
 	::DeleteDC(hdcMem);
 	::DeleteObject(hbmWnd);
 	::ReleaseDC(hWnd, hdcWnd);
@@ -85,11 +84,14 @@ void WindowPrinter::PrintWindowClientArea(HWND hWnd)
 
 	FILE* fp = NULL;
 	::_wfopen_s(&fp, L"capture.bmp", L"w");
-	::fwrite(&bmfHeader, sizeof(BITMAPFILEHEADER), 1, fp); // 写入文件头
-	::fwrite(&bi, sizeof(BITMAPINFOHEADER), 1, fp);        // 写入信息头
-	::fwrite(lpbitmap, dwBmpSize, 1, fp);                  // 写入像素位
-	::fclose(fp);
-	fp = NULL;
+    if (fp)
+    {
+        ::fwrite(&bmfHeader, sizeof(BITMAPFILEHEADER), 1, fp); // 写入文件头
+        ::fwrite(&bi, sizeof(BITMAPINFOHEADER), 1, fp);        // 写入信息头
+        ::fwrite(lpbitmap, dwBmpSize, 1, fp);                  // 写入像素位
+        ::fclose(fp);
+        fp = NULL;
+    }
 
 	// StretchDIBits()缩放打印DIB
 	HDC hdcPrinter = WindowPrinter::GetPrinterDC();

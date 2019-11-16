@@ -56,7 +56,7 @@ protected:
     void CloseConsole();
 
 protected:
-    CComboBox * m_pComboBox;
+    CComboBox* m_pComboBox;
     CButton* m_pBtnRefresh;
     CButton* m_pBtnStart;
     CSliderCtrl* m_pSliderAmpL;

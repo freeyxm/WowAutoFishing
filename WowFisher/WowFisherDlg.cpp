@@ -56,7 +56,39 @@ END_MESSAGE_MAP()
 
 CWowFisherDlg::CWowFisherDlg(CWnd* pParent /*=NULL*/)
     : CDialogEx(CWowFisherDlg::IDD, pParent)
-    , m_bStart(false), m_pFisher(NULL)
+    , m_pComboBox(NULL)
+    , m_pBtnRefresh(NULL)
+    , m_pBtnStart(NULL)
+    , m_pSliderAmpL(NULL)
+    , m_pSliderAmpH(NULL)
+    , m_pTxtAmpL(NULL)
+    , m_pTxtAmpH(NULL)
+    , m_pTxtStatus(NULL)
+    , m_pTxtThrowCount(NULL)
+    , m_pTxtTimeoutCount(NULL)
+    , m_pTxtFloatCount(NULL)
+    , m_pHotKeyFishing(NULL)
+    , m_pHotKeyBite1(NULL)
+    , m_pHotKeyBite2(NULL)
+    , m_pHotKeyBite3(NULL)
+    , m_pEditSilentMax(NULL)
+    , m_pEditSoundMin(NULL)
+    , m_pCbConsole(NULL)
+    , m_bStart(false)
+    , m_pFisher(NULL)
+    , m_hotkeyThrow(0)
+    , m_hotkeyBite1(0)
+    , m_hotkeyBite2(0)
+    , m_hotkeyBite3(0)
+    , m_nAmpMax(0)
+    , m_nAmpL(0)
+    , m_nAmpH(0)
+    , m_nSilentMaxCount(0)
+    , m_nSoundMinCount(0)
+    , m_nThrowCount(0)
+    , m_nTimeoutCount(0)
+    , m_nFloatCount(0)
+    , m_bShowConsole(0)
 {
     m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -304,7 +336,11 @@ bool CWowFisherDlg::InitComponents()
 
 bool CWowFisherDlg::Init()
 {
-    ::CoInitialize(NULL);
+    int ret = ::CoInitialize(NULL);
+    if (ret != 0)
+    {
+        return false;
+    }
 
     LoadConfig();
     InitComponents();
@@ -400,11 +436,11 @@ void CWowFisherDlg::OpenConsole()
     if (::AllocConsole())
     {
         FILE *file;
-        if (::freopen_s(&file, "CONOUT$", "w", stdout) == 0)
+        if (::freopen_s(&file, "CONOUT$", "w", stdout) == 0 && file)
         {
             *stdout = *file;
         }
-        if (::freopen_s(&file, "CONIN$", "r", stdin) == 0)
+        if (::freopen_s(&file, "CONIN$", "r", stdin) == 0 && file)
         {
             *stdin = *file;
         }
@@ -461,9 +497,15 @@ void CWowFisherDlg::OnBnClickedButtonStart()
 {
     static CString txtStart, txtStop;
     if (txtStart.IsEmpty())
-        txtStart.LoadStringW(IDS_START);
+    {
+        bool res = txtStart.LoadStringW(IDS_START);
+        if (!res) txtStart = "start";
+    }
     if (txtStop.IsEmpty())
-        txtStop.LoadStringW(IDS_STOP);
+    {
+        bool res = txtStop.LoadStringW(IDS_STOP);
+        if (!res) txtStop = "stop";
+    }
 
     m_bStart = !m_bStart;
     m_pBtnStart->SetWindowTextW(m_bStart ? txtStop : txtStart);

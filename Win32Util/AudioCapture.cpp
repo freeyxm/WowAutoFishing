@@ -124,7 +124,8 @@ void AudioCapture::Release()
 
 bool AudioCapture::SelectDevice(IMMDeviceEnumerator *pEnumerator)
 {
-	return AudioUtil::SelectDevice(pEnumerator, m_bLoopback ? eRender : eCapture, m_bDefaultDevice, &m_pDevice);
+    EDataFlow eDataFlow = m_bLoopback ? EDataFlow::eRender : EDataFlow::eCapture;
+	return AudioUtil::SelectDevice(pEnumerator, eDataFlow, m_bDefaultDevice, &m_pDevice);
 }
 
 int AudioCapture::StartCapture()

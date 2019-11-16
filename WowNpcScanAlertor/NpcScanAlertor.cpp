@@ -5,9 +5,18 @@
 #include "Win32Util/Utility.h"
 
 
-NpcScanAlertor::NpcScanAlertor(HWND hwnd, AudioRenderer *pAudioPlayer)
-	: m_hwnd(hwnd), m_keyboard(hwnd), m_pAudioPlayer(pAudioPlayer)
-	, m_bRare(true), m_colorType(0)
+NpcScanAlertor::NpcScanAlertor(HWND hwnd, AudioRenderer* pAudioPlayer)
+    : m_hwnd(hwnd)
+    , m_pid(0)
+    , m_pAudioPlayer(pAudioPlayer)
+    , m_keyboard(hwnd)
+    , m_lpBits(NULL)
+    , m_bRare(true)
+    , m_colorType(0)
+    , m_bRunning(false)
+    , m_searchTargetTime(0)
+    , m_moveTime(0)
+    , m_moveLeft(false)
 {
 	//RECT rect;
 	//::GetWindowRect(hwnd, &rect);

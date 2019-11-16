@@ -17,8 +17,17 @@ static UINT __stdcall FishingTheadProc(LPVOID param);
 
 
 Fisher::Fisher(HWND hwnd, int x, int y, int w, int h)
-    : m_hWndWOW(hwnd), m_hWndMain(0)
-    , m_bInited(false), m_hThreadFishing(NULL)
+    : m_hWndWOW(hwnd)
+    , m_hWndMain(0)
+    , m_bInited(false)
+    , m_bFishing(false)
+    , m_bHasBite(false)
+    , m_floatPoint()
+    , m_hotkeyThrow(0)
+    , m_hotkeyBite1(0)
+    , m_hotkeyBite2(0)
+    , m_hotkeyBite3(0)
+    , m_hThreadFishing(NULL)
 {
     m_throwCount = m_timeoutCount = m_findFloatFailCount = 0;
     m_baitTime = 0;

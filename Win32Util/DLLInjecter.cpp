@@ -17,9 +17,13 @@ DLLInjecter::~DLLInjecter()
 
 bool DLLInjecter::Inject(int pid, PCSTR dll_path)
 {
-    PWSTR wpath = (PWSTR)_alloca((lstrlenA(dll_path) + 1) * sizeof(WCHAR));
-    wsprintfW(wpath, L"%S", dll_path);
-    return Inject(pid, wpath);
+    PWSTR wpath = (PWSTR)_malloca((lstrlenA(dll_path) + 1) * sizeof(WCHAR));
+    if (wpath)
+    {
+        wsprintfW(wpath, L"%S", dll_path);
+        return Inject(pid, wpath);
+    }
+    return false;
 }
 
 
@@ -56,8 +60,12 @@ bool DLLInjecter::Inject(int pid, PCWSTR dll_path)
                 break;
             }
 
-            PTHREAD_START_ROUTINE pfnThreadRtn = (PTHREAD_START_ROUTINE)
-                GetProcAddress(GetModuleHandle(TEXT("Kernel32")), "LoadLibraryW");
+            HMODULE hModule = GetModuleHandle(TEXT("Kernel32"));
+            if (hModule == 0)
+            {
+                break;
+            }
+            PTHREAD_START_ROUTINE pfnThreadRtn = (PTHREAD_START_ROUTINE)GetProcAddress(hModule, "LoadLibraryW");
             if (pfnThreadRtn == NULL)
             {
                 PrintLastError(L"Error: GetProcAddress failed");
@@ -100,9 +108,13 @@ bool DLLInjecter::Inject(int pid, PCWSTR dll_path)
 
 bool DLLInjecter::Eject(int pid, PCSTR dll_path)
 {
-    PWSTR wpath = (PWSTR)_alloca((lstrlenA(dll_path) + 1) * sizeof(WCHAR));
-    wsprintfW(wpath, L"%S", dll_path);
-    return Eject(pid, wpath);
+    PWSTR wpath = (PWSTR)_malloca((lstrlenA(dll_path) + 1) * sizeof(WCHAR));
+    if (wpath)
+    {
+        wsprintfW(wpath, L"%S", dll_path);
+        return Eject(pid, wpath);
+    }
+    return false;
 }
 
 
@@ -150,8 +162,12 @@ bool DLLInjecter::Eject(int pid, PCWSTR dll_path)
                 break;
             }
 
-            PTHREAD_START_ROUTINE pfnThreadRtn = (PTHREAD_START_ROUTINE)
-                GetProcAddress(GetModuleHandle(TEXT("Kernel32")), "FreeLibrary");
+            HMODULE hModule = GetModuleHandle(TEXT("Kernel32"));
+            if (hModule == 0)
+            {
+                break;
+            }
+            PTHREAD_START_ROUTINE pfnThreadRtn = (PTHREAD_START_ROUTINE) GetProcAddress(hModule, "FreeLibrary");
             if (pfnThreadRtn == NULL)
             {
                 PrintLastError(L"Error: GetProcAddress failed");

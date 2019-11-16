@@ -92,6 +92,10 @@ bool CursorIntercepter::MyGetCursorPos(_Out_ LPPOINT lpPoint)
             *lpPoint = data->cursor_pos;
             m_instance->m_share_memory.Unlock();
         }
+        else
+        {
+            *lpPoint = POINT();
+        }
         return true;
     }
 }

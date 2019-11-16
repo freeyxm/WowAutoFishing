@@ -7,7 +7,11 @@
 
 int _tmain(int argc, _TCHAR* argv[])
 {
-	::CoInitialize(NULL);
+    int ret = ::CoInitialize(NULL);
+    if (ret != 0)
+    {
+        return ret;
+    }
 
 	NpcScanAlertorMgr alertorMgr;
 	if (alertorMgr.Init())
@@ -18,7 +22,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	::CoUninitialize();
 	
 	printf("Press Enter to quit ... ");
-	getchar();
+	int c = getchar();
 
 	return 0;
 }

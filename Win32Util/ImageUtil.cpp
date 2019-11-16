@@ -209,6 +209,10 @@ bool ImageUtil::TransToGray(BITMAP bitmap, LPTSTR pszFile)
 {
     int w = bitmap.bmWidth;
     int h = bitmap.bmHeight;
+    if (w == 0 || h == 0)
+    {
+        return false;
+    }
     unsigned char *lpBits = (unsigned char *)bitmap.bmBits;
     unsigned char *buff = (unsigned char *)malloc(w * h * 4);
     if (!buff)

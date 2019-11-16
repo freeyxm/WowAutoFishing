@@ -100,7 +100,7 @@ private:
     HANDLE m_hThreadFishing;
 
     bool m_bInited;
-    BOOL m_bFishing;
+    bool m_bFishing;
 
     std::wstring m_wowPath;
     std::wstring m_screenshotPath;

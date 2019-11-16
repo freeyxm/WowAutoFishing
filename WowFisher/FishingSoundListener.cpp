@@ -17,10 +17,12 @@ using namespace comm_util;
 #define CFG_HIT "#hit = "
 #define SAMPLE_FILE "fishing sample.txt"
 
-FishingSoundListener::FishingSoundListener(Fisher *pFisher)
-	: AudioExtractor(true, true)
-	, m_pFisher(pFisher)
-	, m_pSampleFile(NULL), m_sampleCount(0)
+FishingSoundListener::FishingSoundListener(Fisher* pFisher)
+    : AudioExtractor(true, true)
+    , m_pwfx(NULL)
+    , m_pFisher(pFisher)
+    , m_pSampleFile(NULL)
+    , m_sampleCount(0)
 {
 }
 
