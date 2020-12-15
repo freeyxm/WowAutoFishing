@@ -1,8 +1,8 @@
-Debug/
-Release/
-ipch/
-Test/
+bin/
+obj/
 lib/
+Libs/
+Test/
 .vs/
 *.sdf
 *.suo

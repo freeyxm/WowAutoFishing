@@ -71,31 +71,31 @@
     <LinkIncremental>true</LinkIncremental>
     <SourcePath>$(SourcePath)</SourcePath>
     <IncludePath>$(SolutionDir);$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <LibraryPath>$(SolutionDir)Libs\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
+    <OutDir>bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>obj\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <SourcePath>$(SourcePath)</SourcePath>
     <IncludePath>$(SolutionDir);$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <LibraryPath>$(SolutionDir)Libs\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
+    <OutDir>bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>obj\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)Libs\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
     <IncludePath>$(SolutionDir);$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>obj\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>$(SolutionDir)$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)Libs\$(Platform)\$(Configuration);$(LibraryPath)</LibraryPath>
     <IncludePath>$(SolutionDir);$(IncludePath)</IncludePath>
-    <OutDir>$(SolutionDir)$(Platform)\$(Configuration)\</OutDir>
-    <IntDir>$(Platform)\$(Configuration)\</IntDir>
+    <OutDir>bin\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>obj\$(Platform)\$(Configuration)\</IntDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -108,7 +108,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>CommUtil.lib;Win32Util.lib;AudioUtil.lib;WaveUtil.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>CommUtil.lib;Win32Util.lib;WaveUtil.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -140,7 +140,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>CommUtil.lib;Win32Util.lib;AudioUtil.lib;WaveUtil.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>CommUtil.lib;Win32Util.lib;WaveUtil.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -158,7 +158,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>CommUtil.lib;Win32Util.lib;AudioUtil.lib;WaveUtil.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>CommUtil.lib;Win32Util.lib;WaveUtil.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
