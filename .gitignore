@@ -1,6 +1,5 @@
 bin/
 obj/
-lib/
 Libs/
 Test/
 .vs/
@@ -10,6 +9,7 @@ Test/
 *.o
 *.exe
 *.bmp
+*.pdb
 *.VC.db
 *.VC.opendb
 *.vcxproj.user

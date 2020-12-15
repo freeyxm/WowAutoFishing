@@ -72,7 +72,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>$(SolutionDir)Libs\$(Platform)\$(Configuration);detours\lib\lib.X86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)Libs\$(Platform)\$(Configuration);detours\lib.X86;$(LibraryPath)</LibraryPath>
     <IncludePath>$(SolutionDir);$(IncludePath)</IncludePath>
     <TargetName>$(ProjectName)</TargetName>
     <OutDir>$(SolutionDir)Libs\$(Platform)\$(Configuration)\</OutDir>
@@ -80,7 +80,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <LibraryPath>$(SolutionDir)Libs\$(Platform)\$(Configuration);detours\lib\lib.X64;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)Libs\$(Platform)\$(Configuration);detours\lib.X64;$(LibraryPath)</LibraryPath>
     <IncludePath>$(SolutionDir);$(IncludePath)</IncludePath>
     <TargetName>$(ProjectName)</TargetName>
     <OutDir>$(SolutionDir)Libs\$(Platform)\$(Configuration)\</OutDir>
@@ -88,7 +88,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>$(SolutionDir)Libs\$(Platform)\$(Configuration);detours\lib\lib.X86;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)Libs\$(Platform)\$(Configuration);detours\lib.X86;$(LibraryPath)</LibraryPath>
     <IncludePath>$(SolutionDir);$(IncludePath)</IncludePath>
     <TargetName>$(ProjectName)</TargetName>
     <OutDir>$(SolutionDir)Libs\$(Platform)\$(Configuration)\</OutDir>
@@ -96,7 +96,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <LibraryPath>$(SolutionDir)Libs\$(Platform)\$(Configuration);detours\lib\lib.X64;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)Libs\$(Platform)\$(Configuration);detours\lib.X64;$(LibraryPath)</LibraryPath>
     <IncludePath>$(SolutionDir);$(IncludePath)</IncludePath>
     <TargetName>$(ProjectName)</TargetName>
     <OutDir>$(SolutionDir)Libs\$(Platform)\$(Configuration)\</OutDir>
