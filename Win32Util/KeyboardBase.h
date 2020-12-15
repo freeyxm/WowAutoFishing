@@ -15,6 +15,9 @@ public:
     virtual void PressKey(int key, int modifiers);
     virtual void PressKey(int key, const std::string& modifiers);
 
+    virtual HWND GetHwnd() const { return 0; }
+    virtual void SetHwnd(HWND hwnd) {}
+
 protected:
     virtual void PressModifier(int modifiers, bool press);
     virtual void PressModifier(char modifier, bool press);

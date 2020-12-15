@@ -7,8 +7,8 @@ public:
     KeyboardBackground(HWND hwnd);
     virtual ~KeyboardBackground();
 
-    HWND GetHwnd() const { return m_hwnd; }
-    void SetHwnd(HWND hwnd) { m_hwnd = hwnd; }
+    virtual HWND GetHwnd() const override { return m_hwnd; }
+    virtual void SetHwnd(HWND hwnd) override { m_hwnd = hwnd; }
 
 protected:
     virtual void KeyDown(int key) override;

@@ -10,8 +10,8 @@ public:
     MouseBackground(HWND hwnd);
     virtual ~MouseBackground();
 
-    HWND GetHwnd() const { return m_hwnd; }
-    void SetHwnd(HWND hwnd) { m_hwnd = hwnd; }
+    virtual HWND GetHwnd() const override { return m_hwnd; }
+    virtual void SetHwnd(HWND hwnd) override { m_hwnd = hwnd; }
 
     virtual bool Init() override;
     virtual void Close() override;
