@@ -1,6 +1,6 @@
 ﻿#include "stdafx.h"
 #include "NpcScanAlertorMgr.h"
-#include "Win32Util/Utility.h"
+#include "Win32Util/Util/Utility.h"
 #include "WaveUtil/WaveUtil.h"
 #include <conio.h>
 #include <iostream>

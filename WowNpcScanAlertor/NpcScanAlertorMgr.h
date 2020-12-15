@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "NpcScanAlertor.h"
-#include "AudioUtil/AudioRenderer.h"
+#include "Win32Util/Audio/Extend/AudioRenderer.h"
 #include <list>
 #include <string>
 

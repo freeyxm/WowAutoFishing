@@ -1,7 +1,7 @@
 ﻿#pragma once
 #pragma execution_character_set("utf-8")
-#include "AudioUtil/AudioRenderer.h"
-#include "Win32Util/KeyboardBackground.h"
+#include "Win32Util/Audio/Extend/AudioRenderer.h"
+#include "Win32Util/Keyboard/KeyboardBackground.h"
 #include <string>
 
 class NpcScanAlertor

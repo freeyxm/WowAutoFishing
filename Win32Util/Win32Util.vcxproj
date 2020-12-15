@@ -155,46 +155,58 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AudioCapture.h" />
-    <ClInclude Include="AudioRender.h" />
-    <ClInclude Include="AudioUtil.h" />
-    <ClInclude Include="DcBuffer.h" />
-    <ClInclude Include="ImageUtil.h" />
-    <ClInclude Include="KeyboardBackground.h" />
-    <ClInclude Include="KeyboardBase.h" />
-    <ClInclude Include="KeyboardGlobal.h" />
-    <ClInclude Include="DLLInjecter.h" />
-    <ClInclude Include="MouseBase.h" />
-    <ClInclude Include="MouseBackground.h" />
-    <ClInclude Include="MouseGlobal.h" />
-    <ClInclude Include="ShareMemory.h" />
+    <ClInclude Include="Audio\AudioCapture.h" />
+    <ClInclude Include="Audio\AudioRender.h" />
+    <ClInclude Include="Audio\AudioUtil.h" />
+    <ClInclude Include="Audio\Extend\AudioExtractor.h" />
+    <ClInclude Include="Audio\Extend\AudioFingerprint.h" />
+    <ClInclude Include="Audio\Extend\AudioFrameStorage.h" />
+    <ClInclude Include="Audio\Extend\AudioPainter.h" />
+    <ClInclude Include="Audio\Extend\AudioRecorder.h" />
+    <ClInclude Include="Audio\Extend\AudioRenderer.h" />
+    <ClInclude Include="Image\ImageUtil.h" />
+    <ClInclude Include="Image\WindowPrinter.h" />
+    <ClInclude Include="Keyboard\KeyboardBackground.h" />
+    <ClInclude Include="Keyboard\KeyboardBase.h" />
+    <ClInclude Include="Keyboard\KeyboardGlobal.h" />
+    <ClInclude Include="Mouse\MouseBackground.h" />
+    <ClInclude Include="Mouse\MouseBase.h" />
+    <ClInclude Include="Mouse\MouseGlobal.h" />
+    <ClInclude Include="Util\DcBuffer.h" />
+    <ClInclude Include="Util\DLLInjecter.h" />
+    <ClInclude Include="Util\ShareMemory.h" />
+    <ClInclude Include="Util\Utility.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="Utility.h" />
-    <ClInclude Include="WindowPrinter.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="AudioCapture.cpp" />
-    <ClCompile Include="AudioRender.cpp" />
-    <ClCompile Include="AudioUtil.cpp" />
-    <ClCompile Include="DcBuffer.cpp" />
-    <ClCompile Include="ImageUtil.cpp" />
-    <ClCompile Include="KeyboardBackground.cpp" />
-    <ClCompile Include="KeyboardBase.cpp" />
-    <ClCompile Include="KeyboardGlobal.cpp" />
-    <ClCompile Include="DLLInjecter.cpp" />
-    <ClCompile Include="MouseBase.cpp" />
-    <ClCompile Include="MouseBackground.cpp" />
-    <ClCompile Include="MouseGlobal.cpp" />
-    <ClCompile Include="ShareMemory.cpp" />
+    <ClCompile Include="Audio\AudioCapture.cpp" />
+    <ClCompile Include="Audio\AudioRender.cpp" />
+    <ClCompile Include="Audio\AudioUtil.cpp" />
+    <ClCompile Include="Audio\Extend\AudioExtractor.cpp" />
+    <ClCompile Include="Audio\Extend\AudioFingerprint.cpp" />
+    <ClCompile Include="Audio\Extend\AudioFrameStorage.cpp" />
+    <ClCompile Include="Audio\Extend\AudioPainter.cpp" />
+    <ClCompile Include="Audio\Extend\AudioRecorder.cpp" />
+    <ClCompile Include="Audio\Extend\AudioRenderer.cpp" />
+    <ClCompile Include="Image\ImageUtil.cpp" />
+    <ClCompile Include="Image\WindowPrinter.cpp" />
+    <ClCompile Include="Keyboard\KeyboardBackground.cpp" />
+    <ClCompile Include="Keyboard\KeyboardBase.cpp" />
+    <ClCompile Include="Keyboard\KeyboardGlobal.cpp" />
+    <ClCompile Include="Mouse\MouseBackground.cpp" />
+    <ClCompile Include="Mouse\MouseBase.cpp" />
+    <ClCompile Include="Mouse\MouseGlobal.cpp" />
+    <ClCompile Include="Util\DcBuffer.cpp" />
+    <ClCompile Include="Util\DLLInjecter.cpp" />
+    <ClCompile Include="Util\ShareMemory.cpp" />
+    <ClCompile Include="Util\Utility.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Utility.cpp" />
-    <ClCompile Include="WindowPrinter.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

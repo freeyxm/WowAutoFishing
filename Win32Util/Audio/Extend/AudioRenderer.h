@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Win32Util/AudioRender.h"
+#include "Win32Util/Audio/AudioRender.h"
 #include "WaveUtil/WaveFile.h"
 #include "WaveUtil/WaveStreamConverter.h"
 #include "AudioFrameStorage.h"

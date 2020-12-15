@@ -3,7 +3,7 @@
 
 #include "stdafx.h"
 #include <iostream>
-#include <Win32Util/DLLInjecter.h>
+#include <Win32Util/Util/DLLInjecter.h>
 
 void PrintHelp();
 

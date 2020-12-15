@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 #include "MouseBackground.h"
-#include "ShareMemory.h"
-#include "DLLInjecter.h"
+#include "Win32Util/Util/ShareMemory.h"
+#include "Win32Util/Util/DLLInjecter.h"
 #include <Intercepter/CursorIntercepter.h>
 #include <iostream>
 

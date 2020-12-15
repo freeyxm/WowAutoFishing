@@ -1,6 +1,6 @@
 ﻿#include "stdafx.h"
 #include "AudioPainter.h"
-#include "Win32Util/AudioUtil.h"
+#include "Win32Util/Audio/AudioUtil.h"
 
 
 AudioPainter::AudioPainter()

@@ -6,10 +6,10 @@
 #include "FishingSoundListener.h"
 #include "CommUtil/CommUtil.hpp"
 #include "CommUtil/FTimer.h"
-#include "Win32Util/Utility.h"
-#include "Win32Util/MouseBackground.h"
-#include "Win32Util/KeyboardBackground.h"
-#include "Win32Util/ImageUtil.h"
+#include "Win32Util/Util/Utility.h"
+#include "Win32Util/Mouse/MouseBackground.h"
+#include "Win32Util/Keyboard/KeyboardBackground.h"
+#include "Win32Util/Image/ImageUtil.h"
 #include <ctime>
 
 

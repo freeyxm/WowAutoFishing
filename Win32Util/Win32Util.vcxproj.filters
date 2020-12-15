@@ -9,22 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
-    <Filter Include="Mouse">
-      <UniqueIdentifier>{bbac10e7-04db-47e1-86ca-6f402f846778}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Keyboard">
-      <UniqueIdentifier>{d8697780-6a6b-4177-8d80-e3b9807ce090}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Audio">
-      <UniqueIdentifier>{1b0084c7-8f18-48a2-9705-41349c011d75}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Screen">
-      <UniqueIdentifier>{0816473c-0f80-4090-8822-18b960dd5fd3}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -36,49 +20,67 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ImageUtil.h">
+    <ClInclude Include="Util\DcBuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Utility.h">
+    <ClInclude Include="Util\DLLInjecter.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DcBuffer.h">
+    <ClInclude Include="Util\ShareMemory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MouseBase.h">
-      <Filter>Mouse</Filter>
-    </ClInclude>
-    <ClInclude Include="MouseBackground.h">
-      <Filter>Mouse</Filter>
-    </ClInclude>
-    <ClInclude Include="MouseGlobal.h">
-      <Filter>Mouse</Filter>
-    </ClInclude>
-    <ClInclude Include="AudioCapture.h">
-      <Filter>Audio</Filter>
-    </ClInclude>
-    <ClInclude Include="AudioRender.h">
-      <Filter>Audio</Filter>
-    </ClInclude>
-    <ClInclude Include="AudioUtil.h">
-      <Filter>Audio</Filter>
-    </ClInclude>
-    <ClInclude Include="WindowPrinter.h">
-      <Filter>Screen</Filter>
-    </ClInclude>
-    <ClInclude Include="KeyboardBase.h">
-      <Filter>Keyboard</Filter>
-    </ClInclude>
-    <ClInclude Include="KeyboardGlobal.h">
-      <Filter>Keyboard</Filter>
-    </ClInclude>
-    <ClInclude Include="KeyboardBackground.h">
-      <Filter>Keyboard</Filter>
-    </ClInclude>
-    <ClInclude Include="DLLInjecter.h">
+    <ClInclude Include="Util\Utility.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ShareMemory.h">
+    <ClInclude Include="Image\ImageUtil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Image\WindowPrinter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Keyboard\KeyboardBackground.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Keyboard\KeyboardBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Keyboard\KeyboardGlobal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mouse\MouseBackground.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mouse\MouseBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Mouse\MouseGlobal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\AudioCapture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\Extend\AudioExtractor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\Extend\AudioFingerprint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\Extend\AudioFrameStorage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\Extend\AudioPainter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\Extend\AudioRecorder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\AudioRender.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\Extend\AudioRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Audio\AudioUtil.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -86,49 +88,67 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ImageUtil.cpp">
+    <ClCompile Include="Util\DcBuffer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Utility.cpp">
+    <ClCompile Include="Util\DLLInjecter.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DcBuffer.cpp">
+    <ClCompile Include="Util\ShareMemory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MouseBase.cpp">
-      <Filter>Mouse</Filter>
-    </ClCompile>
-    <ClCompile Include="MouseBackground.cpp">
-      <Filter>Mouse</Filter>
-    </ClCompile>
-    <ClCompile Include="MouseGlobal.cpp">
-      <Filter>Mouse</Filter>
-    </ClCompile>
-    <ClCompile Include="AudioCapture.cpp">
-      <Filter>Audio</Filter>
-    </ClCompile>
-    <ClCompile Include="AudioRender.cpp">
-      <Filter>Audio</Filter>
-    </ClCompile>
-    <ClCompile Include="AudioUtil.cpp">
-      <Filter>Audio</Filter>
-    </ClCompile>
-    <ClCompile Include="WindowPrinter.cpp">
-      <Filter>Screen</Filter>
-    </ClCompile>
-    <ClCompile Include="KeyboardBase.cpp">
-      <Filter>Keyboard</Filter>
-    </ClCompile>
-    <ClCompile Include="KeyboardGlobal.cpp">
-      <Filter>Keyboard</Filter>
-    </ClCompile>
-    <ClCompile Include="KeyboardBackground.cpp">
-      <Filter>Keyboard</Filter>
-    </ClCompile>
-    <ClCompile Include="DLLInjecter.cpp">
+    <ClCompile Include="Util\Utility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ShareMemory.cpp">
+    <ClCompile Include="Image\ImageUtil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\Extend\AudioRecorder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\Extend\AudioRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\Extend\AudioExtractor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\Extend\AudioPainter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\Extend\AudioFingerprint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\Extend\AudioFrameStorage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\AudioCapture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\AudioRender.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Audio\AudioUtil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Image\WindowPrinter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Keyboard\KeyboardBackground.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Keyboard\KeyboardBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Keyboard\KeyboardGlobal.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Mouse\MouseBackground.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Mouse\MouseBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Mouse\MouseGlobal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

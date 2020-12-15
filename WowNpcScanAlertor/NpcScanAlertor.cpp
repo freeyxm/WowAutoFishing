@@ -1,8 +1,8 @@
 ﻿#pragma execution_character_set("utf-8")
 #include "stdafx.h"
 #include "NpcScanAlertor.h"
-#include "Win32Util/ImageUtil.h"
-#include "Win32Util/Utility.h"
+#include "Win32Util/Image/ImageUtil.h"
+#include "Win32Util/Util/Utility.h"
 
 
 NpcScanAlertor::NpcScanAlertor(HWND hwnd, AudioRenderer* pAudioPlayer)

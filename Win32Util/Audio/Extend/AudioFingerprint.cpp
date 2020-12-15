@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "AudioFingerprint.h"
-#include "Win32Util/AudioUtil.h"
+#include "Win32Util/Audio/AudioUtil.h"
 #include "CommUtil/VectorUtil.hpp"
 
 using comm_util::VectorUtil;

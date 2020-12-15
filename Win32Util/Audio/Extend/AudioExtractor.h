@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "Win32Util/AudioCapture.h"
+#include "Win32Util/Audio/AudioCapture.h"
 #include "AudioFrameStorage.h"
 #include <process.h>
 #include <list>

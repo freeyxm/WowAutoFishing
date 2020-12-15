@@ -122,7 +122,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>CommUtil.lib;Win32Util.lib;AudioUtil.lib;WaveUtil.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>CommUtil.lib;Win32Util.lib;WaveUtil.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

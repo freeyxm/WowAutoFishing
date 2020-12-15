@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "CursorIntercepter.h"
 #include <Windows.h>
-#include <Win32Util/ShareMemory.h>
+#include "Win32Util/Util/ShareMemory.h"
 #include "detours/include/detours.h"
 
 

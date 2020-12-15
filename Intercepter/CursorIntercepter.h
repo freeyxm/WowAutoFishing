@@ -1,7 +1,7 @@
 #pragma once
 #include "IntercepterBase.h"
+#include "Win32Util/Util/ShareMemory.h"
 #include <Windows.h>
-#include <Win32Util/ShareMemory.h>
 #include <string>
 
 class CursorIntercepter : public IntercepterBase
