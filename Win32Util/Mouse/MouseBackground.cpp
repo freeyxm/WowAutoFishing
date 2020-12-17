@@ -125,14 +125,14 @@ void MouseBackground::SetCursorPos(int x, int y)
 void MouseBackground::ClickLeftButton()
 {
     LPARAM lParam = MAKELPARAM(m_cursor_pos.x, m_cursor_pos.y);
-    ::PostMessage(m_hwnd, WM_LBUTTONDOWN, 0, lParam);
-    ::PostMessage(m_hwnd, WM_LBUTTONUP, 0, lParam);
+    ::PostMessage(m_hwnd, WM_LBUTTONDOWN, MK_LBUTTON, lParam);
+    ::PostMessage(m_hwnd, WM_LBUTTONUP, MK_LBUTTON, lParam);
 }
 
 
 void MouseBackground::ClickRightButton()
 {
     LPARAM lParam = MAKELPARAM(m_cursor_pos.x, m_cursor_pos.y);
-    ::PostMessage(m_hwnd, WM_RBUTTONDOWN, 0, lParam);
-    ::PostMessage(m_hwnd, WM_RBUTTONUP, 0, lParam);
+    ::PostMessage(m_hwnd, WM_RBUTTONDOWN, MK_RBUTTON, lParam);
+    ::PostMessage(m_hwnd, WM_RBUTTONUP, MK_RBUTTON, lParam);
 }
