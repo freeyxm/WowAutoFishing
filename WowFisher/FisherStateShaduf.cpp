@@ -17,7 +17,7 @@ FisherStateShaduf::~FisherStateShaduf()
 void FisherStateShaduf::OnEnter(void* param)
 {
     m_fisher->Shaduf();
-    m_timer = 0;
+    m_timer = 500;
 }
 
 void FisherStateShaduf::OnLeave(void* param)

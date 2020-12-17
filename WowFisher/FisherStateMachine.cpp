@@ -9,6 +9,7 @@
 #include "FisherStateThrowPole.h"
 #include "FisherStateWaitBite.h"
 #include "FisherStateWaitFloatHide.h"
+#include "FisherStateJump.h"
 #include "Fisher.h"
 
 
@@ -31,6 +32,7 @@ void FisherStateMachine::Init()
     AddState(CreateState(FisherStateType::FisherState_WaitBite));
     AddState(CreateState(FisherStateType::FisherState_Shaduf));
     AddState(CreateState(FisherStateType::FisherState_WaitFloatHide));
+    AddState(CreateState(FisherStateType::FisherState_Jump));
 }
 
 FisherStateBase* FisherStateMachine::CreateState(FisherStateType state_type)
@@ -52,6 +54,8 @@ FisherStateBase* FisherStateMachine::CreateState(FisherStateType state_type)
         return new FisherStateShaduf(state_type, m_fisher);
     case FisherState_WaitFloatHide:
         return new FisherStateWaitFloatHide(state_type, m_fisher);
+    case FisherState_Jump:
+        return new FisherStateJump(state_type, m_fisher);
     default:
         return new FisherStateBase(state_type, m_fisher);
         break;

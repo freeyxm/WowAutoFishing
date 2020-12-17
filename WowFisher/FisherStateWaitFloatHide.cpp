@@ -29,7 +29,14 @@ void FisherStateWaitFloatHide::Update(int dt)
 
     if (m_timer <= 0)
     {
-        m_fisher->TurnEnd();
-        m_fisher->GetStateMachine().GotoState(FisherStateType::FisherState_Start);
+        if (m_fisher->NeedJump())
+        {
+            m_fisher->GetStateMachine().GotoState(FisherStateType::FisherState_Jump);
+        }
+        else
+        {
+            m_fisher->TurnEnd();
+            m_fisher->GetStateMachine().GotoState(FisherStateType::FisherState_Start);
+        }
     }
 }

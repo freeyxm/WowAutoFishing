@@ -7,7 +7,7 @@
 #include "CommUtil/CommUtil.hpp"
 #include "CommUtil/FTimer.h"
 #include "Win32Util/Util/Utility.h"
-#include "Win32Util/Mouse/MouseBackground.h"
+#include "Win32Util/Mouse/MouseGlobal.h"
 #include "Win32Util/Keyboard/KeyboardBackground.h"
 #include "Win32Util/Image/ImageUtil.h"
 #include <ctime>
@@ -30,11 +30,12 @@ Fisher::Fisher(HWND hwnd, int x, int y, int w, int h)
     , m_hThreadFishing(NULL)
 {
     m_throwCount = m_timeoutCount = m_findFloatFailCount = 0;
+    m_jumpTime = 0;
     m_baitTime = 0;
     m_state_machine = new FisherStateMachine(this);
     m_sound = new FishingSoundListener(this);
     m_keyboard = new KeyboardBackground(m_hWndWOW);
-    m_mouse = new MouseBackground(m_hWndWOW);
+    m_mouse = new MouseGlobal();
 }
 
 Fisher::~Fisher()
@@ -310,6 +311,20 @@ bool Fisher::Shaduf()
     m_mouse->ClickRightButton();
 
     return res;
+}
+
+
+void Fisher::Jump()
+{
+    m_jumpTime = time(NULL);
+    m_keyboard->PressKey(VK_SPACE);
+}
+
+bool Fisher::NeedJump() const
+{
+    time_t now = time(NULL);
+    bool jump = (now >= m_jumpTime + 10 * 60);
+    return jump;
 }
 
 void Fisher::TurnEnd()

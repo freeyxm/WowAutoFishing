@@ -8,8 +8,8 @@
 const int MAX_BAIT_TIME = 10 * 60; // 鱼饵持续时间，单位秒
 const int MAX_BITE_TIME = 23; // 最长等待咬钩时间，单位秒
 
-class MouseBackground;
-class KeyboardBackground;
+class MouseBase;
+class KeyboardBase;
 class FishingSoundListener;
 class FisherStateMachine;
 
@@ -23,6 +23,7 @@ class Fisher
     friend class FisherStateWaitBite;
     friend class FisherStateShaduf;
     friend class FisherStateWaitFloatHide;
+    friend class FisherStateJump;
 public:
     Fisher(HWND hwnd, int x, int y, int w, int h);
     ~Fisher();
@@ -69,6 +70,8 @@ private:
     void StopListenBite();
     bool HasBite() const;
     bool Shaduf();
+    void Jump();
+    bool NeedJump() const;
     void TurnEnd();
 
     void PrintStatus(LPCWSTR msg);
@@ -77,6 +80,7 @@ private:
     HWND m_hWndWOW; // 魔兽世界窗口句柄
     HWND m_hWndMain;
 
+    time_t m_jumpTime; // 跳跃时间
     time_t m_baitTime; // 上饵时间
     bool m_bHasBite; // 是否已咬钩
     POINT m_floatPoint;
@@ -92,8 +96,8 @@ private:
 
     std::list<POINT> m_points;
 
-    MouseBackground* m_mouse;
-    KeyboardBackground* m_keyboard;
+    MouseBase* m_mouse;
+    KeyboardBase* m_keyboard;
     FishingSoundListener* m_sound;
     FisherStateMachine* m_state_machine;
 

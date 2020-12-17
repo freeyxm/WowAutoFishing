@@ -10,4 +10,5 @@ enum FisherStateType
     FisherState_WaitBite, // 等待咬钩
     FisherState_Shaduf, // 提竿
     FisherState_WaitFloatHide, // 等待浮标消失
+    FisherState_Jump, // 跳跃
 };
