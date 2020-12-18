@@ -118,7 +118,7 @@ void FishingSoundListener::AddSample(const char *str, int hit)
 		while (it != m_samples.end())
 		{
 			float cosa = VectorUtil::getCosA_First(&it->sample[0], it->sample.size(), &data[0], data.size());
-			if (cosa >= 0.9f)
+			if (cosa >= 0.95f)
 			{
 				it->hit += hit;
 				return;
@@ -132,7 +132,7 @@ void FishingSoundListener::AddSample(const char *str, int hit)
 
 bool FishingSoundListener::IsSampleMatch(const std::vector<float> &data)
 {
-	//printf("sound: %zu\n", data.size());
+	printf("sound: %zu\n", data.size());
 	if (data.empty())
 		return false;
 
@@ -140,20 +140,20 @@ bool FishingSoundListener::IsSampleMatch(const std::vector<float> &data)
 	while (it != m_samples.end())
 	{
 		float cosa = VectorUtil::getCosA_First(&it->sample[0], it->sample.size(), &data[0], data.size());
-		//printf("cosa = %f\n", cosa);
-		if (cosa >= 0.9f)
+		printf("cosa = %f\n", cosa);
+		if (cosa >= 0.88f)
 		{
 			it->hit++;
 			if (++m_sampleCount % 2 == 0)
 			{
 				SaveSamples();
 			}
-			//printf("matched!\n");
+			printf("matched!\n");
 			return true;
 		}
 		++it;
 	}
-	//printf("not matched!\n");
+	printf("not matched!\n");
 	return false;
 }
 
