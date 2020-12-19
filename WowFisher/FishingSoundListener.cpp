@@ -5,11 +5,8 @@
 #include "CommUtil/StringUtil.hpp"
 #include "CommUtil/VectorUtil.hpp"
 #include <functiondiscoverykeys.h>
-#include <cstdio>
-#include <cstring>
 #include <ctime>
 #include <map>
-#include <fstream>
 
 using namespace std;
 using namespace comm_util;
@@ -18,26 +15,24 @@ using namespace comm_util;
 #define SAMPLE_FILE "fishing sample.txt"
 
 FishingSoundListener::FishingSoundListener(Fisher* pFisher)
-    : AudioExtractor(true, true)
-    , m_pwfx(NULL)
-    , m_pFisher(pFisher)
-    , m_pSampleFile(NULL)
-    , m_sampleCount(0)
+	: AudioExtractor(true, true)
+	, m_pwfx(NULL)
+	, m_pFisher(pFisher)
+	, m_sampleCount(0)
 {
 }
 
 FishingSoundListener::~FishingSoundListener()
 {
-	if (m_pSampleFile != NULL)
+	if (m_sampleFile.is_open())
 	{
-		::fclose(m_pSampleFile);
-		m_pSampleFile = NULL;
+		m_sampleFile.close();
 	}
 }
 
 int FishingSoundListener::Init()
 {
-	if (m_pSampleFile == NULL)
+	if (!m_sampleFile.is_open())
 	{
 		char buf[128];
 		time_t t = ::time(NULL);
@@ -45,8 +40,8 @@ int FishingSoundListener::Init()
 		::localtime_s(&ti, &t);
 		::sprintf_s(buf, "fishing sample %04d-%02d-%02d %02d.%02d.%02d.txt", (ti.tm_year + 1900), (ti.tm_mon + 1), ti.tm_mday, ti.tm_hour, ti.tm_min, ti.tm_sec);
 
-		int ret = ::fopen_s(&m_pSampleFile, buf, "a+");
-		if (ret != 0)
+		m_sampleFile.open(buf, ios::app | ios::out);
+		if (!m_sampleFile.is_open())
 		{
 			printf("Can't open file: %s\n", buf);
 		}
@@ -83,14 +78,14 @@ void FishingSoundListener::EndSegment()
 
 	bool isMatch = IsSampleMatch(sample);
 
-	if (m_pSampleFile != NULL && !isMatch)
+	if (m_sampleFile.is_open() && !isMatch)
 	{
-		SaveSample(sample, 0, m_pSampleFile);
+		SaveSample(sample, 0, m_sampleFile);
 	}
 
 	if (isMatch)
 	{
-        m_pFisher->NotifyBite();
+		m_pFisher->NotifyBite();
 	}
 }
 
@@ -107,6 +102,11 @@ void FishingSoundListener::SetAmpL(float ampL)
 void FishingSoundListener::SetAmpH(float ampH)
 {
 	m_sAmpZcr.ampH = ampH;
+}
+
+void FishingSoundListener::Save()
+{
+	SaveSamples();
 }
 
 void FishingSoundListener::AddSample(const char *str, int hit)
@@ -144,10 +144,6 @@ bool FishingSoundListener::IsSampleMatch(const std::vector<float> &data)
 		if (cosa >= 0.88f)
 		{
 			it->hit++;
-			if (++m_sampleCount % 2 == 0)
-			{
-				SaveSamples();
-			}
 			printf("matched!\n");
 			return true;
 		}
@@ -171,10 +167,6 @@ bool FishingSoundListener::IsSampleMatchDtw(const std::vector<float> &data)
 		if (dtw < 0.1f)
 		{
 			it->hit++;
-			if (++m_sampleCount % 2 == 0)
-			{
-				SaveSamples();
-			}
 			//printf("matched!\n");
 			return true;
 		}
@@ -207,7 +199,7 @@ void FishingSoundListener::LoadSamples()
 		}
 		file.close();
 	}
-	SortSamples();
+
 	SaveSamples();
 }
 
@@ -246,20 +238,6 @@ void FishingSoundListener::SaveSample(const std::vector<float> &sample, int hit,
 		file << *it++;
 	}
 	file << endl << endl;
-}
-
-void FishingSoundListener::SaveSample(const std::vector<float> &sample, int hit, FILE *file)
-{
-	fprintf(file, "#size = %zu\n", sample.size());
-	for (size_t i = 0; i < sample.size(); ++i)
-	{
-		if (i > 0)
-			fprintf(file, ",%.3f", sample[i]);
-		else
-			fprintf(file, "%.3f", sample[i]);
-	}
-	fprintf(file, "\n\n");
-	::fflush(file);
 }
 
 void FishingSoundListener::SortSamples()

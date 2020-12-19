@@ -140,6 +140,8 @@ void Fisher::Stop()
         CloseHandle(m_hThreadFishing);
         m_hThreadFishing = NULL;
     }
+
+	m_sound->Save();
 }
 
 static UINT __stdcall FishingTheadProc(LPVOID param)

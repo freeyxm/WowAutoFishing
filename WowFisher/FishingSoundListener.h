@@ -27,12 +27,13 @@ public:
 	void SetAmpL(float ampL);
 	void SetAmpH(float ampH);
 
+	void Save();
+
 protected:
 	virtual void EndSegment();
 
 	void AddSample(const char *str, int hit = 0);
 	void SaveSample(const std::vector<float> &sample, int hit, std::ofstream &file);
-	void SaveSample(const std::vector<float> &sample, int hit, FILE *file);
 	void LoadSamples();
 	void SaveSamples();
 	void SortSamples();
@@ -42,7 +43,7 @@ protected:
 private:
 	const WAVEFORMATEX *m_pwfx;
 	Fisher *m_pFisher;
-	FILE *m_pSampleFile;
+	std::ofstream m_sampleFile;
 
 	std::list<SampleInfo> m_samples;
 	int m_sampleCount;
