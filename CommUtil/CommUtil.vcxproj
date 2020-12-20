@@ -134,6 +134,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DTW.h" />
     <ClInclude Include="endian.h" />
     <ClInclude Include="CommUtil.hpp" />
     <ClInclude Include="FTimer.h" />
@@ -146,6 +147,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CommUtil.cpp" />
+    <ClCompile Include="DTW.hpp" />
     <ClCompile Include="FTimer.cpp" />
     <ClCompile Include="ImageUtil.cpp" />
     <ClCompile Include="Logger.cpp" />
