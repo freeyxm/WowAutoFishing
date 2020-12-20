@@ -12,7 +12,7 @@ using namespace std;
 using namespace comm_util;
 
 #define CFG_HIT "#hit = "
-#define SAMPLE_FILE "fishing sample.txt"
+#define SAMPLE_FILE "config/fishing sample.txt"
 
 FishingSoundListener::FishingSoundListener(Fisher* pFisher)
 	: AudioExtractor(true, true)
@@ -38,7 +38,7 @@ int FishingSoundListener::Init()
 		time_t t = ::time(NULL);
 		struct tm ti;
 		::localtime_s(&ti, &t);
-		::sprintf_s(buf, "fishing sample %04d-%02d-%02d %02d.%02d.%02d.txt", (ti.tm_year + 1900), (ti.tm_mon + 1), ti.tm_mday, ti.tm_hour, ti.tm_min, ti.tm_sec);
+		::sprintf_s(buf, "config/fishing sample %04d-%02d-%02d %02d.%02d.%02d.txt", (ti.tm_year + 1900), (ti.tm_mon + 1), ti.tm_mday, ti.tm_hour, ti.tm_min, ti.tm_sec);
 
 		m_sampleFile.open(buf, ios::app | ios::out);
 		if (!m_sampleFile.is_open())

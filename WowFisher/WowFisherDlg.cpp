@@ -17,7 +17,7 @@
 #endif
 
 #define CONFIG_APP  L"Fisher"
-#define CONFIG_FILE L".//Fisher.ini"
+#define CONFIG_FILE L".//config/Fisher.ini"
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
