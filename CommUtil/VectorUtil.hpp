@@ -30,9 +30,6 @@ public:
 	static Numeric getAvg(const Numeric *vec, const size_t length);
 
 	template <typename Numeric>
-	static Numeric getDTW(const Numeric *v1, const size_t len1, const Numeric *v2, const size_t len2);
-
-	template <typename Numeric>
 	static void Add(Numeric *v1, const size_t length, Numeric num);
 	template <typename Numeric>
 	static void Add(Numeric *v1, const Numeric *v2, const size_t length);
@@ -200,51 +197,6 @@ Numeric VectorUtil::getAvg(const Numeric *vec, const size_t length)
 		avg /= length;
 	}
 	return avg;
-}
-
-template <typename Numeric>
-Numeric VectorUtil::getDTW(const Numeric *v1, const size_t len1, const Numeric *v2, const size_t len2)
-{
-	std::unique_ptr<Numeric[]> dp(new Numeric[len1*len2]);
-	Numeric *d = dp.get();
-
-	// ÷°∆•≈‰æ‡¿Îæÿ’Û
-	for (size_t i = 0; i < len1; i++)
-	{
-		const size_t ii = i * len2;
-		for (size_t j = 0; j < len2; j++)
-		{
-			d[ii + j] = ::abs(v1[i] - v2[j]);
-		}
-	}
-
-	// ¿€ª˝æ‡¿Îæÿ’Û
-	for (size_t i = 1; i < len1; i++)
-	{
-		const size_t ii = i * len2;
-		const size_t ii_1 = (i - 1) * len2;
-		d[ii] += d[ii_1];
-	}
-	for (size_t j = 1; j < len2; j++)
-	{
-		d[j] += d[j - 1];
-	}
-	Numeric d1, d2, d3;
-	for (size_t i = 1; i < len1; i++)
-	{
-		const size_t ii = i * len2;
-		const size_t ii_1 = (i - 1) * len2;
-		for (size_t j = 1; j < len2; j++)
-		{
-			const size_t j_1 = j - 1;
-			d1 = d[ii_1 + j];
-			d2 = d[ii_1 + j_1];
-			d3 = d[ii + j_1];
-			d[ii + j] += min(d1, d2, d3);
-		}
-	}
-
-	return d[len1*len2 - 1];
 }
 
 template <typename Numeric>
