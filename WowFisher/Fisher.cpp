@@ -141,6 +141,7 @@ void Fisher::Stop()
         m_hThreadFishing = NULL;
     }
 
+    m_sound->Stop();
 	m_sound->Save();
 }
 
