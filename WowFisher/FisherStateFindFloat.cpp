@@ -40,7 +40,8 @@ void FisherStateFindFloat::Update(int dt)
         m_has_find_float = m_fisher->FindFloat();
         if (!m_has_find_float)
         {
-            m_timer = 1500; // 寻找鱼漂失败，等现鱼漂消失再重新抛竿。
+            m_fisher->Jump();
+            m_timer = 2000; // 寻找鱼漂失败，等现鱼漂消失再重新抛竿。
         }
         else
         {
