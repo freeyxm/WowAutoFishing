@@ -226,6 +226,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Fisher.h" />
+    <ClInclude Include="FisherConfig.h" />
     <ClInclude Include="FisherStateBait.h" />
     <ClInclude Include="FisherStateBase.h" />
     <ClInclude Include="FisherStateCheckBait.h" />
@@ -246,6 +247,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Fisher.cpp" />
+    <ClCompile Include="FisherConfig.cpp" />
     <ClCompile Include="FisherStateBait.cpp" />
     <ClCompile Include="FisherStateBase.cpp" />
     <ClCompile Include="FisherStateCheckBait.cpp" />

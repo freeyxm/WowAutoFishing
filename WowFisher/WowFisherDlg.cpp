@@ -16,7 +16,6 @@
 #define new DEBUG_NEW
 #endif
 
-#define CONFIG_APP  L"Fisher"
 #define CONFIG_FILE L".//config/Fisher.ini"
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
@@ -76,19 +75,7 @@ CWowFisherDlg::CWowFisherDlg(CWnd* pParent /*=NULL*/)
     , m_pCbConsole(NULL)
     , m_bStart(false)
     , m_pFisher(NULL)
-    , m_hotkeyThrow(0)
-    , m_hotkeyBite1(0)
-    , m_hotkeyBite2(0)
-    , m_hotkeyBite3(0)
-    , m_nAmpMax(0)
-    , m_nAmpL(0)
-    , m_nAmpH(0)
-    , m_nSilentMaxCount(0)
-    , m_nSoundMinCount(0)
-    , m_nThrowCount(0)
-    , m_nTimeoutCount(0)
-    , m_nFloatCount(0)
-    , m_bShowConsole(0)
+    , m_config(CONFIG_FILE)
 {
     m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -212,99 +199,59 @@ afx_msg void CWowFisherDlg::OnDestroy()
     SaveConfig();
 }
 
-static void WritePrivateProfileInt(LPCWSTR key, int value)
-{
-    WCHAR buf[20];
-    wsprintf(buf, L"%d", value);
-    WritePrivateProfileString(CONFIG_APP, key, buf, CONFIG_FILE);
-}
-
 bool CWowFisherDlg::LoadConfig()
 {
-    m_nAmpMax = GetPrivateProfileInt(CONFIG_APP, L"AmpMax", 10, CONFIG_FILE);
-    m_nAmpH = GetPrivateProfileInt(CONFIG_APP, L"AmpH", 200, CONFIG_FILE);
-    m_nAmpL = GetPrivateProfileInt(CONFIG_APP, L"AmpL", 5, CONFIG_FILE);
-
-    m_hotkeyThrow = GetPrivateProfileInt(CONFIG_APP, L"HotkeyThrow", 0x31, CONFIG_FILE);
-    m_hotkeyBite1 = GetPrivateProfileInt(CONFIG_APP, L"HotkeyBite1", 0x33, CONFIG_FILE);
-    m_hotkeyBite2 = GetPrivateProfileInt(CONFIG_APP, L"HotkeyBite2", 0x34, CONFIG_FILE);
-    m_hotkeyBite3 = GetPrivateProfileInt(CONFIG_APP, L"HotkeyBite3", 0x35, CONFIG_FILE);
-
-    m_nSilentMaxCount = GetPrivateProfileInt(CONFIG_APP, L"SilentMaxCount", 10, CONFIG_FILE);
-    m_nSoundMinCount = GetPrivateProfileInt(CONFIG_APP, L"SoundMinCount", 20, CONFIG_FILE);
-
-    m_bShowConsole = GetPrivateProfileInt(CONFIG_APP, L"ShowConsole", 0, CONFIG_FILE);
-
-    m_nThrowCount = GetPrivateProfileInt(CONFIG_APP, L"ThrowCount", 0, CONFIG_FILE);
-    m_nTimeoutCount = GetPrivateProfileInt(CONFIG_APP, L"TimeoutCount", 0, CONFIG_FILE);
-    m_nFloatCount = GetPrivateProfileInt(CONFIG_APP, L"FloatCount", 0, CONFIG_FILE);
-
-    return true;
+    return m_config.LoadConfig();
 }
 
 void CWowFisherDlg::SaveConfig()
 {
-    WritePrivateProfileInt(L"AmpMax", m_nAmpMax);
-    WritePrivateProfileInt(L"AmpH", m_nAmpH);
-    WritePrivateProfileInt(L"AmpL", m_nAmpL);
-
-    m_hotkeyThrow = m_pHotKeyFishing->GetHotKey();
-    m_hotkeyBite1 = m_pHotKeyBite1->GetHotKey();
-    m_hotkeyBite2 = m_pHotKeyBite2->GetHotKey();
-    m_hotkeyBite3 = m_pHotKeyBite3->GetHotKey();
-
-    WritePrivateProfileInt(L"HotkeyThrow", m_hotkeyThrow);
-    WritePrivateProfileInt(L"HotkeyBite1", m_hotkeyBite1);
-    WritePrivateProfileInt(L"HotkeyBite2", m_hotkeyBite2);
-    WritePrivateProfileInt(L"HotkeyBite3", m_hotkeyBite3);
+    m_config.m_hotkeyThrow = m_pHotKeyFishing->GetHotKey();
+    m_config.m_hotkeyBite1 = m_pHotKeyBite1->GetHotKey();
+    m_config.m_hotkeyBite2 = m_pHotKeyBite2->GetHotKey();
+    m_config.m_hotkeyBite3 = m_pHotKeyBite3->GetHotKey();
 
     CString str;
     m_pEditSilentMax->GetWindowTextW(str);
-    m_nSilentMaxCount = _ttoi(str);
+    m_config.m_nSilentMaxCount = _ttoi(str);
     m_pEditSoundMin->GetWindowTextW(str);
-    m_nSoundMinCount = _ttoi(str);
+    m_config.m_nSoundMinCount = _ttoi(str);
 
-    WritePrivateProfileInt(L"SilentMaxCount", m_nSilentMaxCount);
-    WritePrivateProfileInt(L"SoundMinCount", m_nSoundMinCount);
+    m_config.m_bShowConsole = m_pCbConsole->GetCheck();
 
-    m_bShowConsole = m_pCbConsole->GetCheck();
-    WritePrivateProfileInt(L"ShowConsole", m_bShowConsole);
-
-    WritePrivateProfileInt(L"ThrowCount", m_nThrowCount);
-    WritePrivateProfileInt(L"TimeoutCount", m_nTimeoutCount);
-    WritePrivateProfileInt(L"FloatCount", m_nFloatCount);
+    m_config.SaveConfig();
 }
 
 void CWowFisherDlg::ApplyConfig()
 {
-    UpdateAmpMax(m_nAmpMax);
+    UpdateAmpMax(m_config.m_nAmpMax);
 
-    m_pHotKeyFishing->SetHotKey(m_hotkeyThrow & 0xff, (m_hotkeyThrow >> 8) & 0xff);
-    m_pHotKeyBite1->SetHotKey(m_hotkeyBite1 & 0xff, (m_hotkeyBite1 >> 8) & 0xff);
-    m_pHotKeyBite2->SetHotKey(m_hotkeyBite2 & 0xff, (m_hotkeyBite2 >> 8) & 0xff);
-    m_pHotKeyBite3->SetHotKey(m_hotkeyBite3 & 0xff, (m_hotkeyBite3 >> 8) & 0xff);
+    m_pHotKeyFishing->SetHotKey(m_config.m_hotkeyThrow & 0xff, (m_config.m_hotkeyThrow >> 8) & 0xff);
+    m_pHotKeyBite1->SetHotKey(m_config.m_hotkeyBite1 & 0xff, (m_config.m_hotkeyBite1 >> 8) & 0xff);
+    m_pHotKeyBite2->SetHotKey(m_config.m_hotkeyBite2 & 0xff, (m_config.m_hotkeyBite2 >> 8) & 0xff);
+    m_pHotKeyBite3->SetHotKey(m_config.m_hotkeyBite3 & 0xff, (m_config.m_hotkeyBite3 >> 8) & 0xff);
 
     CString str;
-    str.Format(L"%d", m_nSilentMaxCount);
+    str.Format(L"%d", m_config.m_nSilentMaxCount);
     m_pEditSilentMax->SetWindowTextW(str);
-    str.Format(L"%d", m_nSoundMinCount);
+    str.Format(L"%d", m_config.m_nSoundMinCount);
     m_pEditSoundMin->SetWindowTextW(str);
 
-    m_pCbConsole->SetCheck(m_bShowConsole);
+    m_pCbConsole->SetCheck(m_config.m_bShowConsole);
 
     if (m_pFisher != NULL)
     {
-        m_pFisher->SetAmpL(m_nAmpL / 100.0f);
-        m_pFisher->SetAmpH(m_nAmpH / 100.0f);
-        m_pFisher->SetSilentMax(m_nSilentMaxCount);
-        m_pFisher->SetSoundMin(m_nSoundMinCount);
-        m_pFisher->SetHotkeyThrow(m_hotkeyThrow);
-        m_pFisher->SetHotkeyBite1(m_hotkeyBite1);
-        m_pFisher->SetHotkeyBite2(m_hotkeyBite2);
-        m_pFisher->SetHotkeyBite3(m_hotkeyBite3);
-        m_pFisher->SetThrowCount(m_nThrowCount);
-        m_pFisher->SetTimeoutCount(m_nTimeoutCount);
-        m_pFisher->SetFindFloatFailCount(m_nFloatCount);
+        m_pFisher->SetAmpL(m_config.m_nAmpL / 100.0f);
+        m_pFisher->SetAmpH(m_config.m_nAmpH / 100.0f);
+        m_pFisher->SetSilentMax(m_config.m_nSilentMaxCount);
+        m_pFisher->SetSoundMin(m_config.m_nSoundMinCount);
+        m_pFisher->SetHotkeyThrow(m_config.m_hotkeyThrow);
+        m_pFisher->SetHotkeyBite1(m_config.m_hotkeyBite1);
+        m_pFisher->SetHotkeyBite2(m_config.m_hotkeyBite2);
+        m_pFisher->SetHotkeyBite3(m_config.m_hotkeyBite3);
+        m_pFisher->SetThrowCount(m_config.m_nThrowCount);
+        m_pFisher->SetTimeoutCount(m_config.m_nTimeoutCount);
+        m_pFisher->SetFindFloatFailCount(m_config.m_nFloatCount);
     }
 }
 
@@ -360,7 +307,7 @@ bool CWowFisherDlg::Init()
         return false;
     }
 
-    if (m_bShowConsole != 0)
+    if (m_config.m_bShowConsole != 0)
     {
         OpenConsole();
     }
@@ -414,19 +361,19 @@ void CWowFisherDlg::UpdateAmpMax(int max)
 {
     m_pSliderAmpL->SetRange(0, max * 100);
     m_pSliderAmpH->SetRange(0, max * 100);
-    m_pSliderAmpL->SetPos(m_nAmpL * max / m_nAmpMax);
-    m_pSliderAmpH->SetPos(m_nAmpH * max / m_nAmpMax);
+    m_pSliderAmpL->SetPos(m_config.m_nAmpL * max / m_config.m_nAmpMax);
+    m_pSliderAmpH->SetPos(m_config.m_nAmpH * max / m_config.m_nAmpMax);
 
-    m_nAmpMax = max;
+    m_config.m_nAmpMax = max;
 
-    UpdateAmpText(m_pTxtAmpL, m_nAmpL, m_pSliderAmpL->GetRangeMax());
-    UpdateAmpText(m_pTxtAmpH, m_nAmpH, m_pSliderAmpH->GetRangeMax());
+    UpdateAmpText(m_pTxtAmpL, m_config.m_nAmpL, m_pSliderAmpL->GetRangeMax());
+    UpdateAmpText(m_pTxtAmpH, m_config.m_nAmpH, m_pSliderAmpH->GetRangeMax());
 }
 
-void CWowFisherDlg::UpdateAmpText(CStatic *pStatic, int value, int max)
+void CWowFisherDlg::UpdateAmpText(CStatic* pStatic, int value, int max)
 {
     CString str;
-    str.Format(L"%.2lf/%.2lf", (double)value * m_nAmpMax / max, (double)m_nAmpMax);
+    str.Format(L"%.2lf/%.2lf", (double)value * m_config.m_nAmpMax / max, (double)m_config.m_nAmpMax);
     pStatic->SetWindowTextW(str);
 }
 
@@ -435,7 +382,7 @@ void CWowFisherDlg::OpenConsole()
     ::setlocale(LC_CTYPE, "");
     if (::AllocConsole())
     {
-        FILE *file;
+        FILE* file;
         if (::freopen_s(&file, "CONOUT$", "w", stdout) == 0 && file)
         {
             *stdout = *file;
@@ -456,19 +403,19 @@ LRESULT CWowFisherDlg::OnUpdateStatistics(WPARAM wParam, LPARAM lParam)
 {
     if (m_pFisher != NULL)
     {
-        m_nThrowCount = m_pFisher->GetThrowCount();
-        m_nTimeoutCount = m_pFisher->GetTimeoutCount();
-        m_nFloatCount = m_pFisher->GetFindFloatFailCount();
+        m_config.m_nThrowCount = m_pFisher->GetThrowCount();
+        m_config.m_nTimeoutCount = m_pFisher->GetTimeoutCount();
+        m_config.m_nFloatCount = m_pFisher->GetFindFloatFailCount();
     }
 
     CString str;
-    str.Format(L"%d", m_nThrowCount);
+    str.Format(L"%d", m_config.m_nThrowCount);
     m_pTxtThrowCount->SetWindowTextW(str);
 
-    str.Format(L"%d", m_nTimeoutCount);
+    str.Format(L"%d", m_config.m_nTimeoutCount);
     m_pTxtTimeoutCount->SetWindowTextW(str);
 
-    str.Format(L"%d", m_nFloatCount);
+    str.Format(L"%d", m_config.m_nFloatCount);
     m_pTxtFloatCount->SetWindowTextW(str);
 
     return 0;
@@ -540,13 +487,13 @@ void CWowFisherDlg::OnBnClickedButtonStart()
     }
 }
 
-void CWowFisherDlg::OnNMCustomdrawSliderAmpL(NMHDR *pNMHDR, LRESULT *pResult)
+void CWowFisherDlg::OnNMCustomdrawSliderAmpL(NMHDR* pNMHDR, LRESULT* pResult)
 {
     LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
     // TODO: Add your control notification handler code here
 
     int pos = m_pSliderAmpL->GetPos();
-    if (pos != m_nAmpL)
+    if (pos != m_config.m_nAmpL)
     {
         //if (pos > m_nAmpH)
         //{
@@ -554,11 +501,11 @@ void CWowFisherDlg::OnNMCustomdrawSliderAmpL(NMHDR *pNMHDR, LRESULT *pResult)
         //}
         //else
         {
-            m_nAmpL = pos;
-            UpdateAmpText(m_pTxtAmpL, m_nAmpL, m_pSliderAmpL->GetRangeMax());
+            m_config.m_nAmpL = pos;
+            UpdateAmpText(m_pTxtAmpL, m_config.m_nAmpL, m_pSliderAmpL->GetRangeMax());
             if (m_pFisher != NULL)
             {
-                m_pFisher->SetAmpL(m_nAmpL * m_nAmpMax / 100.0f);
+                m_pFisher->SetAmpL(m_config.m_nAmpL * m_config.m_nAmpMax / 100.0f);
             }
         }
     }
@@ -566,7 +513,7 @@ void CWowFisherDlg::OnNMCustomdrawSliderAmpL(NMHDR *pNMHDR, LRESULT *pResult)
     *pResult = 0;
 }
 
-void CWowFisherDlg::OnNMCustomdrawSliderAmpH(NMHDR *pNMHDR, LRESULT *pResult)
+void CWowFisherDlg::OnNMCustomdrawSliderAmpH(NMHDR* pNMHDR, LRESULT* pResult)
 {
     LPNMCUSTOMDRAW pNMCD = reinterpret_cast<LPNMCUSTOMDRAW>(pNMHDR);
     // TODO: Add your control notification handler code here
@@ -581,13 +528,13 @@ void CWowFisherDlg::OnNMCustomdrawSliderAmpH(NMHDR *pNMHDR, LRESULT *pResult)
     //	UpdateAmpMax(m_nAmpMax / 10);
     //}
     //else 
-    if (pos != m_nAmpH)
+    if (pos != m_config.m_nAmpH)
     {
-        m_nAmpH = pos;
-        UpdateAmpText(m_pTxtAmpH, m_nAmpH, m_pSliderAmpH->GetRangeMax());
+        m_config.m_nAmpH = pos;
+        UpdateAmpText(m_pTxtAmpH, m_config.m_nAmpH, m_pSliderAmpH->GetRangeMax());
         if (m_pFisher != NULL)
         {
-            m_pFisher->SetAmpH((float)m_nAmpH * m_nAmpMax / m_pSliderAmpH->GetRangeMax());
+            m_pFisher->SetAmpH((float)m_config.m_nAmpH * m_config.m_nAmpMax / m_pSliderAmpH->GetRangeMax());
         }
     }
 
@@ -607,10 +554,10 @@ void CWowFisherDlg::OnBnClickedButtonReset()
 {
     if (m_pFisher != NULL)
     {
-        m_nThrowCount = m_nFloatCount = m_nTimeoutCount = 0;
-        m_pFisher->SetThrowCount(m_nThrowCount);
-        m_pFisher->SetFindFloatFailCount(m_nFloatCount);
-        m_pFisher->SetTimeoutCount(m_nTimeoutCount);
+        m_config.m_nThrowCount = m_config.m_nFloatCount = m_config.m_nTimeoutCount = 0;
+        m_pFisher->SetThrowCount(m_config.m_nThrowCount);
+        m_pFisher->SetFindFloatFailCount(m_config.m_nFloatCount);
+        m_pFisher->SetTimeoutCount(m_config.m_nTimeoutCount);
     }
     OnUpdateStatistics(0, 0);
 }
@@ -618,12 +565,12 @@ void CWowFisherDlg::OnBnClickedButtonReset()
 
 void CWowFisherDlg::OnBnClickedCheckConsole()
 {
-    m_bShowConsole = m_pCbConsole->GetCheck();
-    if (m_bShowConsole == 0)
+    m_config.m_bShowConsole = m_pCbConsole->GetCheck();
+    if (m_config.m_bShowConsole == 0)
     {
         CloseConsole();
     }
-    else if (m_bShowConsole == 1)
+    else if (m_config.m_bShowConsole == 1)
     {
         OpenConsole();
     }

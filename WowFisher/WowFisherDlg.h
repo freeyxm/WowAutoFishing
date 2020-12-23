@@ -6,6 +6,7 @@
 #include <list>
 #include "resource.h"
 #include "Fisher.h"
+#include "FisherConfig.h"
 
 #define WMU_UPDATE_STATISTICS (WM_USER + 100)
 #define WMU_UPDATE_STATUS     (WM_USER + 101)
@@ -77,23 +78,7 @@ protected:
 
     bool m_bStart;
     Fisher* m_pFisher;
-
-    int m_nAmpMax;
-    int m_nAmpL;
-    int m_nAmpH;
-    int m_nSilentMaxCount;
-    int m_nSoundMinCount;
-
-    int m_nThrowCount;
-    int m_nTimeoutCount;
-    int m_nFloatCount;
-
-    DWORD m_hotkeyThrow;
-    DWORD m_hotkeyBite1;
-    DWORD m_hotkeyBite2;
-    DWORD m_hotkeyBite3;
-
-    int m_bShowConsole;
+    FisherConfig m_config;
 
     struct WndInfo
     {

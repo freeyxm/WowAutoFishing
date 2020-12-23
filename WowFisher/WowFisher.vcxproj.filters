@@ -75,6 +75,9 @@
     <ClInclude Include="FisherStateJump.h">
       <Filter>StateMachine</Filter>
     </ClInclude>
+    <ClInclude Include="FisherConfig.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="WowFisher.cpp">
@@ -121,6 +124,9 @@
     </ClCompile>
     <ClCompile Include="FisherStateJump.cpp">
       <Filter>StateMachine</Filter>
+    </ClCompile>
+    <ClCompile Include="FisherConfig.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
