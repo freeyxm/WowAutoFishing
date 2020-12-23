@@ -2,6 +2,7 @@
 #pragma execution_character_set("utf-8")
 #include <Windows.h>
 #include <list>
+#include <vector>
 #include <atlimage.h>
 
 #define RGB(r,g,b) ((COLORREF)(((BYTE)(r)|((WORD)((BYTE)(g))<<8))|(((DWORD)(BYTE)(b))<<16)))
@@ -12,11 +13,44 @@
 class ImageUtil
 {
 public:
+    struct Point
+    {
+        int x;
+        int y;
+    };
+
+    struct Size
+    {
+        int w;
+        int h;
+    };
+
+    struct Rect
+    {
+        int x;
+        int y;
+        int w;
+        int h;
+    };
+
+    struct ImageData
+    {
+        char* lpBits;
+        int w;
+        int h;
+    };
+
+public:
     typedef bool (*MatchColorProc) (char r, char g, char b);
 
 public:
     ImageUtil();
     ~ImageUtil();
+
+    static std::vector<float> getFingerprint(const ImageData& image, Rect rect);
+    static void getFingerprint(const ImageData& image, Rect rect, std::vector<float>& result);
+
+    static float findImage(const ImageData& image, Size rect, const std::vector<float>& sample, Point& point);
 
     static bool GetWindowSnapshot(HWND hwnd, int x, int y, int w, int h, char *lpBits, BITMAPINFOHEADER *pbi = NULL);
     static bool CreateBMPFile(LPTSTR pszFile, PBITMAPINFO pbi, char *lpBits);

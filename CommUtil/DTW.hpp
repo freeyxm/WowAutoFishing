@@ -3,7 +3,7 @@
 
 
 template <typename Numeric>
-DTW<Numeric>::DTW(int m, int n)
+DTW<Numeric>::DTW(size_t m, size_t n)
     : M(m)
     , N(n)
 {

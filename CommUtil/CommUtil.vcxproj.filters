@@ -21,9 +21,6 @@
     <ClInclude Include="CommUtil.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ImageUtil.hpp">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="StringUtil.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -54,9 +51,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="CommUtil.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="ImageUtil.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="FTimer.cpp">

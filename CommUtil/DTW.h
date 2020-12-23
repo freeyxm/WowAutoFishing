@@ -4,7 +4,7 @@ template <typename Numeric>
 class DTW
 {
 public:
-	DTW(int m, int n);
+	DTW(size_t m, size_t n);
 	~DTW();
 
 	Numeric Calculate(const Numeric* data1, size_t len1, const Numeric* data2, size_t len2);
@@ -12,7 +12,7 @@ public:
 private:
 	Numeric** m_dist;
 	Numeric** m_cost;
-	int M;
-	int N;
+	size_t M;
+	size_t N;
 };
 

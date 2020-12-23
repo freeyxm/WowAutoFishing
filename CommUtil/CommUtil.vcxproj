@@ -138,7 +138,6 @@
     <ClInclude Include="endian.h" />
     <ClInclude Include="CommUtil.hpp" />
     <ClInclude Include="FTimer.h" />
-    <ClInclude Include="ImageUtil.hpp" />
     <ClInclude Include="Logger.h" />
     <ClInclude Include="StateBase.h" />
     <ClInclude Include="StateMachine.h" />
@@ -149,7 +148,6 @@
     <ClCompile Include="CommUtil.cpp" />
     <ClCompile Include="DTW.hpp" />
     <ClCompile Include="FTimer.cpp" />
-    <ClCompile Include="ImageUtil.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="StateBase.cpp" />
     <ClCompile Include="StateMachine.cpp" />
