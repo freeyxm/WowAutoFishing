@@ -13,7 +13,7 @@ namespace comm_util
 	va_end(ap);\
 }
 
-Logger::LogLevel Logger::m_logLevel = Logger::LogLevel::Error;
+Logger::LogLevel Logger::m_log_level = Logger::LogLevel::Error;
 
 Logger::Logger()
 {
@@ -25,17 +25,17 @@ Logger::~Logger()
 
 Logger::LogLevel Logger::GetLogLevel()
 {
-	return m_logLevel;
+	return m_log_level;
 }
 
 void Logger::SetLogLevel(LogLevel level)
 {
-	m_logLevel = level;
+	m_log_level = level;
 }
 
 void Logger::Log(LogLevel level, const char *format, ...)
 {
-	if (m_logLevel >= level)
+	if (m_log_level >= level)
 	{
 		VPRINTF_S(format);
 	}
@@ -43,7 +43,7 @@ void Logger::Log(LogLevel level, const char *format, ...)
 
 void Logger::LogDebug(const char *format, ...)
 {
-	if (m_logLevel >= LogLevel::Debug)
+	if (m_log_level >= LogLevel::Debug)
 	{
 		VPRINTF_S(format);
 	}
@@ -51,7 +51,7 @@ void Logger::LogDebug(const char *format, ...)
 
 void Logger::LogInfo(const char *format, ...)
 {
-	if (m_logLevel >= LogLevel::Info)
+	if (m_log_level >= LogLevel::Info)
 	{
 		VPRINTF_S(format);
 	}
@@ -59,7 +59,7 @@ void Logger::LogInfo(const char *format, ...)
 
 void Logger::LogError(const char *format, ...)
 {
-	if (m_logLevel >= LogLevel::Error)
+	if (m_log_level >= LogLevel::Error)
 	{
 		VPRINTF_S(format);
 	}

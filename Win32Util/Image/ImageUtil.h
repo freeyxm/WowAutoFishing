@@ -47,10 +47,10 @@ public:
     ImageUtil();
     ~ImageUtil();
 
-    static std::vector<float> getFingerprint(const ImageData& image, Rect rect);
-    static void getFingerprint(const ImageData& image, Rect rect, std::vector<float>& result);
+    static std::vector<float> GetFingerprint(const ImageData& image, Rect rect);
+    static void GetFingerprint(const ImageData& image, Rect rect, std::vector<float>& result);
 
-    static float findImage(const ImageData& image, Size rect, const std::vector<float>& sample, Point& point);
+    static float FindImage(const ImageData& image, Size rect, const std::vector<float>& sample, Point& point);
 
     static bool GetWindowSnapshot(HWND hwnd, int x, int y, int w, int h, char *lpBits, BITMAPINFOHEADER *pbi = NULL);
     static bool CreateBMPFile(LPTSTR pszFile, PBITMAPINFO pbi, char *lpBits);

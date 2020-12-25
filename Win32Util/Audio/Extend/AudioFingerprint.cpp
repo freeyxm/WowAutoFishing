@@ -65,7 +65,7 @@ void AudioFingerprint::ProcessDiff(vector<float> &data)
 
 void AudioFingerprint::ProcessCutAvg(vector<float> &data)
 {
-    float avg = VectorUtil::getAvg(&data[0], data.size());
+    float avg = VectorUtil::GetAvg(&data[0], data.size());
     for (size_t i = 0, count = data.size(); i < count; ++i)
     {
         data[i] -= avg;
@@ -74,7 +74,7 @@ void AudioFingerprint::ProcessCutAvg(vector<float> &data)
 
 void AudioFingerprint::ProcessRatioAvg(vector<float> &data)
 {
-    float avg = VectorUtil::getAvg(&data[0], data.size());
+    float avg = VectorUtil::GetAvg(&data[0], data.size());
     for (size_t i = 0, count = data.size(); i < count; ++i)
     {
         data[i] /= avg;

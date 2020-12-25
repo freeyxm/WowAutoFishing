@@ -17,7 +17,7 @@ float StringUtil::atof(const char *str)
 	return (float)::atof(str);
 }
 
-std::list<std::string> StringUtil::split(const char *str, const char *delimiter)
+std::list<std::string> StringUtil::Split(const char *str, const char *delimiter)
 {
 	std::list<string> strs;
 	size_t size = strlen(str);

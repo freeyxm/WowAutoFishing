@@ -27,7 +27,7 @@ public:
 	static void LogError(const char *format, ...);
 
 private:
-	static LogLevel m_logLevel;
+	static LogLevel m_log_level;
 };
 
 } // end namespace comm_util

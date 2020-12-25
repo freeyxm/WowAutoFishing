@@ -115,7 +115,7 @@ void FishingSoundListener::Save()
 
 void FishingSoundListener::AddSample(const char* str, int hit)
 {
-    auto data = StringUtil::parseValues<float>(str, ",", StringUtil::atof);
+    auto data = StringUtil::ParseValues<float>(str, ",", StringUtil::atof);
     if (!data.empty())
     {
         auto it = m_samples.begin();
@@ -144,7 +144,7 @@ bool FishingSoundListener::IsSampleMatch(const std::vector<float>& data)
     auto it = m_samples.begin();
     while (it != m_samples.end())
     {
-        float cosa = VectorUtil::getCosA_First(&it->sample[0], it->sample.size(), &data[0], data.size());
+        float cosa = VectorUtil::GetCosA_First(&it->sample[0], it->sample.size(), &data[0], data.size());
         float dtw = m_dtw.Calculate(&it->sample[0], it->sample.size(), &data[0], data.size());
         printf("cosa = %f, dtw = %f\n", cosa, dtw);
         if (dtw < 5) // if (cosa >= 0.88f)

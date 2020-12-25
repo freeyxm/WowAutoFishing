@@ -15,19 +15,19 @@ class VectorUtil
 {
 public:
 	template <typename Numeric>
-	static Numeric getCosA(const Numeric *v1, const Numeric *v2, const size_t length);
+	static Numeric GetCosA(const Numeric *v1, const Numeric *v2, const size_t length);
 	template <typename Numeric>
-	static Numeric getCosA_Short(const Numeric *v1, size_t len1, const Numeric *v2, size_t len2);
+	static Numeric GetCosA_Short(const Numeric *v1, size_t len1, const Numeric *v2, size_t len2);
 	template <typename Numeric>
-	static Numeric getCosA_Long(const Numeric *v1, size_t len1, const Numeric *v2, size_t len2);
+	static Numeric GetCosA_Long(const Numeric *v1, size_t len1, const Numeric *v2, size_t len2);
 	template <typename Numeric>
-	static Numeric getCosA_First(const Numeric *v1, size_t len1, const Numeric *v2, size_t len2);
+	static Numeric GetCosA_First(const Numeric *v1, size_t len1, const Numeric *v2, size_t len2);
 
 	template <typename Numeric>
-	static Numeric getLengthSqr(const Numeric *vec, const size_t length);
+	static Numeric GetLengthSqr(const Numeric *vec, const size_t length);
 
 	template <typename Numeric>
-	static Numeric getAvg(const Numeric *vec, const size_t length);
+	static Numeric GetAvg(const Numeric *vec, const size_t length);
 
 	template <typename Numeric>
 	static void Add(Numeric *v1, const size_t length, Numeric num);
@@ -42,7 +42,7 @@ public:
 Calculate vectorial angle cosine.
 */
 template <typename Numeric>
-Numeric VectorUtil::getCosA(const Numeric *v1, const Numeric *v2, const size_t length)
+Numeric VectorUtil::GetCosA(const Numeric *v1, const Numeric *v2, const size_t length)
 {
 	Numeric dot = 0, sum1 = 0, sum2 = 0;
 	for (size_t i = 0; i < length; ++i)
@@ -59,11 +59,11 @@ Calculate vectorial angle cosine. (optimal)
 Length by the shorter one.
 */
 template <typename Numeric>
-Numeric VectorUtil::getCosA_Short(const Numeric *v1, size_t len1, const Numeric *v2, size_t len2)
+Numeric VectorUtil::GetCosA_Short(const Numeric *v1, size_t len1, const Numeric *v2, size_t len2)
 {
 	if (len1 == len2)
 	{
-		return getCosA(v1, v2, len1);
+		return GetCosA(v1, v2, len1);
 	}
 
 	const Numeric *p1, *p2;
@@ -83,7 +83,7 @@ Numeric VectorUtil::getCosA_Short(const Numeric *v1, size_t len1, const Numeric 
 	size_t count = len1 - len2;
 	for (size_t i = 0; i <= count; ++i)
 	{
-		Numeric value = getCosA(p1 + i, p2, len2);
+		Numeric value = GetCosA(p1 + i, p2, len2);
 		if (max_value < value) // cos is in [-1, 1].
 		{
 			max_value = value;
@@ -98,11 +98,11 @@ Calculate vectorial angle cosine. (optimal)
 Length by the longer one, and padding the shorter with longer's spare part.
 */
 template <typename Numeric>
-Numeric VectorUtil::getCosA_Long(const Numeric *v1, size_t len1, const Numeric *v2, size_t len2)
+Numeric VectorUtil::GetCosA_Long(const Numeric *v1, size_t len1, const Numeric *v2, size_t len2)
 {
 	if (len1 == len2)
 	{
-		return getCosA(v1, v2, len1);
+		return GetCosA(v1, v2, len1);
 	}
 
 	const Numeric *p1, *p2;
@@ -163,18 +163,18 @@ Calculate vectorial angle cosine. (optimal)
 Length by the first one.
 */
 template <typename Numeric>
-Numeric VectorUtil::getCosA_First(const Numeric *v1, size_t len1, const Numeric *v2, size_t len2)
+Numeric VectorUtil::GetCosA_First(const Numeric *v1, size_t len1, const Numeric *v2, size_t len2)
 {
 	if (len1 == len2)
-		return getCosA(v1, v2, len1);
+		return GetCosA(v1, v2, len1);
 	else if (len1 < len2)
-		return getCosA_Short(v2, len2, v1, len1);
+		return GetCosA_Short(v2, len2, v1, len1);
 	else
-		return getCosA_Long(v1, len1, v2, len2);
+		return GetCosA_Long(v1, len1, v2, len2);
 }
 
 template <typename Numeric>
-Numeric VectorUtil::getLengthSqr(const Numeric *vec, const size_t length)
+Numeric VectorUtil::GetLengthSqr(const Numeric *vec, const size_t length)
 {
 	double sum = 0;
 	for (size_t i = 0; i < length; ++i)
@@ -185,7 +185,7 @@ Numeric VectorUtil::getLengthSqr(const Numeric *vec, const size_t length)
 }
 
 template <typename Numeric>
-Numeric VectorUtil::getAvg(const Numeric *vec, const size_t length)
+Numeric VectorUtil::GetAvg(const Numeric *vec, const size_t length)
 {
 	Numeric avg = 0;
 	for (size_t i = 0; i < length; ++i)

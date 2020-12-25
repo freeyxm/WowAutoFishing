@@ -16,10 +16,10 @@ public:
 	static const float FLOAT_EPSILON;
 	static const double DOUBLE_EPSILON;
 
-	static bool isEqual(float a, float b);
-	static bool isEqual(double a, double b);
-	static bool isEqualZero(float a);
-	static bool isEqualZero(double a);
+	static bool IsEqual(float a, float b);
+	static bool IsEqual(double a, double b);
+	static bool IsEqualZero(float a);
+	static bool IsEqualZero(double a);
 };
 
 template<typename T>

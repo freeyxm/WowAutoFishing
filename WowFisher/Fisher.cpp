@@ -172,11 +172,11 @@ void Fisher::StartFishing()
     comm_util::FTimer timer;
     timer.Start();
 
-    int64_t last_time = timer.Milliseconds();
+    int64_t last_time = timer.MilliSeconds();
 
     while (m_bFishing)
     {
-        int64_t cur_time = timer.Milliseconds();
+        int64_t cur_time = timer.MilliSeconds();
         int dt = (int)(cur_time - last_time);
 
         m_state_machine->Update(dt);

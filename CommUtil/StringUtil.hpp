@@ -19,14 +19,14 @@ public:
 
 	static float atof(const char *str);
 
-	static std::list<std::string> split(const char *str, const char *delimiter);
+	static std::list<std::string> Split(const char *str, const char *delimiter);
 
 	template<typename T>
-	static std::vector<T> parseValues(const char *str, const char *delimiter, T(*convert)(const char*));
+	static std::vector<T> ParseValues(const char *str, const char *delimiter, T(*convert)(const char*));
 };
 
 template<typename T>
-static std::vector<T> StringUtil::parseValues(const char *str, const char *delimiter, T(*convert)(const char*))
+static std::vector<T> StringUtil::ParseValues(const char *str, const char *delimiter, T(*convert)(const char*))
 {
 	std::vector<T> data;
 	size_t size = strlen(str);

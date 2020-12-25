@@ -19,11 +19,11 @@ ImageUtil::~ImageUtil()
 /*
 计算图像指纹。图像数据格式为ARGB。
 */
-vector<float> ImageUtil::getFingerprint(const ImageData& image, Rect rect)
+vector<float> ImageUtil::GetFingerprint(const ImageData& image, Rect rect)
 {
     vector<float> result(64);
 
-    getFingerprint(image, rect, result);
+    GetFingerprint(image, rect, result);
 
     return result;
 }
@@ -31,7 +31,7 @@ vector<float> ImageUtil::getFingerprint(const ImageData& image, Rect rect)
 /*
 计算图像指纹。图像数据格式为ARGB。
 */
-void ImageUtil::getFingerprint(const ImageData& image, Rect rect, vector<float>& result)
+void ImageUtil::GetFingerprint(const ImageData& image, Rect rect, vector<float>& result)
 {
     result.resize(64);
     memset(&result[0], 0, result.size() * sizeof(result[0]));
@@ -55,7 +55,7 @@ void ImageUtil::getFingerprint(const ImageData& image, Rect rect, vector<float>&
 /*
 从图像中寻找小图。
 */
-float ImageUtil::findImage(const ImageData& image, Size size, const vector<float>& sample, Point& point)
+float ImageUtil::FindImage(const ImageData& image, Size size, const vector<float>& sample, Point& point)
 {
     Rect rect = { 0, 0, size.w, size.h };
     vector<float> finger;
@@ -71,8 +71,8 @@ float ImageUtil::findImage(const ImageData& image, Size size, const vector<float
             {
                 rect.x = i;
                 rect.y = j;
-                getFingerprint(image, rect, finger);
-                value = VectorUtil::getCosA(&sample[0], &finger[0], sample.size());
+                GetFingerprint(image, rect, finger);
+                value = VectorUtil::GetCosA(&sample[0], &finger[0], sample.size());
                 if (max_value < value)
                 {
                     point.x = i;
