@@ -21,6 +21,7 @@ FishingSoundListener::FishingSoundListener(Fisher* pFisher)
     , m_sampleCount(0)
     , m_dtw(256, 256)
 {
+    m_pAudioFingerprint = new AudioFingerprint();
 }
 
 FishingSoundListener::~FishingSoundListener()
@@ -29,6 +30,8 @@ FishingSoundListener::~FishingSoundListener()
     {
         m_sampleFile.close();
     }
+
+    SAFE_DELETE(m_pAudioFingerprint);
 }
 
 int FishingSoundListener::Init()
@@ -74,7 +77,7 @@ void FishingSoundListener::EndSegment()
         return;
     }
 
-    auto sample = AudioFingerprint::getFingerprint_cutAvg(m_pCurSegment, m_pwfx);
+    auto sample = m_pAudioFingerprint->GetFingerprint(m_pCurSegment, m_pwfx, AudioFingerprint::ProcessCutAvg);
     m_pCurSegment->Reset();
 
     bool isMatch = IsSampleMatch(sample);
@@ -224,5 +227,5 @@ void FishingSoundListener::SortSamples()
 {
     m_samples.sort([](SampleInfo a, SampleInfo b) {
         return a.hit > b.hit;
-        });
+    });
 }

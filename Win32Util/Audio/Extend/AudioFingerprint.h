@@ -8,17 +8,19 @@ using std::vector;
 class AudioFingerprint
 {
 public:
-	AudioFingerprint();
-	~AudioFingerprint();
+    typedef void(*ProcessFunc)(vector<float> &data);
 
-	static vector<float> getFingerprint(const AudioFrameStorage *source, const WAVEFORMATEX *pwfx);
-	static vector<float> getFingerprint_diff(const AudioFrameStorage *source, const WAVEFORMATEX *pwfx);
-	static vector<float> getFingerprint_cutAvg(const AudioFrameStorage *source, const WAVEFORMATEX *pwfx);
-	static vector<float> getFingerprint_ratioAvg(const AudioFrameStorage *source, const WAVEFORMATEX *pwfx);
+public:
+    AudioFingerprint();
+    ~AudioFingerprint();
+
+    const vector<float>& GetFingerprint(const AudioFrameStorage *source, const WAVEFORMATEX *pwfx, ProcessFunc processFunc = nullptr);
+
+    static void ProcessDiff(vector<float> &data);
+    static void ProcessCutAvg(vector<float> &data);
+    static void ProcessRatioAvg(vector<float> &data);
 
 private:
-	static void processDiff(vector<float> &data);
-	static void processCutAvg(vector<float> &data);
-	static void processRatioAvg(vector<float> &data);
+    vector<float> m_finger;
 };
 

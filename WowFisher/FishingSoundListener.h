@@ -6,6 +6,7 @@
 #include <fstream>
 
 class Fisher;
+class AudioFingerprint;
 
 class FishingSoundListener :
     public AudioExtractor
@@ -43,6 +44,7 @@ protected:
 private:
     const WAVEFORMATEX* m_pwfx;
     Fisher* m_pFisher;
+    AudioFingerprint* m_pAudioFingerprint;
     std::ofstream m_sampleFile;
 
     DTW<float> m_dtw;
