@@ -42,7 +42,7 @@ void FisherConfig::WritePrivateProfileInt(LPCWSTR key, int value)
 
 bool FisherConfig::LoadConfig()
 {
-    m_nAmpMax = GetPrivateProfileInt(L"AmpMax", 10);
+    m_nAmpMax = GetPrivateProfileInt(L"AmpMax", 1000);
     m_nAmpH = GetPrivateProfileInt(L"AmpH", 200);
     m_nAmpL = GetPrivateProfileInt(L"AmpL", 5);
 

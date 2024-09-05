@@ -47,7 +47,7 @@ protected:
 
     void FindWindows();
 
-    void UpdateAmpMax(int max);
+    void UpdateAmpMax();
     void UpdateAmpText(CStatic *pStatic, int value, int max);
 
     LRESULT OnUpdateStatistics(WPARAM wParam, LPARAM lParam);

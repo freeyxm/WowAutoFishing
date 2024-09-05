@@ -233,7 +233,7 @@ void CWowFisherDlg::SaveConfig()
 
 void CWowFisherDlg::ApplyConfig()
 {
-    UpdateAmpMax(m_config.m_nAmpMax);
+    UpdateAmpMax();
 
     m_pHotKeyFishing->SetHotKey(m_config.m_hotkeyThrow & 0xff, (m_config.m_hotkeyThrow >> 8) & 0xff);
     m_pHotKeyBite1->SetHotKey(m_config.m_hotkeyBite1 & 0xff, (m_config.m_hotkeyBite1 >> 8) & 0xff);
@@ -377,14 +377,12 @@ void CWowFisherDlg::FindWindows()
     OnCbnSelchangeCombo1();
 }
 
-void CWowFisherDlg::UpdateAmpMax(int max)
+void CWowFisherDlg::UpdateAmpMax()
 {
-    m_pSliderAmpL->SetRange(0, max * 100);
-    m_pSliderAmpH->SetRange(0, max * 100);
-    m_pSliderAmpL->SetPos(m_config.m_nAmpL * max / m_config.m_nAmpMax);
-    m_pSliderAmpH->SetPos(m_config.m_nAmpH * max / m_config.m_nAmpMax);
-
-    m_config.m_nAmpMax = max;
+    m_pSliderAmpL->SetRange(0, m_config.m_nAmpMax);
+    m_pSliderAmpH->SetRange(0, m_config.m_nAmpMax);
+    m_pSliderAmpL->SetPos(m_config.m_nAmpL);
+    m_pSliderAmpH->SetPos(m_config.m_nAmpH);
 
     UpdateAmpText(m_pTxtAmpL, m_config.m_nAmpL, m_pSliderAmpL->GetRangeMax());
     UpdateAmpText(m_pTxtAmpH, m_config.m_nAmpH, m_pSliderAmpH->GetRangeMax());
@@ -393,7 +391,7 @@ void CWowFisherDlg::UpdateAmpMax(int max)
 void CWowFisherDlg::UpdateAmpText(CStatic* pStatic, int value, int max)
 {
     CString str;
-    str.Format(L"%.2lf/%.2lf", (double)value * m_config.m_nAmpMax / max, (double)m_config.m_nAmpMax);
+    str.Format(L"%.2lf/%.2lf", value * 0.01 * m_config.m_nAmpMax / max, (double)m_config.m_nAmpMax * 0.01);
     pStatic->SetWindowTextW(str);
 }
 
