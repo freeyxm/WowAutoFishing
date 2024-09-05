@@ -189,8 +189,8 @@ void Fisher::StartFishing()
 
         if (m_startTime != 0 && m_fishingTime != 0)
         {
-            time_t curTime = time(NULL);
-            if (m_startTime + m_fishingTime * 60 < curTime)
+            time_t now = time(NULL);
+            if (m_startTime + m_fishingTime * 60 < now)
             {
                 Stop();
                 return;
@@ -340,7 +340,6 @@ bool Fisher::NeedJump() const
 {
     //time_t now = time(NULL);
     //bool jump = (now >= m_jumpTime + 5 * 60);
-    //bool jump = m_jumpTime == 0;
     return false;
 }
 
