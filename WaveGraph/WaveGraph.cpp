@@ -75,6 +75,7 @@ VOID SubScale();
 VOID ClickRecorder();
 VOID ClickExtractor();
 
+static bool InitGlobal();
 static void Paint(HWND hWnd, HDC hdc);
 static void PaintExtractor();
 static void PaintRecorder();
@@ -97,6 +98,22 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	LoadString(hInstance, IDC_WAVEGRAPH, szWindowClass, MAX_LOADSTRING);
 	MyRegisterClass(hInstance);
 
+    if (::AllocConsole())
+    {
+        FILE* out;
+        FILE* in;
+        ::freopen_s(&out, "CONOUT$", "w", stdout);
+        ::freopen_s(&in, "CONIN$", "r", stdin);
+    }
+    _wsetlocale(LC_ALL, L"chs");
+    printf("Start ...\n");
+
+    if (!InitGlobal())
+    {
+        printf("Init failed!\n");
+        return FALSE;
+    }
+
 	// 执行应用程序初始化:
 	if (!InitInstance (hInstance, nCmdShow))
 	{
@@ -104,52 +121,6 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	}
 
 	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_WAVEGRAPH));
-
-    int hr = ::CoInitialize(NULL);
-    if (FAILED(hr))
-    {
-        return FALSE;
-    }
-
-	if (::AllocConsole())
-	{
-		FILE *out;
-		FILE *in;
-		::freopen_s(&out, "CONOUT$", "w", stdout);
-		::freopen_s(&in, "CONIN$", "r", stdin);
-	}
-	printf("Start ...\n");
-
-	g_soundTimer = ::SetTimer(g_hWndMain, TIMER_ID_SOUND, 20, NULL);
-
-	g_pAudioPainter = new AudioPainter();
-	if (!g_pAudioPainter)
-		return FALSE;
-	g_pAudioPainter->SetEnable(false);
-
-	g_pAudioRecorder = new AudioRecorder(true, false);
-	if (!g_pAudioRecorder || FAILED(g_pAudioRecorder->Init()))
-	{
-		printf("Init AudioRecorder failed!\n");
-		return FALSE;
-	}
-
-	g_pAudioRenderer = new AudioRenderer(false);
-	if (!g_pAudioRenderer || FAILED(g_pAudioRenderer->Init()))
-	{
-		printf("Init AudioRenderer failed!\n");
-		return FALSE;
-	}
-
-	g_pAudioExtractor = new AudioExtractor();
-	if(!g_pAudioExtractor || FAILED(g_pAudioExtractor->Init()))
-	{
-		printf("Init AudioExtractor failed!\n");
-		return FALSE;
-	}
-	g_pAudioExtractor->SetSegmentMaxCount(100);
-	g_pAudioExtractor->SetSoundMaxCount(1);
-	g_pAudioExtractor->SetAmpZcr(480, 0.1f, 0.2f, 0.3f, 0.5f);
 
 	// 主消息循环:
 	while (GetMessage(&msg, NULL, 0, 0))
@@ -167,6 +138,62 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	return (int) msg.wParam;
 }
 
+bool InitGlobal()
+{
+    int hr = ::CoInitialize(NULL);
+    if (hr != S_OK)
+    {
+        return FALSE;
+    }
+
+    if (g_soundTimer == NULL)
+    {
+        g_soundTimer = ::SetTimer(g_hWndMain, TIMER_ID_SOUND, 20, NULL);
+    }
+
+    if (g_pAudioPainter == NULL)
+    {
+        g_pAudioPainter = new AudioPainter();
+        if (!g_pAudioPainter)
+            return FALSE;
+        g_pAudioPainter->SetEnable(false);
+    }
+
+    if (g_pAudioRecorder == NULL)
+    {
+        g_pAudioRecorder = new AudioRecorder(true, false);
+        if (!g_pAudioRecorder || g_pAudioRecorder->Init() != S_OK)
+        {
+            printf("Init AudioRecorder failed!\n");
+            return FALSE;
+        }
+    }
+
+    if (g_pAudioRenderer == NULL)
+    {
+        g_pAudioRenderer = new AudioRenderer(false);
+        if (!g_pAudioRenderer || g_pAudioRenderer->Init() != S_OK)
+        {
+            printf("Init AudioRenderer failed!\n");
+            return FALSE;
+        }
+    }
+
+    if (g_pAudioExtractor == NULL)
+    {
+        g_pAudioExtractor = new AudioExtractor();
+        if (!g_pAudioExtractor || g_pAudioExtractor->Init() != S_OK)
+        {
+            printf("Init AudioExtractor failed!\n");
+            return FALSE;
+        }
+        g_pAudioExtractor->SetSegmentMaxCount(100);
+        g_pAudioExtractor->SetSoundMaxCount(1);
+        g_pAudioExtractor->SetAmpZcr(480, 0.1f, 0.2f, 0.3f, 0.5f);
+    }
+
+    return true;
+}
 
 
 //
