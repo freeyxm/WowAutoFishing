@@ -18,6 +18,8 @@ FisherConfig::FisherConfig(LPCWSTR path)
     , m_hotkeyBite1(0)
     , m_hotkeyBite2(0)
     , m_hotkeyBite3(0)
+    , m_nMaxDtw(10)
+    , m_nFishingTime(0)
 {
 }
 
@@ -35,7 +37,7 @@ void FisherConfig::WritePrivateProfileInt(LPCWSTR key, int value)
 {
     WCHAR buf[20];
     wsprintf(buf, L"%d", value);
-    ::WritePrivateProfileString(L"", key, buf, m_filePath.c_str());
+    ::WritePrivateProfileString(L"Fisher", key, buf, m_filePath.c_str());
 }
 
 bool FisherConfig::LoadConfig()
@@ -57,6 +59,9 @@ bool FisherConfig::LoadConfig()
     m_nThrowCount = GetPrivateProfileInt(L"ThrowCount", 0);
     m_nTimeoutCount = GetPrivateProfileInt(L"TimeoutCount", 0);
     m_nFloatCount = GetPrivateProfileInt(L"FloatCount", 0);
+
+    m_nMaxDtw = GetPrivateProfileInt(L"MaxDtw", 0);
+    m_nFishingTime = GetPrivateProfileInt(L"FishingTime", 0);
 
     return true;
 }
@@ -80,4 +85,7 @@ void FisherConfig::SaveConfig()
     WritePrivateProfileInt(L"ThrowCount", m_nThrowCount);
     WritePrivateProfileInt(L"TimeoutCount", m_nTimeoutCount);
     WritePrivateProfileInt(L"FloatCount", m_nFloatCount);
+
+    WritePrivateProfileInt(L"MaxDtw", m_nMaxDtw);
+    WritePrivateProfileInt(L"FishingTime", m_nFishingTime);
 }

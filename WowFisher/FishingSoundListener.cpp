@@ -20,6 +20,7 @@ FishingSoundListener::FishingSoundListener(Fisher* pFisher)
     , m_pFisher(pFisher)
     , m_sampleCount(0)
     , m_dtw(256, 256)
+    , m_maxDtw(10)
 {
     m_pAudioFingerprint = new AudioFingerprint();
 }
@@ -108,6 +109,11 @@ void FishingSoundListener::SetAmpH(float ampH)
     m_sAmpZcr.ampH = ampH;
 }
 
+void FishingSoundListener::SetMaxDtw(float value)
+{
+    m_maxDtw = value;
+}
+
 void FishingSoundListener::Save()
 {
     SaveSamples();
@@ -147,7 +153,7 @@ bool FishingSoundListener::IsSampleMatch(const std::vector<float>& data)
         float cosa = VectorUtil::GetCosA_First(&it->sample[0], it->sample.size(), &data[0], data.size());
         float dtw = m_dtw.Calculate(&it->sample[0], it->sample.size(), &data[0], data.size());
         printf("cosa = %f, dtw = %f\n", cosa, dtw);
-        if (dtw < 5) // if (cosa >= 0.88f)
+        if (dtw < m_maxDtw) // if (cosa >= 0.88f)
         {
             it->hit++;
             printf("matched!\n");

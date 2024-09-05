@@ -42,6 +42,9 @@ public:
     void SetSilentMax(int count);
     void SetSoundMin(int count);
 
+    void SetMaxDtw(int value);
+    void SetFishingTime(int value);
+
     void SetHotkeyThrow(DWORD hotkey);
     void SetHotkeyBite1(DWORD hotkey);
     void SetHotkeyBite2(DWORD hotkey);
@@ -50,6 +53,7 @@ public:
     int GetThrowCount();
     int GetFindFloatFailCount();
     int GetTimeoutCount();
+
     void SetThrowCount(int count);
     void SetFindFloatFailCount(int count);
     void SetTimeoutCount(int count);
@@ -80,6 +84,7 @@ private:
     HWND m_hWndWOW; // 魔兽世界窗口句柄
     HWND m_hWndMain;
 
+    time_t m_startTime;
     time_t m_jumpTime; // 跳跃时间
     time_t m_baitTime; // 上饵时间
     bool m_bHasBite; // 是否已咬钩
@@ -93,6 +98,8 @@ private:
     int m_throwCount;
     int m_findFloatFailCount;
     int m_timeoutCount;
+
+    int m_fishingTime;
 
     std::list<POINT> m_points;
 

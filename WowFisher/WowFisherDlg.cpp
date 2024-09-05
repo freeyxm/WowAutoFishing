@@ -72,6 +72,8 @@ CWowFisherDlg::CWowFisherDlg(CWnd* pParent /*=NULL*/)
     , m_pHotKeyBite3(NULL)
     , m_pEditSilentMax(NULL)
     , m_pEditSoundMin(NULL)
+    , m_pEditMaxDtw(NULL)
+    , m_pEditFishingTime(NULL)
     , m_pCbConsole(NULL)
     , m_bStart(false)
     , m_pFisher(NULL)
@@ -214,8 +216,15 @@ void CWowFisherDlg::SaveConfig()
     CString str;
     m_pEditSilentMax->GetWindowTextW(str);
     m_config.m_nSilentMaxCount = _ttoi(str);
+
     m_pEditSoundMin->GetWindowTextW(str);
     m_config.m_nSoundMinCount = _ttoi(str);
+
+    m_pEditMaxDtw->GetWindowTextW(str);
+    m_config.m_nMaxDtw = _ttoi(str);
+
+    m_pEditFishingTime->GetWindowTextW(str);
+    m_config.m_nFishingTime = _ttoi(str);
 
     m_config.m_bShowConsole = m_pCbConsole->GetCheck();
 
@@ -234,8 +243,15 @@ void CWowFisherDlg::ApplyConfig()
     CString str;
     str.Format(L"%d", m_config.m_nSilentMaxCount);
     m_pEditSilentMax->SetWindowTextW(str);
+
     str.Format(L"%d", m_config.m_nSoundMinCount);
     m_pEditSoundMin->SetWindowTextW(str);
+
+    str.Format(L"%d", m_config.m_nMaxDtw);
+    m_pEditMaxDtw->SetWindowTextW(str);
+
+    str.Format(L"%d", m_config.m_nFishingTime);
+    m_pEditFishingTime->SetWindowTextW(str);
 
     m_pCbConsole->SetCheck(m_config.m_bShowConsole);
 
@@ -252,6 +268,8 @@ void CWowFisherDlg::ApplyConfig()
         m_pFisher->SetThrowCount(m_config.m_nThrowCount);
         m_pFisher->SetTimeoutCount(m_config.m_nTimeoutCount);
         m_pFisher->SetFindFloatFailCount(m_config.m_nFloatCount);
+        m_pFisher->SetMaxDtw(m_config.m_nMaxDtw);
+        m_pFisher->SetFishingTime(m_config.m_nFishingTime);
     }
 }
 
@@ -274,6 +292,8 @@ bool CWowFisherDlg::InitComponents()
     m_pHotKeyBite3 = (CHotKeyCtrl*)GetDlgItem(IDC_HOTKEY_BAIT_3);
     m_pEditSilentMax = (CEdit*)GetDlgItem(IDC_EDIT_SILENT_MIN);
     m_pEditSoundMin = (CEdit*)GetDlgItem(IDC_EDIT_SOUND_MAX);
+    m_pEditMaxDtw = (CEdit*)GetDlgItem(IDC_EDIT_MAX_DTW);
+    m_pEditFishingTime = (CEdit*)GetDlgItem(IDC_EDIT_FISHING_TIME);
     m_pCbConsole = (CButton*)GetDlgItem(IDC_CHECK_CONSOLE);
 
     m_pBtnStart->EnableWindow(FALSE);

@@ -28,6 +28,7 @@ public:
 
     void SetAmpL(float ampL);
     void SetAmpH(float ampH);
+    void SetMaxDtw(float value);
 
     void Save();
 
@@ -48,6 +49,8 @@ private:
     std::ofstream m_sampleFile;
 
     DTW<float> m_dtw;
+    float m_maxDtw;
+
     std::list<SampleInfo> m_samples;
     int m_sampleCount;
 };

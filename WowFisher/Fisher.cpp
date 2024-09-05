@@ -27,9 +27,11 @@ Fisher::Fisher(HWND hwnd, int x, int y, int w, int h)
     , m_hotkeyBite1(0)
     , m_hotkeyBite2(0)
     , m_hotkeyBite3(0)
+    , m_fishingTime(0)
     , m_hThreadFishing(NULL)
 {
     m_throwCount = m_timeoutCount = m_findFloatFailCount = 0;
+    m_startTime = 0;
     m_jumpTime = 0;
     m_baitTime = 0;
     m_state_machine = new FisherStateMachine(this);
@@ -128,6 +130,7 @@ bool Fisher::Start()
     }
 
     m_bFishing = true;
+    m_startTime = time(NULL);
     return true;
 }
 
@@ -142,7 +145,7 @@ void Fisher::Stop()
     }
 
     m_sound->Stop();
-	m_sound->Save();
+    m_sound->Save();
 }
 
 static UINT __stdcall FishingTheadProc(LPVOID param)
@@ -183,6 +186,16 @@ void Fisher::StartFishing()
 
         last_time = cur_time;
         ::Sleep((DWORD)10);
+
+        if (m_startTime != 0 && m_fishingTime != 0)
+        {
+            time_t curTime = time(NULL);
+            if (m_startTime + m_fishingTime * 60 < curTime)
+            {
+                Stop();
+                return;
+            }
+        }
     }
 
     timer.Stop();
@@ -325,9 +338,10 @@ void Fisher::Jump()
 
 bool Fisher::NeedJump() const
 {
-    time_t now = time(NULL);
-    bool jump = (now >= m_jumpTime + 10 * 60);
-    return jump;
+    //time_t now = time(NULL);
+    //bool jump = (now >= m_jumpTime + 5 * 60);
+    //bool jump = m_jumpTime == 0;
+    return false;
 }
 
 void Fisher::TurnEnd()
@@ -366,6 +380,16 @@ void Fisher::SetSilentMax(int count)
 void Fisher::SetSoundMin(int count)
 {
     m_sound->SetSoundMinCount(count);
+}
+
+void Fisher::SetMaxDtw(int value)
+{
+    m_sound->SetMaxDtw((float)value);
+}
+
+void Fisher::SetFishingTime(int value)
+{
+    m_fishingTime = value;
 }
 
 void Fisher::SetHotkeyThrow(DWORD hotkey)

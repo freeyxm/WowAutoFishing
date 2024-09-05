@@ -74,6 +74,8 @@ protected:
     CHotKeyCtrl* m_pHotKeyBite3;
     CEdit* m_pEditSilentMax;
     CEdit* m_pEditSoundMin;
+    CEdit* m_pEditMaxDtw;
+    CEdit* m_pEditFishingTime;
     CButton* m_pCbConsole;
 
     bool m_bStart;

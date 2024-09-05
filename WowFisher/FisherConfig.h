@@ -32,6 +32,9 @@ public:
     DWORD m_hotkeyBite2;
     DWORD m_hotkeyBite3;
 
+    int m_nMaxDtw;
+    int m_nFishingTime;
+
 private:
     std::wstring m_filePath;
 };
